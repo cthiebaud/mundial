@@ -106,6 +106,61 @@ const QUALIFIED_BY_NAME = Object.fromEntries(
   Object.entries(QUALIFIED_NAMES).map(([id, name]) => [name, +id])
 );
 
+// ── i18n ──────────────────────────────────────────────────────────────────────
+const LOCALE = navigator.languages?.[0] ?? navigator.language ?? 'fr';
+const LANG   = LOCALE.toLowerCase().startsWith('fr') ? 'fr' : 'en';
+
+const _regionNames = (() => {
+  try { return new Intl.DisplayNames([LOCALE], { type: 'region' }); } catch(e) { return null; }
+})();
+
+// Entries Intl.DisplayNames cannot handle (subdivision codes, historical states, edge cases)
+const _OVERRIDE = {
+  8260: { fr:'Angleterre',              en:'England' },
+  8261: { fr:'Écosse',                  en:'Scotland' },
+  8262: { fr:'Pays de Galles',          en:'Wales' },
+  8263: { fr:'Irlande du Nord',         en:'Northern Ireland' },
+  'Soviet Union':               { fr:'Union soviétique',          en:'Soviet Union' },
+  'Kingdom of the Netherlands': { fr:'Pays-Bas',                  en:'Netherlands' },
+};
+
+// For id=null entries that do have a standard alpha-2 code
+const _NULL_CODE = { 'Democratic Republic of the Congo':'cd', 'U.S.':'us', 'Isle of Man':'im' };
+
+const countryName = (id, fallback = '') => {
+  const key = id ?? fallback;
+  if (_OVERRIDE[key]) return _OVERRIDE[key][LANG];
+  const code = (id != null ? ISO2[id] : null) ?? _NULL_CODE[fallback] ?? null;
+  if (code && _regionNames) {
+    try { const n = _regionNames.of(code.toUpperCase()); if (n) return n; } catch(e) {}
+  }
+  return fallback || String(id);
+};
+
+// UI label strings
+const T = {
+  fr: {
+    noExport:   'aucun joueur exporté',
+    perMillion: "/ million d'hab.",
+    selections: 'Sélections',
+    bornIn:     'Joueurs nés en',
+    pop:        'pop.',
+    caps:       'sél.',
+    players:    n => `joueur${n > 1 ? 's' : ''}`,
+    exported:   n => `joueur${n > 1 ? 's' : ''} exporté${n > 1 ? 's' : ''}`,
+  },
+  en: {
+    noExport:   'no players exported',
+    perMillion: '/ million inhab.',
+    selections: 'Selections',
+    bornIn:     'Players born in',
+    pop:        'pop.',
+    caps:       'caps',
+    players:    n => `player${n > 1 ? 's' : ''}`,
+    exported:   n => `player${n > 1 ? 's' : ''} exported`,
+  },
+}[LANG];
+
 const ISO2 = {
   12:'dz', 32:'ar', 36:'au', 40:'at', 56:'be', 70:'ba', 76:'br',
   124:'ca', 132:'cv', 170:'co', 191:'hr', 203:'cz', 180:'cd',
@@ -151,8 +206,8 @@ const showQualifiedTip = (event, name, code) => {
   if (lastTipKey !== name) {
     lastTipKey = name;
     const fi = code ? `<img class="tt-flag" src="${FLAG_CDN(code)}">` : '';
-    const note = hasExports ? '' : '<div class="tt-no-export">aucun joueur exporté</div>';
-    tt.innerHTML = `<div class="tt-name">${fi}${name}</div>${note}`;
+    const note = hasExports ? '' : `<div class="tt-no-export">${T.noExport}</div>`;
+    tt.innerHTML = `<div class="tt-name">${fi}${countryName(QUALIFIED_BY_NAME[name], name)}</div>${note}`;
   }
   positionTip(event, hasExports ? 48 : 64);
 };
@@ -217,11 +272,12 @@ const applyDim = (sourceId, destIds, country) => {
     }
   }
   const fc = ISO2[sourceId];
-  const badgeW = Math.round(country.length * 5.8 + 46);
+  const countryDisplay = countryName(sourceId, country);
+  const badgeW = Math.round(countryDisplay.length * 5.8 + 46);
   const bx = 895 - badgeW;
   dimBadgeRect.attr('x', bx).attr('width', badgeW);
   dimBadgeFlag.attr('href', fc ? FLAG_CDN(fc) : '').attr('x', bx + 8);
-  dimBadgeText.attr('x', bx + 30).text(country);
+  dimBadgeText.attr('x', bx + 30).text(countryDisplay);
   // Raise source flag above arc group
   g.selectAll('.flag-qualified').filter(function() {
     return +this.getAttribute('data-id') === sourceId;
@@ -229,8 +285,9 @@ const applyDim = (sourceId, destIds, country) => {
 
   // Player table
   document.getElementById('pt-flag').src = fc ? FLAG_CDN_RECT(fc) : '';
+  const cnt = DATA_REF[sourceId]?.count ?? 0;
   document.getElementById('pt-title').textContent =
-    `${country} — ${DATA_REF[sourceId]?.count ?? ''} joueur${(DATA_REF[sourceId]?.count ?? 1) > 1 ? 's' : ''} exporté${(DATA_REF[sourceId]?.count ?? 1) > 1 ? 's' : ''}`;
+    `${countryName(sourceId, country)} — ${cnt} ${T.exported(cnt)}`;
   const nationsEl = document.getElementById('pt-nations');
   nationsEl.innerHTML = '';
   const players = DATA_REF[sourceId]?.players ?? [];
@@ -245,12 +302,12 @@ const applyDim = (sourceId, destIds, country) => {
     const nc = ISO2[QUALIFIED_BY_NAME[nation]];
     const header = document.createElement('div');
     header.className = 'pt-nation-header';
-    header.innerHTML = `${nc ? `<img src="${FLAG_CDN_RECT(nc)}">` : ''}<span class="pt-nation-name">${nation}</span><span class="pt-nation-count">${gp.length} joueur${gp.length > 1 ? 's' : ''}</span>`;
+    header.innerHTML = `${nc ? `<img src="${FLAG_CDN_RECT(nc)}">` : ''}<span class="pt-nation-name">${countryName(QUALIFIED_BY_NAME[nation], nation)}</span><span class="pt-nation-count">${gp.length} ${T.players(gp.length)}</span>`;
     nationsEl.appendChild(header);
     gp.forEach(p => {
       const row = document.createElement('div');
       row.className = 'pt-player-row';
-      row.innerHTML = `<span>${p.name}</span><span class="pt-caps">${p.caps} sél.</span>`;
+      row.innerHTML = `<span>${p.name}</span><span class="pt-caps">${p.caps} ${T.caps}</span>`;
       nationsEl.appendChild(row);
     });
   });
@@ -307,13 +364,13 @@ Promise.all([
       const popStr = rec.pop ? (rec.pop >= 10 ? Math.round(rec.pop) + 'M' : rec.pop.toFixed(1) + 'M') : '?';
       const fc = ISO2[rec.id];
       const fi = fc ? `<img class="tt-flag" src="${FLAG_CDN(fc)}">` : '';
-      let html = `<div class="tt-name">${fi}${rec.country}</div>`;
+      let html = `<div class="tt-name">${fi}${countryName(rec.id, rec.country)}</div>`;
       html += `<div class="tt-count">${ratio}</div>`;
-      html += `<div class="tt-label">joueur${rec.count>1?'s':''} exporté${rec.count>1?'s':''} / million d'hab.</div>`;
-      html += `<div class="tt-sub">${rec.count} joueur${rec.count>1?'s':''} · pop. ${popStr}</div>`;
-      html += `<div class="tt-nations">Sélections : ${rec.nations.map(([n,c]) => `${n} (${c})`).join(', ')}</div>`;
+      html += `<div class="tt-label">${T.exported(rec.count)} ${T.perMillion}</div>`;
+      html += `<div class="tt-sub">${rec.count} ${T.players(rec.count)} · ${T.pop} ${popStr}</div>`;
+      html += `<div class="tt-nations">${T.selections} : ${rec.nations.map(([n,c]) => `${countryName(QUALIFIED_BY_NAME[n], n)} (${c})`).join(', ')}</div>`;
       rec.top.forEach(p => {
-        html += `<div class="tt-player"><span>${p.name}</span><span class="tt-nation">→ ${p.nation}</span></div>`;
+        html += `<div class="tt-player"><span>${p.name}</span><span class="tt-nation">→ ${countryName(QUALIFIED_BY_NAME[p.nation], p.nation)}</span></div>`;
       });
       if (rec.count > rec.top.length) html += `<div class="tt-more">…</div>`;
       tt.innerHTML = html;
@@ -332,8 +389,8 @@ Promise.all([
       lastTipKey = key;
       const destFc = ISO2[destId];
       const destFi = destFc ? `<img class="tt-flag" src="${FLAG_CDN(destFc)}">` : '';
-      let html = `<div class="tt-name">${destFi}${destName}</div>`;
-      html += `<div class="tt-nations">Joueurs nés en ${srcRec.country} (${allPlayers.length})</div>`;
+      let html = `<div class="tt-name">${destFi}${countryName(destId, destName)}</div>`;
+      html += `<div class="tt-nations">${T.bornIn} ${countryName(dimSourceId, srcRec.country)} (${allPlayers.length})</div>`;
       players.forEach(p => {
         html += `<div class="tt-player"><span>${p.name}</span></div>`;
       });
