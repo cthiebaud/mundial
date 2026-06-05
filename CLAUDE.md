@@ -15,8 +15,9 @@ GitHub: **https://github.com/cthiebaud/mundial** (standalone repo, also a submod
 
 | File | Purpose |
 |---|---|
+| `index.html` | Entry point — redirects to the map, carries OG meta tags |
 | `wc2026_map_exported.html` | Main map page (Bootstrap 5, loads JS + JSON) |
-| `wc2026_map.js` | All D3 rendering, zoom, tooltips, dim/arc logic |
+| `wc2026_map.js` | All D3 rendering, zoom, tooltips, dim/arc logic, i18n |
 | `wc2026_map_data.json` | All data: player exports by birth country + population |
 | `uk-nations.geojson` | 4 UK home nations polygons (Natural Earth 50m) — England, Scotland, Wales, Northern Ireland rendered as separate choropleth features |
 | `wc2026_birthplaces.py` | Python scraper: Wikipedia → `wc2026_players.csv` |
@@ -25,7 +26,8 @@ GitHub: **https://github.com/cthiebaud/mundial** (standalone repo, also a submod
 | `wc2026_make_ratio_chart.py` | Produces `wc2026_export_ratio.png` from JSON data |
 | `wc2026_export_ratio.png` | Bar chart of export ratio (top countries) |
 | `wc2026_og.png` | 1200×630 Open Graph preview image for LinkedIn/social |
-| `wc2026_chain*.html/json` | Export chain infographics (longest path visualisations) |
+| `images/` | Screenshots used in external articles and social posts |
+| `chains/` | Export chain infographics — see section below |
 
 ---
 
@@ -35,7 +37,7 @@ The map uses `fetch()` so it requires a local HTTP server — **will not work fr
 
 ```bash
 python3 -m http.server 8000
-# then open http://localhost:8000/wc2026_map_exported.html
+# then open http://localhost:8000/
 ```
 
 ---
@@ -90,6 +92,9 @@ Cape Verde (id=132) and Curaçao (id=531) don't appear reliably in the 110m topo
 ### Zoom-stable flags and arcs
 All `.flag-qualified` images store `data-cx`/`data-cy` (SVG centroid coordinates) and `data-sw` (base stroke-width for arcs). The zoom handler reads these to keep flags and arcs visually consistent at any zoom level.
 
+### i18n
+UI language follows the browser locale (`navigator.languages[0]`). Supported: `fr`, `de`, `it`, `en` (fallback). Country names use `Intl.DisplayNames` keyed by ISO 3166-1 alpha-2 codes (from the `ISO2` map). A small `_OVERRIDE` map handles non-standard cases (UK home nations use subdivision codes `gb-eng` etc., Soviet Union has no ISO code). UI label strings live in the `T` object, indexed by `LANG`. Static page elements (`<title>`, `<h1>`, etc.) are patched from JS at load time.
+
 ### Dim / arc mode
 - Left-click an exporting country → dims all qualified nation flags except destinations; draws curved arcs with √count-scaled width; shows player table below map
 - Any second click → clears dim
@@ -134,12 +139,14 @@ After deploying, re-scrape LinkedIn preview:
 
 ---
 
-## Infographic chain files
+## Infographic chain files (`chains/`)
 
-`wc2026_chain_parameterized.html` renders any chain JSON via `?data=<file>`:
+`chains/wc2026_chain_parameterized.html` renders any chain JSON via `?data=<file>`:
 - `wc2026_chain_main.json` — UK → France → … → Croatia (7 hops, longest)
 - `wc2026_chain_italy.json` — Italy variant (Marcus Thuram first link)
 - `wc2026_chain_kaz.json` — Kazakhstan → … → Algeria (5 hops, different geography)
 - `wc2026_chain_loop.json` — demonstrates Bosnia ⇄ Croatia mutual cycle
+
+`chains/wc2026_chain.html`, `chains/wc2026_chain_italy.html`, `chains/wc2026_chain_kaz.html` are standalone versions of the above.
 
 Requires a local server (same `fetch()` constraint as the map).
