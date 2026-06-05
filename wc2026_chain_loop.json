@@ -1,0 +1,17 @@
+{
+  "title": "Mutual export cycle",
+  "subtitle": "Mondial 2026 · Bosnia ⇄ Croatia loop",
+  "source": "source: Wikipedia · squads Mondial 2026",
+  "nodes": [
+    { "country": "Mexico",         "code": "mx" },
+    { "country": "United States",  "code": "us" },
+    { "country": "Bosnia & Herz.", "code": "ba" },
+    { "country": "Croatia",        "code": "hr" }
+  ],
+  "links": [
+    { "player": "Alejandro Zendejas", "city": "Ciudad Juárez", "caps": 14 },
+    { "player": "E. Bajraktarević",   "city": "Appleton",      "caps": 15 },
+    { "player": "Ante Budimir",       "city": "Zenica",        "caps": 37 },
+    { "player": "Ivan Bašić",         "city": "Imotski",       "caps": 16, "loop_back": 2 }
+  ]
+}
