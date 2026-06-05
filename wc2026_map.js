@@ -298,8 +298,7 @@ Promise.all([
       const ratio = _r2 === '0.00' ? rec.ratio.toPrecision(2) : _r2;
       const popStr = rec.pop ? (rec.pop >= 10 ? Math.round(rec.pop) + 'M' : rec.pop.toFixed(1) + 'M') : '?';
       const fc = ISO2[rec.id];
-      const dimmed = fc && !QUALIFIED_NAMES[rec.id] ? ' style="opacity:0.35;filter:grayscale(50%)"' : '';
-      const fi = fc ? `<img class="tt-flag"${dimmed} src="${FLAG_CDN(fc)}">` : '';
+      const fi = fc ? `<img class="tt-flag" src="${FLAG_CDN(fc)}">` : '';
       let html = `<div class="tt-name">${fi}${rec.country}</div>`;
       html += `<div class="tt-count">${ratio}</div>`;
       html += `<div class="tt-label">joueur${rec.count>1?'s':''} exporté${rec.count>1?'s':''} / million d'hab.</div>`;
