@@ -1,4 +1,4 @@
-﻿nation,nation_code,pos,player,birth_date,birth_city,birth_country,caps,club
+nation,nation_code,pos,player,birth_date,birth_city,birth_country,caps,club
 Czech Republic,,1 GK,Matěj Kovář,"May 17, 2000",Uherské Hradiště,Czech Republic,19,PSV Eindhoven
 Czech Republic,,2 DF,David Zima,"November 8, 2000",Olomouc,Czech Republic,24,Slavia Prague
 Czech Republic,,2 DF,Tomáš Holeš,"March 31, 1993",Polička,Czech Republic,40,Slavia Prague
@@ -131,8 +131,8 @@ Bosnia and Herzegovina,,4 FW,Jovo Lukić,"November 28, 1998",Šabac,],2,Universi
 Bosnia and Herzegovina,,3 MF,Ermin Mahmić,"March 14, 2005",Wels,Austria,1,Slovan Liberec
 Canada,,1 GK,Dayne St. Clair,"May 9, 1997",Pickering,Canada,20,Inter Miami CF
 Canada,,2 DF,Alistair Johnston,"October 8, 1998",Vancouver,Canada,57,Celtic
-Canada,,2 DF,Alfie Jones,"October 7, 1997",Bristol,United Kingdom,2,Middlesbrough
-Canada,,2 DF,Luc de Fougerolles,"October 12, 2005",London,United Kingdom,12,Dender
+Canada,,2 DF,Alfie Jones,"October 7, 1997",Bristol,England,2,Middlesbrough
+Canada,,2 DF,Luc de Fougerolles,"October 12, 2005",London,England,12,Dender
 Canada,,2 DF,Joel Waterman,"January 24, 1996",Langley,Canada,17,Chicago Fire FC
 Canada,,3 MF,Mathieu Choinière,"February 7, 1999",Saint-Alexandre,Canada,23,Los Angeles FC
 Canada,,3 MF,Stephen Eustáquio,"December 21, 1996",Leamington,Canada,55,Los Angeles FC
@@ -200,7 +200,7 @@ Switzerland,,4 FW,Rubén Vargas,"August 5, 1998",Adligenswil,Switzerland,61,Sevi
 Switzerland,,2 DF,Eray Cömert,"February 4, 1998",Rheinfelden,Switzerland,21,Valencia
 Switzerland,,4 FW,Noah Okafor,"May 24, 2000",Binningen,Switzerland,24,Leeds United
 Switzerland,,3 MF,Michel Aebischer,"January 6, 1997",Switzerland,Switzerland,39,Pisa
-Switzerland,,1 GK,Marvin Keller,"July 3, 2002",London,United Kingdom,1,Young Boys
+Switzerland,,1 GK,Marvin Keller,"July 3, 2002",London,England,1,Young Boys
 Switzerland,,3 MF,Fabian Rieder,"February 16, 2002",Koppigen,Switzerland,27,FC Augsburg
 Switzerland,,4 FW,Zeki Amdouni,"December 4, 2000",Geneva,Switzerland,28,Burnley
 Switzerland,,2 DF,Aurèle Amenda,"July 31, 2003",Biel/Bienne,Switzerland,6,Eintracht Frankfurt
@@ -284,32 +284,32 @@ Morocco,,3 MF,Bilal El Khannouss,"May 10, 2004",Strombeek-Bever,Belgium,36,VfB S
 Morocco,,3 MF,Neil El Aynaoui,"July 2, 2001",Nancy,France,15,Roma
 Morocco,,2 DF,Redouane Halhal,"March 5, 2003",Montpellier,France,2,Mechelen
 Morocco,,2 DF,Anass Salah-Eddine,"January 18, 2002",Amsterdam,Netherlands,9,PSV Eindhoven
-Scotland,,1 GK,Angus Gunn,"January 22, 1996",Norwich,United Kingdom,21,Nottingham Forest
+Scotland,,1 GK,Angus Gunn,"January 22, 1996",Norwich,England,21,Nottingham Forest
 Scotland,,2 DF,Aaron Hickey,"June 10, 2002",Glasgow,Scotland,20,Brentford
-Scotland,,2 DF,Andy Robertson,"March 11, 1994",Glasgow,United Kingdom,93,Liverpool
-Scotland,,3 MF,Scott McTominay,"December 8, 1996",Lancaster,United Kingdom,69,Napoli
+Scotland,,2 DF,Andy Robertson,"March 11, 1994",Glasgow,Scotland,93,Liverpool
+Scotland,,3 MF,Scott McTominay,"December 8, 1996",Lancaster,England,69,Napoli
 Scotland,,2 DF,Grant Hanley,"November 20, 1991",Dumfries,Scotland,67,Hibernian
 Scotland,,2 DF,Kieran Tierney,"June 5, 1997",Douglas,Isle of Man,55,Celtic
-Scotland,,3 MF,John McGinn,"October 18, 1994",Glasgow,United Kingdom,85,Aston Villa
+Scotland,,3 MF,John McGinn,"October 18, 1994",Glasgow,Scotland,85,Aston Villa
 Scotland,,3 MF,Tyler Fletcher,"March 19, 2007",Manchester,England,1,Manchester United
 Scotland,,4 FW,Lyndon Dykes,"October 7, 1995",Gold Coast,Australia,51,Charlton Athletic
-Scotland,,4 FW,Ché Adams,"July 13, 1996",Leicester,United Kingdom,46,Torino
-Scotland,,3 MF,Ryan Christie,"February 22, 1995",Inverness,United Kingdom,67,Bournemouth
-Scotland,,1 GK,Liam Kelly,"January 23, 1996",Glasgow,United Kingdom,3,Rangers
-Scotland,,2 DF,Jack Hendry,"May 7, 1995",Glasgow,United Kingdom,37,Al-Ettifaq
-Scotland,,4 FW,Ross Stewart,"July 11, 1996",Irvine,United Kingdom,2,Southampton
-Scotland,,2 DF,John Souttar,"September 25, 1996",Aberdeen,United Kingdom,23,Rangers
-Scotland,,2 DF,Dominic Hyam,"December 20, 1995",Leuchars,United Kingdom,3,Wrexham
-Scotland,,4 FW,Ben Gannon-Doak,"November 11, 2005",Dalry,United Kingdom,13,Bournemouth
-Scotland,,4 FW,George Hirst,"February 15, 1999",Sheffield,United Kingdom,9,Ipswich Town
-Scotland,,3 MF,Lewis Ferguson,"August 24, 1999",Hamilton,United Kingdom,23,Bologna
-Scotland,,4 FW,Lawrence Shankland,"August 10, 1995",Glasgow,United Kingdom,19,Heart of Midlothian
-Scotland,,1 GK,Craig Gordon,"December 31, 1982",Edinburgh,United Kingdom,84,Heart of Midlothian
-Scotland,,2 DF,Nathan Patterson,"October 16, 2001",Glasgow,United Kingdom,26,Everton
-Scotland,,3 MF,Kenny McLean,"January 8, 1992",Rutherglen,United Kingdom,57,Norwich City
-Scotland,,2 DF,Anthony Ralston,"November 16, 1998",Glasgow,United Kingdom,26,Celtic
+Scotland,,4 FW,Ché Adams,"July 13, 1996",Leicester,England,46,Torino
+Scotland,,3 MF,Ryan Christie,"February 22, 1995",Inverness,Scotland,67,Bournemouth
+Scotland,,1 GK,Liam Kelly,"January 23, 1996",Glasgow,Scotland,3,Rangers
+Scotland,,2 DF,Jack Hendry,"May 7, 1995",Glasgow,Scotland,37,Al-Ettifaq
+Scotland,,4 FW,Ross Stewart,"July 11, 1996",Irvine,Scotland,2,Southampton
+Scotland,,2 DF,John Souttar,"September 25, 1996",Aberdeen,Scotland,23,Rangers
+Scotland,,2 DF,Dominic Hyam,"December 20, 1995",Leuchars,Scotland,3,Wrexham
+Scotland,,4 FW,Ben Gannon-Doak,"November 11, 2005",Dalry,Scotland,13,Bournemouth
+Scotland,,4 FW,George Hirst,"February 15, 1999",Sheffield,England,9,Ipswich Town
+Scotland,,3 MF,Lewis Ferguson,"August 24, 1999",Hamilton,Scotland,23,Bologna
+Scotland,,4 FW,Lawrence Shankland,"August 10, 1995",Glasgow,Scotland,19,Heart of Midlothian
+Scotland,,1 GK,Craig Gordon,"December 31, 1982",Edinburgh,Scotland,84,Heart of Midlothian
+Scotland,,2 DF,Nathan Patterson,"October 16, 2001",Glasgow,Scotland,26,Everton
+Scotland,,3 MF,Kenny McLean,"January 8, 1992",Rutherglen,Scotland,57,Norwich City
+Scotland,,2 DF,Anthony Ralston,"November 16, 1998",Glasgow,Scotland,26,Celtic
 Scotland,,4 FW,Findlay Curtis,"June 9, 2006",Balfron,],2,Kilmarnock
-Scotland,,2 DF,Scott McKenna,"November 12, 1996",Kirriemuir,United Kingdom,50,Dinamo Zagreb
+Scotland,,2 DF,Scott McKenna,"November 12, 1996",Kirriemuir,Scotland,50,Dinamo Zagreb
 Australia,,1 GK,Mathew Ryan,"April 8, 1992",Plumpton,Australia,104,Levante
 Australia,,2 DF,Miloš Degenek,"April 28, 1994",Knin,[a],56,APOEL
 Australia,,2 DF,Alessandro Circati,"October 10, 2003",Fidenza,Italy,12,Parma
@@ -328,9 +328,9 @@ Australia,,2 DF,Kai Trewin,"May 18, 2001",Canberra,Australia,5,New York City FC
 Australia,,2 DF,Aziz Behich,"December 16, 1990",Moonee Ponds,Australia,83,Melbourne City
 Australia,,4 FW,Nestory Irankunda,"February 9, 2006",Kigoma,Tanzania,14,Watford
 Australia,,1 GK,Patrick Beach,"August 6, 2003",Sydney,Australia,1,Melbourne City
-Australia,,2 DF,Harry Souttar,"October 22, 1998",Aberdeen,United Kingdom,37,Leicester City
+Australia,,2 DF,Harry Souttar,"October 22, 1998",Aberdeen,Scotland,37,Leicester City
 Australia,,4 FW,Cristian Volpato,"November 15, 2003",Camperdown,Australia,0,Sassuolo
-Australia,,2 DF,Cameron Burgess,"October 21, 1995",Aberdeen,United Kingdom,26,Swansea City
+Australia,,2 DF,Cameron Burgess,"October 21, 1995",Aberdeen,Scotland,26,Swansea City
 Australia,,3 MF,Jackson Irvine,"March 7, 1993",Melbourne,Australia,81,FC St. Pauli
 Australia,,4 FW,Nishan Velupillay,"May 7, 2001",Australia,Australia,7,Melbourne Victory
 Australia,,3 MF,Paul Okon-Engstler,"January 24, 2005",Ostend,Belgium,5,Sydney FC
@@ -392,16 +392,16 @@ United States,,1 GK,Matt Turner,"June 24, 1994",Park Ridge,United States,54,New 
 United States,,2 DF,Sergiño Dest,"November 3, 2000",Almere,Netherlands,38,PSV Eindhoven
 United States,,2 DF,Chris Richards,"March 28, 2000",Birmingham,United States,36,Crystal Palace
 United States,,3 MF,Tyler Adams,"February 14, 1999",Wappingers Falls,United States,53,Bournemouth
-United States,,2 DF,Antonee Robinson,"August 8, 1997",Milton Keynes,United Kingdom,53,Fulham
+United States,,2 DF,Antonee Robinson,"August 8, 1997",Milton Keynes,England,53,Fulham
 United States,,2 DF,Auston Trusty,"August 12, 1998",Media,United States,7,Celtic
-United States,,3 MF,Giovanni Reyna,"November 13, 2002",Sunderland,United Kingdom,37,Borussia Mönchengladbach
+United States,,3 MF,Giovanni Reyna,"November 13, 2002",Sunderland,England,37,Borussia Mönchengladbach
 United States,,3 MF,Weston McKennie,"August 28, 1998",Little Elm,United States,65,Juventus
 United States,,4 FW,Ricardo Pepi,"January 9, 2003",El Paso,United States,36,PSV Eindhoven
 United States,,4 FW,Christian Pulisic,"September 18, 1998",Hershey,United States,85,Milan
 United States,,4 FW,Brenden Aaronson,"October 22, 2000",Medford,United States,57,Leeds United
 United States,,2 DF,Miles Robinson,"March 14, 1997",Arlington,United States,39,FC Cincinnati
 United States,,2 DF,Tim Ream,"October 5, 1987",St. Louis,United States,81,Charlotte FC
-United States,,3 MF,Sebastian Berhalter,"May 10, 2001",London,United Kingdom,12,Vancouver Whitecaps FC
+United States,,3 MF,Sebastian Berhalter,"May 10, 2001",London,England,12,Vancouver Whitecaps FC
 United States,,3 MF,Cristian Roldan,"June 3, 1995",Pico Rivera,United States,46,Seattle Sounders FC
 United States,,2 DF,Alex Freeman,"August 9, 2004",Fort Lauderdale,United States,16,Villarreal
 United States,,3 MF,Malik Tillman,"May 28, 2002",Nuremberg,Germany,29,Bayer Leverkusen
@@ -705,8 +705,8 @@ New Zealand,,2 DF,Tim Payne,"January 10, 1994",Auckland,New Zealand,50,Wellingto
 New Zealand,,2 DF,Francis de Vries,"November 28, 1994",Christchurch,New Zealand,19,Auckland FC
 New Zealand,,2 DF,Tyler Bindon,"January 27, 2005",Auckland,New Zealand,24,Sheffield United
 New Zealand,,2 DF,Michael Boxall,"August 18, 1988",Auckland,New Zealand,62,Minnesota United FC
-New Zealand,,3 MF,Joe Bell,"April 27, 1999",Bristol,United Kingdom,31,Viking
-New Zealand,,3 MF,Matthew Garbett,"April 13, 2002",London,United Kingdom,36,Peterborough United
+New Zealand,,3 MF,Joe Bell,"April 27, 1999",Bristol,England,31,Viking
+New Zealand,,3 MF,Matthew Garbett,"April 13, 2002",London,England,36,Peterborough United
 New Zealand,,3 MF,Marko Stamenić,"February 19, 2002",Wellington,New Zealand,38,Swansea City
 New Zealand,,4 FW,Chris Wood,"December 7, 1991",Auckland,New Zealand,89,Nottingham Forest
 New Zealand,,3 MF,Sarpreet Singh,"February 20, 1999",Auckland,New Zealand,27,Wellington Phoenix
@@ -723,9 +723,9 @@ New Zealand,,3 MF,Callum McCowatt,"April 30, 1999",Auckland,New Zealand,31,Silke
 New Zealand,,4 FW,Jesse Randall,"August 19, 2002",Wellington,New Zealand,10,Auckland FC
 New Zealand,,1 GK,Michael Woud,"January 16, 1999",Auckland,New Zealand,6,Auckland FC
 New Zealand,,3 MF,Ryan Thomas,"December 20, 1994",Te Puke,New Zealand,25,PEC Zwolle
-New Zealand,,2 DF,Callan Elliot,"July 7, 1999",Scotland,United Kingdom,10,Auckland FC
+New Zealand,,2 DF,Callan Elliot,"July 7, 1999",Scotland,Scotland,10,Auckland FC
 New Zealand,,3 MF,Lachlan Bayliss,"July 24, 2002",Darwin,Australia,3,Newcastle Jets
-New Zealand,,2 DF,Tommy Smith,"March 31, 1990",Macclesfield,United Kingdom,56,Braintree Town
+New Zealand,,2 DF,Tommy Smith,"March 31, 1990",Macclesfield,England,56,Braintree Town
 Cape Verde,,1 GK,Vozinha,"June 3, 1986",Mindelo,Cape Verde,86,Chaves
 Cape Verde,,2 DF,Stopira,"May 20, 1988",Praia,Cape Verde,61,Torreense
 Cape Verde,,2 DF,Diney,"January 17, 1995",Tarrafal,Cape Verde,30,Al-Bataeh
@@ -869,7 +869,7 @@ Iraq,,4 FW,Mohanad Ali,"June 20, 2000",Baghdad,Iraq,71,Dibba
 Iraq,,4 FW,Ahmed Qasem,"July 12, 2003",Sweden,,1,Nashville SC
 Iraq,,1 GK,Jalal Hassan,"May 18, 1991",Al Diwaniyah,Iraq,100,Al-Zawraa
 Iraq,,4 FW,Ali Yousif,"January 19, 1996",Iraq,Iraq,6,Al-Talaba
-Iraq,,3 MF,Zidane Iqbal,"April 27, 2003",Manchester,United Kingdom,23,Utrecht
+Iraq,,3 MF,Zidane Iqbal,"April 27, 2003",Manchester,England,23,Utrecht
 Iraq,,2 DF,Ahmed Yahya,"July 1, 1995",Basra,Iraq,19,Al-Shorta
 Iraq,,3 MF,Amir Al-Ammari,"July 27, 1997",Jönköping,Sweden,49,Cracovia
 Iraq,,4 FW,Ali Jasim,"January 20, 2004",Baghdad,Iraq,35,Al-Najma
@@ -890,7 +890,7 @@ Norway,,2 DF,David Møller Wolfe,"April 23, 2002",Bergen,Norway,21,Wolverhampton
 Norway,,3 MF,Patrick Berg,"November 24, 1997",Bodø,Norway,42,Bodø/Glimt
 Norway,,4 FW,Alexander Sørloth,"December 5, 1995",Trondheim,Norway,71,Atlético Madrid
 Norway,,3 MF,Sander Berge,"February 14, 1998",Bærum Municipality,Norway,65,Fulham
-Norway,,4 FW,Erling Haaland,"July 21, 2000",Leeds,United Kingdom,49,Manchester City
+Norway,,4 FW,Erling Haaland,"July 21, 2000",Leeds,England,49,Manchester City
 Norway,,3 MF,Martin Ødegaard,"December 17, 1998",Drammen,Norway,67,Arsenal
 Norway,,4 FW,Jørgen Strand Larsen,"February 6, 2000",Halden,Norway,27,Crystal Palace
 Norway,,1 GK,Sander Tangvik,"November 29, 2002",Trondheim,Norway,0,Hamburger SV
@@ -900,7 +900,7 @@ Norway,,2 DF,Fredrik André Bjørkan,"August 21, 1998",Bodø Municipality,Norway
 Norway,,2 DF,Marcus Holmgren Pedersen,"July 16, 2000",Hammerfest,Norway,32,Torino
 Norway,,2 DF,Torbjørn Heggem,"January 12, 1999",Trondheim,Norway,14,Bologna
 Norway,,3 MF,Kristian Thorstvedt,"March 13, 1999",Stavanger,Norway,36,Sassuolo
-Norway,,3 MF,Thelo Aasgaard,"May 2, 2002",Liverpool,United Kingdom,7,Rangers
+Norway,,3 MF,Thelo Aasgaard,"May 2, 2002",Liverpool,England,7,Rangers
 Norway,,4 FW,Antonio Nusa,"April 17, 2005",Langhus,Norway,23,RB Leipzig
 Norway,,3 MF,Andreas Schjelderup,"June 1, 2004",Bodø,Norway,11,Benfica
 Norway,,3 MF,Oscar Bobb,"July 12, 2003",Oslo,Norway,19,Fulham
@@ -1064,7 +1064,7 @@ Colombia,,1 GK,Álvaro Montero,"March 29, 1995",El Molino,Colombia,11,Vélez Sar
 Colombia,,4 FW,Luis Suárez,"December 2, 1997",Santa Marta,Colombia,11,Sporting CP
 Colombia,,4 FW,Andrés Gómez,"September 12, 2002",Quibdó,Colombia,7,Vasco da Gama
 DR Congo,,1 GK,Lionel Mpasi,"August 1, 1994",Meaux,France,27,Le Havre
-DR Congo,,2 DF,Aaron Wan-Bissaka,"November 26, 1997",Croydon,United Kingdom,10,West Ham United
+DR Congo,,2 DF,Aaron Wan-Bissaka,"November 26, 1997",Croydon,England,10,West Ham United
 DR Congo,,2 DF,Steve Kapuadi,"April 30, 1998",Le Mans,France,3,Widzew Łódź
 DR Congo,,2 DF,Axel Tuanzebe,"November 14, 1997",Bunia,Democratic Republic of the Congo,12,Burnley
 DR Congo,,2 DF,Dylan Batubinsika,"February 15, 1996",Cergy-Pontoise,France,14,AEL
@@ -1077,7 +1077,7 @@ DR Congo,,4 FW,Gaël Kakuta,"June 21, 1991",Lille,France,30,AEL
 DR Congo,,2 DF,Joris Kayembe,"August 8, 1994",Brussels,Belgium,24,Genk
 DR Congo,,4 FW,Meschak Elia,"August 6, 1997",Kinshasa,Democratic Republic of the Congo,68,Alanyaspor
 DR Congo,,3 MF,Noah Sadiki,"December 17, 2004",Brussels-Capital Region,Belgium,18,Sunderland
-DR Congo,,3 MF,Aaron Tshibola,"January 2, 1995",London Borough of Newham,United Kingdom,16,Kilmarnock
+DR Congo,,3 MF,Aaron Tshibola,"January 2, 1995",London Borough of Newham,England,16,Kilmarnock
 DR Congo,,1 GK,Timothy Fayulu,"July 24, 1999",Geneva,Switzerland,3,Noah
 DR Congo,,4 FW,Cédric Bakambu,"April 11, 1991",Vitry-sur-Seine,France,68,Real Betis
 DR Congo,,3 MF,Charles Pickel,"May 15, 1997",Solothurn,Switzerland,33,Espanyol
@@ -1167,32 +1167,32 @@ Croatia,,1 GK,Dominik Kotarski,"February 10, 2000",Zabok,Croatia,4,Copenhagen
 Croatia,,4 FW,Marco Pašalić,"September 14, 2000",Karlsruhe,],14,Orlando City SC
 Croatia,,2 DF,Martin Erlić,"January 24, 1998",Zadar,Croatia,12,Midtjylland
 Croatia,,4 FW,Petar Musa,"March 4, 1998",Zagreb,Croatia,11,FC Dallas
-England,,1 GK,Jordan Pickford,"March 7, 1994",Washington,United Kingdom,82,Everton
-England,,2 DF,Ezri Konsa,"October 23, 1997",London Borough of Newham,United Kingdom,18,Aston Villa
-England,,2 DF,Nico O'Reilly,"March 21, 2005",Manchester,United Kingdom,3,Manchester City
-England,,3 MF,Declan Rice,"January 14, 1999",Kingston upon Thames,United Kingdom,72,Arsenal
-England,,2 DF,John Stones,"May 28, 1994",Barnsley,United Kingdom,87,Manchester City
+England,,1 GK,Jordan Pickford,"March 7, 1994",Washington,England,82,Everton
+England,,2 DF,Ezri Konsa,"October 23, 1997",London Borough of Newham,England,18,Aston Villa
+England,,2 DF,Nico O'Reilly,"March 21, 2005",Manchester,England,3,Manchester City
+England,,3 MF,Declan Rice,"January 14, 1999",Kingston upon Thames,England,72,Arsenal
+England,,2 DF,John Stones,"May 28, 1994",Barnsley,England,87,Manchester City
 England,,2 DF,Marc Guéhi,"July 13, 2000",Abidjan,Ivory Coast,27,Manchester City
-England,,4 FW,Bukayo Saka,"September 5, 2001",Ealing,United Kingdom,48,Arsenal
-England,,3 MF,Elliot Anderson,"November 6, 2002",Whitley Bay,United Kingdom,7,Nottingham Forest
-England,,4 FW,Harry Kane,"July 28, 1993",Walthamstow,United Kingdom,112,Bayern Munich
-England,,3 MF,Jude Bellingham,"June 29, 2003",Stourbridge,United Kingdom,46,Real Madrid
-England,,4 FW,Marcus Rashford,"October 31, 1997",Manchester,United Kingdom,70,Barcelona
-England,,2 DF,Tino Livramento,"November 12, 2002",Croydon,United Kingdom,5,Newcastle United
+England,,4 FW,Bukayo Saka,"September 5, 2001",Ealing,England,48,Arsenal
+England,,3 MF,Elliot Anderson,"November 6, 2002",Whitley Bay,England,7,Nottingham Forest
+England,,4 FW,Harry Kane,"July 28, 1993",Walthamstow,England,112,Bayern Munich
+England,,3 MF,Jude Bellingham,"June 29, 2003",Stourbridge,England,46,Real Madrid
+England,,4 FW,Marcus Rashford,"October 31, 1997",Manchester,England,70,Barcelona
+England,,2 DF,Tino Livramento,"November 12, 2002",Croydon,England,5,Newcastle United
 England,,1 GK,Dean Henderson,"March 12, 1997",Whitehaven,England,4,Crystal Palace
-England,,3 MF,Jordan Henderson,"June 17, 1990",Sunderland,United Kingdom,89,Brentford
-England,,2 DF,Dan Burn,"May 9, 1992",Blyth,United Kingdom,6,Newcastle United
-England,,3 MF,Kobbie Mainoo,"April 19, 2005",Stockport,United Kingdom,12,Manchester United
+England,,3 MF,Jordan Henderson,"June 17, 1990",Sunderland,England,89,Brentford
+England,,2 DF,Dan Burn,"May 9, 1992",Blyth,England,6,Newcastle United
+England,,3 MF,Kobbie Mainoo,"April 19, 2005",Stockport,England,12,Manchester United
 England,,3 MF,Morgan Rogers,"July 26, 2002",Halesowen,England,13,Aston Villa
-England,,4 FW,Anthony Gordon,"February 24, 2001",Liverpool,United Kingdom,17,Newcastle United
-England,,4 FW,Ollie Watkins,"December 30, 1995",Torquay,United Kingdom,20,Aston Villa
-England,,4 FW,Noni Madueke,"March 10, 2002",Barnet,United Kingdom,10,Arsenal
-England,,3 MF,Eberechi Eze,"June 29, 1998",Greenwich,United Kingdom,16,Arsenal
-England,,4 FW,Ivan Toney,"March 16, 1996",Northampton,United Kingdom,7,Al-Ahli
-England,,1 GK,James Trafford,"October 10, 2002",Cockermouth,United Kingdom,1,Manchester City
-England,,2 DF,Reece James,"December 8, 1999",Redbridge,United Kingdom,22,Chelsea
-England,,2 DF,Djed Spence,"August 9, 2000",London,United Kingdom,4,Tottenham Hotspur
-England,,2 DF,Jarell Quansah,"January 29, 2003",Warrington,United Kingdom,1,Bayer Leverkusen
+England,,4 FW,Anthony Gordon,"February 24, 2001",Liverpool,England,17,Newcastle United
+England,,4 FW,Ollie Watkins,"December 30, 1995",Torquay,England,20,Aston Villa
+England,,4 FW,Noni Madueke,"March 10, 2002",Barnet,England,10,Arsenal
+England,,3 MF,Eberechi Eze,"June 29, 1998",Greenwich,England,16,Arsenal
+England,,4 FW,Ivan Toney,"March 16, 1996",Northampton,England,7,Al-Ahli
+England,,1 GK,James Trafford,"October 10, 2002",Cockermouth,England,1,Manchester City
+England,,2 DF,Reece James,"December 8, 1999",Redbridge,England,22,Chelsea
+England,,2 DF,Djed Spence,"August 9, 2000",London,England,4,Tottenham Hotspur
+England,,2 DF,Jarell Quansah,"January 29, 2003",Warrington,England,1,Bayer Leverkusen
 Ghana,,1 GK,Lawrence Ati-Zigi,"November 29, 1996",Ghana,Ghana,29,St. Gallen
 Ghana,,2 DF,Alidu Seidu,"June 4, 2000",Accra,Ghana,24,Rennes
 Ghana,,3 MF,Caleb Yirenkyi,"January 15, 2006",Ghana,Ghana,11,Nordsjælland
@@ -1202,15 +1202,15 @@ Ghana,,2 DF,Abdul Mumin,"June 6, 1998",Ghana,Ghana,5,Rayo Vallecano
 Ghana,,4 FW,Abdul Fatawu,"March 8, 2004",Tamale,Ghana,28,Leicester City
 Ghana,,3 MF,Kwasi Sibo,"June 24, 1998",Wa,Ghana,8,Oviedo
 Ghana,,4 FW,Jordan Ayew,"September 11, 1991",Marseille,France,120,Leicester City
-Ghana,,4 FW,Brandon Thomas-Asante,"December 29, 1998",Milton Keynes,United Kingdom,8,Coventry City
-Ghana,,3 MF,Antoine Semenyo,"January 7, 2000",London,United Kingdom,34,Manchester City
+Ghana,,4 FW,Brandon Thomas-Asante,"December 29, 1998",Milton Keynes,England,8,Coventry City
+Ghana,,3 MF,Antoine Semenyo,"January 7, 2000",London,England,34,Manchester City
 Ghana,,1 GK,Joseph Anang,"June 8, 2000",Teshie,],1,St Patrick's Athletic
 Ghana,,4 FW,Christopher Bonsu Baah,"December 14, 2004",Accra,Ghana,9,Al-Qadsiah
 Ghana,,2 DF,Gideon Mensah,"July 18, 1998",Ghana,Ghana,40,Auxerre
 Ghana,,3 MF,Elisha Owusu,"November 7, 1997",Montreuil,France,20,Auxerre
 Ghana,,1 GK,Benjamin Asare,"July 13, 1992",,Ghana,11,Hearts of Oak
 Ghana,,2 DF,Abdul Rahman Baba,"July 2, 1994",Tamale,Ghana,51,PAOK
-Ghana,,2 DF,Jerome Opoku,"October 14, 1998",Mitcham,United Kingdom,11,İstanbul Başakşehir
+Ghana,,2 DF,Jerome Opoku,"October 14, 1998",Mitcham,England,11,İstanbul Başakşehir
 Ghana,,4 FW,Iñaki Williams,"June 15, 1994",Bilbao,Spain,26,Athletic Bilbao
 Ghana,,3 MF,Augustine Boakye,"November 3, 2000",Bompata,Ghana,0,Saint-Étienne
 Ghana,,2 DF,Kojo Peprah Oppong,"June 4, 2004",Accra,Ghana,4,Nice

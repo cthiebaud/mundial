@@ -29,9 +29,9 @@ const dimBadgeText = dimBadge.append('text')
 dimBadge.on('click', () => clearDim());
 
 const CENTROID_OVERRIDE = {
-  250: [2.5, 46.5],
-  840: [-98, 38],
-  826: [-2, 54],
+  250:  [2.5,  46.5],   // France (without overseas territories)
+  840:  [-98,  38],     // USA (without Alaska/Hawaii)
+  8261: [-4.2, 56.8],  // Scotland (centroid pulled north by islands)
 };
 
 const dotCentroid = d => {
@@ -93,7 +93,8 @@ const QUALIFIED_NAMES = {
   620:'Portugal', 634:'Qatar', 682:'Saudi Arabia', 686:'Senegal',
   710:'South Africa', 410:'South Korea', 724:'Spain', 752:'Sweden',
   756:'Switzerland', 788:'Tunisia', 792:'Turkey',
-  826:'England / Scotland', 840:'United States', 858:'Uruguay', 860:'Uzbekistan',
+  8260:'England', 8261:'Scotland',
+  840:'United States', 858:'Uruguay', 860:'Uzbekistan',
   531:'Curaçao'
 };
 
@@ -108,8 +109,10 @@ const ISO2 = {
   368:'iq', 384:'ci', 392:'jp', 400:'jo', 484:'mx', 504:'ma',
   528:'nl', 554:'nz', 578:'no', 591:'pa', 600:'py', 620:'pt',
   634:'qa', 682:'sa', 686:'sn', 710:'za', 410:'kr', 724:'es',
-  752:'se', 756:'ch', 788:'tn', 792:'tr', 826:'gb', 840:'us',
+  752:'se', 756:'ch', 788:'tn', 792:'tr', 840:'us',
   858:'uy', 860:'uz',
+  // home nations (synthetic IDs, no ISO 3166-1 numeric)
+  8260:'gb-eng', 8261:'gb-sct', 8262:'gb-wls', 8263:'gb-nir',
   // birth countries not in qualified list
   120:'cm', 178:'cg', 208:'dk', 324:'gn', 372:'ie',
   380:'it', 398:'kz', 404:'ke', 566:'ng', 688:'rs', 705:'si',
@@ -267,10 +270,14 @@ const placeFlag = (sel) => {
 };
 
 // ── Main render ───────────────────────────────────────────────────────────────
+// GU_A3 code (Natural Earth) → synthetic nation ID
+const UK_GU_TO_ID = {ENG: 8260, SCT: 8261, WLS: 8262, NIR: 8263};
+
 Promise.all([
   fetch('wc2026_map_data.json').then(r => r.json()),
-  d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
-]).then(([appData, world]) => {
+  d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'),
+  fetch('uk-nations.geojson').then(r => r.json())
+]).then(([appData, world, ukNations]) => {
   const DATA = appData.data;
   const POP  = appData.pop;
   const byId = {};
@@ -281,61 +288,100 @@ Promise.all([
   });
   DATA_REF = byId;
 
+  // ── Shared tooltip/click helpers (used by both world and UK nation paths) ──────
+  const showExportTip = (event, id) => {
+    const rec = byId[id];
+    if (!rec) { hideTip(); return; }
+    if (lastTipKey !== id) {
+      lastTipKey = id;
+      const _r2 = rec.ratio !== null ? rec.ratio.toFixed(2) : '?';
+      const ratio = _r2 === '0.00' ? rec.ratio.toPrecision(2) : _r2;
+      const popStr = rec.pop ? (rec.pop >= 10 ? Math.round(rec.pop) + 'M' : rec.pop.toFixed(1) + 'M') : '?';
+      const fc = ISO2[rec.id];
+      const dimmed = fc && !QUALIFIED_NAMES[rec.id] ? ' style="opacity:0.35;filter:grayscale(50%)"' : '';
+      const fi = fc ? `<img class="tt-flag"${dimmed} src="${FLAG_CDN(fc)}">` : '';
+      let html = `<div class="tt-name">${fi}${rec.country}</div>`;
+      html += `<div class="tt-count">${ratio}</div>`;
+      html += `<div class="tt-label">joueur${rec.count>1?'s':''} exporté${rec.count>1?'s':''} / million d'hab.</div>`;
+      html += `<div class="tt-sub">${rec.count} joueur${rec.count>1?'s':''} · pop. ${popStr}</div>`;
+      html += `<div class="tt-nations">Sélections : ${rec.nations.map(([n,c]) => `${n} (${c})`).join(', ')}</div>`;
+      rec.top.forEach(p => {
+        html += `<div class="tt-player"><span>${p.name}</span><span class="tt-nation">→ ${p.nation}</span></div>`;
+      });
+      tt.innerHTML = html;
+    }
+    positionTip(event, 240);
+  };
+
+  const onCountryMousemove = (event, id) => {
+    if (dimActive) {
+      if (!dimDestIds.has(id)) { hideTip(); return; }
+      if (!byId[id]) { showQualifiedTip(event, QUALIFIED_NAMES[id], ISO2[id]); return; }
+    }
+    if (byId[id]) showExportTip(event, id); else hideTip();
+  };
+
+  const onCountryClick = (event, id) => {
+    event.stopPropagation();
+    if (dimActive) { clearDim(); return; }
+    const rec = byId[id];
+    if (!rec) return;
+    hideTip();
+    const destIds = new Map(rec.nations.flatMap(([n,c]) => {
+      const did = QUALIFIED_BY_NAME[n];
+      return did !== undefined ? [[did, c]] : [];
+    }));
+    applyDim(id, destIds, rec.country);
+  };
+
+  // ── World choropleth (skip UK polygon — rendered separately below) ────────────
   g.selectAll('.country')
-    .data(topojson.feature(world, world.objects.countries).features)
+    .data(topojson.feature(world, world.objects.countries).features
+      .filter(d => +d.id !== 826))
     .join('path')
     .attr('class','country')
     .attr('d', path)
     .attr('fill', d => { const r = byId[+d.id]; return r && r.ratio !== null ? color(r.ratio) : '#e8e4e0'; })
     .attr('stroke','#ccc8c0').attr('stroke-width',.3)
-    .on('mousemove', (event, d) => {
-      if (dimActive) {
-        const id = +d.id;
-        if (!dimDestIds.has(id)) { hideTip(); return; }
-        // destination with export data → fall through to full tooltip
-        if (!byId[id]) { showQualifiedTip(event, QUALIFIED_NAMES[id], ISO2[id]); return; }
-      }
-      const rec = byId[+d.id];
-      if (!rec) { hideTip(); return; }
-      if (lastTipKey !== rec.id) {
-        lastTipKey = rec.id;
-        const _r2 = rec.ratio !== null ? rec.ratio.toFixed(2) : '?';
-        const ratio = _r2 === '0.00' ? rec.ratio.toPrecision(2) : _r2;
-        const popStr = rec.pop ? (rec.pop >= 10 ? Math.round(rec.pop) + 'M' : rec.pop.toFixed(1) + 'M') : '?';
-        const fc = ISO2[rec.id];
-        const dimmed = fc && !QUALIFIED_NAMES[rec.id] ? ' style="opacity:0.35;filter:grayscale(50%)"' : '';
-        const fi = fc ? `<img class="tt-flag"${dimmed} src="${FLAG_CDN(fc)}">` : '';
-        let html = `<div class="tt-name">${fi}${rec.country}</div>`;
-        html += `<div class="tt-count">${ratio}</div>`;
-        html += `<div class="tt-label">joueur${rec.count>1?'s':''} exporté${rec.count>1?'s':''} / million d'hab.</div>`;
-        html += `<div class="tt-sub">${rec.count} joueur${rec.count>1?'s':''} · pop. ${popStr}</div>`;
-        html += `<div class="tt-nations">Sélections : ${rec.nations.map(([n,c]) => `${n} (${c})`).join(', ')}</div>`;
-        rec.top.forEach(p => {
-          html += `<div class="tt-player"><span>${p.name}</span><span class="tt-nation">→ ${p.nation}</span></div>`;
-        });
-        tt.innerHTML = html;
-      }
-      positionTip(event, 240);
-    })
+    .on('mousemove', (event, d) => onCountryMousemove(event, +d.id))
     .on('mouseleave', hideTip)
-    .on('click', (event, d) => {
-      event.stopPropagation();
-      if (dimActive) { clearDim(); return; }
-      const rec = byId[+d.id];
-      if (!rec) return;
-      hideTip();
-      const destIds = new Map(
-        rec.nations.flatMap(([n, c]) => {
-          const id = QUALIFIED_BY_NAME[n];
-          return id !== undefined ? [[id, c]] : [];
-        })
-      );
-      applyDim(+d.id, destIds, rec.country);
-    });
+    .on('click',     (event, d) => onCountryClick(event, +d.id));
 
   g.append('path')
     .datum(topojson.mesh(world, world.objects.countries, (a,b) => a!==b))
     .attr('fill','none').attr('stroke','#b8b0a8').attr('stroke-width',.3).attr('d', path);
+
+  // ── UK home nations (separate polygons from uk-nations.geojson) ───────────────
+  const ukFeatures = ukNations.features.map(f => ({...f, _id: UK_GU_TO_ID[f.properties.GU_A3]}));
+
+  g.selectAll('.country-uk')
+    .data(ukFeatures)
+    .join('path')
+    .attr('class','country country-uk')
+    .attr('d', path)
+    .attr('fill', d => { const r = byId[d._id]; return r && r.ratio !== null ? color(r.ratio) : '#e8e4e0'; })
+    .attr('stroke','#ccc8c0').attr('stroke-width',.3)
+    .on('mousemove', (event, d) => onCountryMousemove(event, d._id))
+    .on('mouseleave', hideTip)
+    .on('click',     (event, d) => onCountryClick(event, d._id));
+
+  // Flags for England and Scotland (qualified nations)
+  ukFeatures
+    .filter(f => f._id === 8260 || f._id === 8261)
+    .forEach(f => {
+      const ov = CENTROID_OVERRIDE[f._id];
+      const [cx, cy] = ov ? projection(ov) : path.centroid(f);
+      centroids[f._id] = [cx, cy];
+      g.append('image')
+        .call(placeFlag)
+        .attr('href', FLAG_CDN(ISO2[f._id]))
+        .attr('data-id', f._id)
+        .attr('data-cx', cx).attr('data-cy', cy)
+        .attr('x', cx - FLAG/2).attr('y', cy - FLAG/2)
+        .attr('pointer-events', byId[f._id] ? 'none' : 'all')
+        .attr('cursor', byId[f._id] ? null : 'default')
+        .on('mousemove', (event) => showQualifiedTip(event, QUALIFIED_NAMES[f._id], ISO2[f._id]));
+    });
 
   g.selectAll('.flag-qualified')
     .data(topojson.feature(world, world.objects.countries).features
@@ -366,9 +412,10 @@ Promise.all([
   });
 
   // ── Centroids map (for arc drawing) ──────────────────────────────────────────
-  topojson.feature(world, world.objects.countries).features.forEach(f => {
-    centroids[+f.id] = dotCentroid(f);
-  });
+  topojson.feature(world, world.objects.countries).features
+    .filter(f => +f.id !== 826)
+    .forEach(f => { centroids[+f.id] = dotCentroid(f); });
+  // UK nation centroids are set when rendering their flags (above)
   STANDALONE_FLAGS.forEach(({ id, lon, lat }) => { centroids[id] = projection([lon, lat]); });
 
 
