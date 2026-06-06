@@ -257,6 +257,8 @@ document.documentElement.lang = LANG;
 document.title = T.pageTitle;
 document.getElementById('page-heading').textContent   = T.pageHeading;
 document.getElementById('page-sub').textContent       = T.pageSub;
+document.getElementById('page-heading-mob').textContent = T.pageHeading;
+document.getElementById('page-sub-mob').textContent    = T.pageSub;
 document.getElementById('zoom-hint').textContent      = T.zoomHint;
 document.getElementById('legend-caption').textContent = T.legendCaption;
 document.getElementById('map').setAttribute('aria-label', T.mapAriaLabel);
