@@ -311,7 +311,7 @@ const showQualifiedTip = (event, name, code) => {
   if (lastTipKey !== name) {
     lastTipKey = name;
     const fi = code ? `<img class="tt-flag" src="${FLAG_CDN(code)}">` : '';
-    let html = `<div class="tt-name">${fi}${countryName(nId, name)}</div>`;
+    let html = `<div class="tt-name"><span style="display:flex;align-items:center;gap:7px">${fi}${countryName(nId, name)}</span>${popTag(POP_REF[name])}</div>`;
     const hasImports = (IMPORT_BY_NATION[nId] ?? []).length > 0;
     html += `<div class="tt-no-export">${T.noExport}</div>`;
     html += hasImports ? buildImportColHtml(nId) : `<div class="tt-no-export">${T.noImport}</div>`;
@@ -330,6 +330,11 @@ let arcsGroup  = null;
 const centroids = {};
 let DATA_REF = {};          // set once data loads, used by applyDim
 let IMPORT_BY_NATION = {};  // nationId → [{name, birthCountry, birthCountryId, caps}]
+let POP_REF  = {};          // country name → population in millions
+
+const fmtPop = pop => (pop < 1 ? parseFloat(pop.toFixed(2)) : parseFloat(pop.toFixed(1)))
+  .toLocaleString(LOCALE, { maximumFractionDigits: pop < 1 ? 2 : 1, minimumFractionDigits: 0, useGrouping: false }) + 'M';
+const popTag = pop => pop ? `<span class="tt-pop">${T.pop} ${fmtPop(pop)}</span>` : '';
 
 const SQUAD_SIZE = { 40: 25, 124: 25 }; // Austria, Canada — injuries reduced squad to 25
 
@@ -567,6 +572,7 @@ Promise.all([
     byId[d.id] = d;
   });
   DATA_REF = byId;
+  POP_REF  = POP;
 
   DATA.forEach(rec => {
     rec.players.forEach(p => {
@@ -588,14 +594,13 @@ Promise.all([
       lastTipKey = id;
       const _r2 = rec.ratio !== null ? rec.ratio.toFixed(2) : '?';
       const ratio = _r2 === '0.00' ? rec.ratio.toPrecision(2) : _r2;
-      const popStr = rec.pop ? (rec.pop >= 10 ? Math.round(rec.pop) + 'M' : rec.pop.toFixed(1) + 'M') : '?';
       const fc = ISO2[rec.id];
       const fi = fc ? `<img class="tt-flag" src="${FLAG_CDN(fc)}">` : '';
-      let html = `<div class="tt-name">${fi}${countryName(rec.id, rec.country)}</div>`;
+      let html = `<div class="tt-name"><span style="display:flex;align-items:center;gap:7px">${fi}${countryName(rec.id, rec.country)}</span>${popTag(rec.pop)}</div>`;
       let leftCol = '';
       leftCol += `<div class="tt-count">${rec.count}</div>`;
       leftCol += `<div class="tt-label">${T.exported(rec.count)}</div>`;
-      leftCol += `<div class="tt-sub">${ratio} ${T.perMillion} · ${T.pop} ${popStr}</div>`;
+      leftCol += `<div class="tt-sub">${ratio} ${T.perMillion}</div>`;
       leftCol += `<div class="tt-nations">${rec.nations.map(([n,c]) => `${countryName(QUALIFIED_BY_NAME[n], n)} (${c})`).join(', ')}</div>`;
       rec.top.forEach(p => {
         leftCol += `<div class="tt-player"><span>${p.name}</span><span class="tt-nation"><span style="color:${ARC_EXPORT_COLOR}">→</span> ${countryName(QUALIFIED_BY_NAME[p.nation], p.nation)}</span></div>`;
@@ -623,7 +628,7 @@ Promise.all([
       lastTipKey = key;
       const destFc = ISO2[destId];
       const destFi = destFc ? `<img class="tt-flag" src="${FLAG_CDN(destFc)}">` : '';
-      let html = `<div class="tt-name">${destFi}${countryName(destId, destName)}</div>`;
+      let html = `<div class="tt-name"><span style="display:flex;align-items:center;gap:7px">${destFi}${countryName(destId, destName)}</span>${popTag(POP[destName])}</div>`;
       html += `<div class="tt-nations"><span style="color:${ARC_EXPORT_COLOR}">&larr;</span> ${countryName(dimSourceId, srcRec.country)} (${allPlayers.length})</div>`;
       players.forEach(p => {
         html += `<div class="tt-player"><span>${p.name}</span></div>`;
@@ -648,7 +653,7 @@ Promise.all([
       const bName = countryName(p0.birthCountryId, p0.birthCountry);
       const bFc = p0.birthCountryId != null ? ISO2[p0.birthCountryId] : (_NULL_CODE[p0.birthCountry] ?? null);
       const fi = bFc ? `<img class="tt-flag" src="${FLAG_CDN(bFc)}">` : '';
-      let html = `<div class="tt-name">${fi}${bName}</div>`;
+      let html = `<div class="tt-name"><span style="display:flex;align-items:center;gap:7px">${fi}${bName}</span>${popTag(POP[p0.birthCountry])}</div>`;
       html += `<div class="tt-nations"><span style="color:${ARC_IMPORT_COLOR}">&rarr;</span> ${countryName(dimSourceId, QUALIFIED_NAMES[dimSourceId])} (${allPlayers.length})</div>`;
       players.forEach(p => { html += `<div class="tt-player"><span>${p.name}</span></div>`; });
       if (allPlayers.length > 5) html += `<div class="tt-more">…</div>`;
@@ -673,7 +678,7 @@ Promise.all([
       lastTipKey = key;
       const fc = ISO2[id];
       const fi = fc ? `<img class="tt-flag" src="${FLAG_CDN(fc)}">` : '';
-      let html = `<div class="tt-name">${fi}${countryName(id, destName)}</div>`;
+      let html = `<div class="tt-name"><span style="display:flex;align-items:center;gap:7px">${fi}${countryName(id, destName)}</span>${popTag(POP[destName])}</div>`;
       if (exportPlayers.length > 0) {
         html += `<div class="tt-nations"><span style="color:${ARC_IMPORT_COLOR}">&rarr;</span> ${countryName(dimSourceId, QUALIFIED_NAMES[dimSourceId])} (${exportPlayers.length})</div>`;
         topExp.forEach(p => { html += `<div class="tt-player"><span>${p.name}</span></div>`; });
