@@ -485,15 +485,14 @@ const applyDim = (sourceId, destIds, country) => {
     const importNationsEl = document.getElementById('pt-import-nations');
     importNationsEl.innerHTML = '';
     // Group by translated birth country name
-    const importGroups = [];
+    const importGroupMap = new Map();
     importPlayers.forEach(p => {
       const label = countryName(p.birthCountryId, p.birthCountry);
-      if (!importGroups.length || importGroups[importGroups.length-1].label !== label)
-        importGroups.push({ label, birthCountryId: p.birthCountryId, birthCountry: p.birthCountry, players: [] });
-      importGroups[importGroups.length-1].players.push(p);
+      if (!importGroupMap.has(label))
+        importGroupMap.set(label, { label, birthCountryId: p.birthCountryId, birthCountry: p.birthCountry, players: [] });
+      importGroupMap.get(label).players.push(p);
     });
-    // Re-sort groups by player count desc
-    importGroups.sort((a,b) => b.players.length - a.players.length);
+    const importGroups = [...importGroupMap.values()].sort((a,b) => b.players.length - a.players.length);
     importGroups.forEach(({ label, birthCountryId, birthCountry, players: gp }) => {
       const bc = birthCountryId != null ? ISO2[birthCountryId] : (_NULL_CODE[birthCountry] ?? null);
       const header = document.createElement('div');
