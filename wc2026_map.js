@@ -467,7 +467,7 @@ const playerTableTemplate = sourceId => {
       </div>` : isQualified ? html`<div id="pt-export-count" class="tt-label">${T.noExport(name)}</div>` : nothing}
     ${nativePlayers.length > 0 ? html`
       <div id="pt-native-section">
-        <h2 id="pt-native-title" class="mb-3 pt-title">${nativePlayers.length} ${T.ptNative(nativePlayers.length, name)}</h2>
+        <h2 id="pt-native-title" class="mb-3 pt-title">${importPlayers.length === 0 ? T.noImport(name) : `${nativePlayers.length} ${T.ptNative(nativePlayers.length, name)}`}</h2>
         <div id="pt-native-players">
           ${nativePlayers.map(p => html`
             <div class="pt-player-row">
@@ -495,7 +495,7 @@ const playerTableTemplate = sourceId => {
                 </div>`)}`;
           })}
         </div>
-      </div>` : isQualified ? html`<div class="tt-label">${T.noImport(name)}</div>` : nothing}`;
+      </div>` : isQualified && nativePlayers.length === 0 ? html`<div class="tt-label">${T.noImport(name)}</div>` : nothing}`;
 };
 
 const applyDim = (sourceId, destIds, country) => {
