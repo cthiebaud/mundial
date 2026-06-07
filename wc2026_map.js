@@ -201,11 +201,11 @@ const T = {
     ofSquad:       'de la sélection',
     noImport:      name => `Tous les joueurs de la sélection sont nés ${name ? frPrep(name) + ' ' + name : 'ici'}`,
     playingFor:    'jouant pour',
-    selectedBy:    'sélectionnés par un autre pays',
+    selectedBy:    n => `sélectionné${n > 1 ? 's' : ''} par un autre pays`,
     clickForAll:   'Cliquer sur le pays pour voir la liste complète',
     clickForAllPlural: 'Cliquer sur le pays pour voir les listes complètes',
     selectedByLabel: name => `Joueurs sélectionnés par ${frDefArt(name)}${name} nés dans un autre pays`,
-    ptNative:      (n, name) => `joueur${n > 1 ? 's' : ''} né${n > 1 ? 's' : ''} et sélectionné${n > 1 ? 's' : ''} ${name ? frPrep(name) + ' ' + name : 'ici'}`,
+    ptNative:      (n, name) => `joueur${n > 1 ? 's' : ''} né${n > 1 ? 's' : ''} et sélectionné${n > 1 ? 's' : ''} ${name ? 'par ' + frDefArt(name) + name : 'ici'}`,
     ptImportTitle: (n, name) => `joueur${n > 1 ? 's' : ''} sélectionné${n > 1 ? 's' : ''} par ${frDefArt(name)}${name} né${n > 1 ? 's' : ''} dans un autre pays`,
     birthNations:  'Nés en',
     pop:           'pop.',
@@ -228,7 +228,7 @@ const T = {
     ofSquad:       'della rosa',
     noImport:      name => `Tutti i giocatori della rosa sono nati${name ? ' in ' + name : ' qui'}`,
     playingFor:    'che giocano per',
-    selectedBy:    'selezionati da un altro paese',
+    selectedBy:    n => `selezionato${n === 1 ? '' : 'i'} da un altro paese`,
     clickForAll:   'Clicca sul paese per vedere la lista completa',
     clickForAllPlural: 'Clicca sul paese per vedere le liste complete',
     selectedByLabel: name => `Giocatori selezionati da ${name} nati in un altro paese`,
@@ -255,7 +255,7 @@ const T = {
     ofSquad:       'im Kader',
     noImport:      name => name ? `Alle Kaderspieler wurden in ${name} geboren` : 'Alle Kaderspieler wurden hier geboren',
     playingFor:    'spielend für',
-    selectedBy:    'ausgewählt von einem anderen Land',
+    selectedBy:    () => 'ausgewählt von einem anderen Land',
     clickForAll:   'Land anklicken für die vollständige Liste',
     clickForAllPlural: 'Land anklicken für die vollständigen Listen',
     selectedByLabel: name => `Von ${name} ausgewählte Spieler, geboren in einem anderen Land`,
@@ -282,7 +282,7 @@ const T = {
     ofSquad:       'of the squad',
     noImport:      name => `All squad players were born${name ? ' in ' + name : ' here'}`,
     playingFor:    'playing for',
-    selectedBy:    'selected by another country',
+    selectedBy:    () => 'selected by another country',
     clickForAll:   'Click the country to see the complete list',
     clickForAllPlural: 'Click the country to see the complete lists',
     selectedByLabel: name => `Players selected by ${name} born in another country`,
@@ -462,7 +462,7 @@ const playerTableTemplate = sourceId => {
       ${pop ? html`<span class="tt-pop">${T.pop} ${fmtPop(pop)}</span>` : nothing}
     </div>
     ${cnt > 0 ? html`
-      <h2 id="pt-export-count" class="mb-3 pt-title color-exp">${cnt} ${T.exported(cnt, name)} ${T.selectedBy}</h2>
+      <h2 id="pt-export-count" class="mb-3 pt-title color-exp">${cnt} ${T.exported(cnt, name)} ${T.selectedBy(cnt)}</h2>
       <div id="pt-nations">
         ${exportGroups.map(({ nation, players: gp }) => {
           const nc = ISO2[QUALIFIED_BY_NAME[nation]];
@@ -693,7 +693,7 @@ Promise.all([
           <div class="tt-count color-exp">${rec.count}</div>
           <div class="tt-sub">${ratio} ${T.perMillion}</div>
         </div>
-        <div class="tt-label">${T.exported(rec.count, countryName(rec.id, rec.country))} ${T.selectedBy}</div>
+        <div class="tt-label">${T.exported(rec.count, countryName(rec.id, rec.country))} ${T.selectedBy(rec.count)}</div>
         <div class="tt-nations">${rec.nations.map(([n, c]) => `${countryName(QUALIFIED_BY_NAME[n], n)} (${c})`).join(', ')}</div>
         <div class="tt-players ${rec.count > rec.top.length ? 'tt-more' : ''}">
           ${rec.top.map(p => html`
