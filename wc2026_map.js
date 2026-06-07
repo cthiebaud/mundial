@@ -38,6 +38,15 @@ const dimBadgeText = dimBadge.append('text')
   .attr('fill', '#fff');
 dimBadge.on('click', () => clearDim());
 
+const hoverLabel = svg.append('text')
+  .attr('x', 893).attr('y', 21)
+  .attr('text-anchor', 'end')
+  .attr('font-size', '11px')
+  .attr('font-family', '-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif')
+  .attr('fill', '#555')
+  .style('display', 'none')
+  .style('pointer-events', 'none');
+
 const CENTROID_OVERRIDE = {
   250:  [2.5,  46.5],   // France (without overseas territories)
   840:  [-98,  38],     // USA (without Alaska/Hawaii)
@@ -341,7 +350,7 @@ const positionTip = (event, height, wide = false) => {
 
 let lastTipKey = null;
 
-const hideTip = () => { tt.style.display = 'none'; tt.classList.remove('tt-non-qualified'); lastTipKey = null; };
+const hideTip = () => { tt.style.display = 'none'; tt.classList.remove('tt-non-qualified'); hoverLabel.style('display', 'none'); lastTipKey = null; };
 
 const showQualifiedTip = (event, name, code) => {
   const nId = QUALIFIED_BY_NAME[name];
@@ -604,6 +613,7 @@ const applyDim = (sourceId, destIds, country) => {
   render(playerTableTemplate(sourceId), ptEl);
 
   document.body.classList.add('dim-active');
+  hoverLabel.style('display', 'none');
   dimBadge.style('display', null);
 };
 const clearDim = () => {
@@ -811,6 +821,7 @@ Promise.all([
   };
 
   const onCountryMousemove = (event, id) => {
+    if (!dimActive) hoverLabel.text(countryName(id, QUALIFIED_NAMES[id] ?? byId[id]?.country ?? '')).style('display', null);
     if (dimActive) {
       const inDest = dimDestIds.has(id), inImport = dimImportIds.has(id);
       if (inDest && inImport) { showCombinedTip(event, id); return; }
