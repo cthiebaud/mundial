@@ -211,6 +211,7 @@ const T = {
     pageHeading:   'Mondial 2026 - Joueurs nés dans un pays, et qui jouent pour un autre',
     pageSub:       n => `${n} joueurs au total · source : Wikipedia`,
     mapAriaLabel:  'Carte choroplèthe des joueurs nés dans un pays et jouant pour un autre',
+    notQualified:  'non qualifié pour le Mondial 2026',
     pageDescription: 'Carte choroplèthe du Mondial 2026 — joueurs nés dans un pays, sélectionnés par un autre. Normalisé par population.',
     zoomHint:      'scroll pour zoomer · glisser pour déplacer',
     legendCaption: "natifs / million d'hab.",
@@ -234,6 +235,7 @@ const T = {
     pageHeading:   'Mondiali 2026 - Giocatori nati in un paese, che giocano per un altro',
     pageSub:       n => `${n} giocatori in totale · fonte: Wikipedia`,
     mapAriaLabel:  'Mappa coropletica dei giocatori nati in un paese e che giocano per un altro',
+    notQualified:  'non qualificato per i Mondiali 2026',
     pageDescription: 'Mappa coropletica dei Mondiali 2026 — giocatori nati in un paese, selezionati da un altro. Normalizzato per popolazione.',
     zoomHint:      'scorri per zoomare · trascina per spostarti',
     legendCaption: 'nativi / milione di ab.',
@@ -257,6 +259,7 @@ const T = {
     pageHeading:   'WM 2026 - Spieler, die in einem Land geboren wurden und für ein anderes spielen',
     pageSub:       n => `${n} Spieler insgesamt · Quelle: Wikipedia`,
     mapAriaLabel:  'Choroplethenkarte der Spieler, die in einem Land geboren wurden und für ein anderes spielen',
+    notQualified:  'nicht qualifiziert für die WM 2026',
     pageDescription: 'Choroplethenkarte der WM 2026 — Spieler, die in einem Land geboren und für ein anderes ausgewählt wurden. Normiert nach Bevölkerungszahl.',
     zoomHint:      'Scrollen zum Zoomen · Ziehen zum Verschieben',
     legendCaption: 'Einheimische / Mio. Einwohner',
@@ -280,6 +283,7 @@ const T = {
     pageHeading:   'World Cup 2026 - Players born in one country, playing for another',
     pageSub:       n => `${n} players total · source: Wikipedia`,
     mapAriaLabel:  'Choropleth map of players born in one country, playing for another',
+    notQualified:  'not qualified for the 2026 World Cup',
     pageDescription: 'Choropleth map of the 2026 World Cup — players born in one country, selected for another. Normalised by population.',
     zoomHint:      'scroll to zoom · drag to pan',
     legendCaption: 'natives / million inhab.',
@@ -447,6 +451,7 @@ const playerTableTemplate = sourceId => {
       </div>
       ${pop ? html`<span class="tt-pop">${T.pop} ${fmtPop(pop)}</span>` : nothing}
     </div>
+    ${!isQualified ? html`<div class="tt-not-qualified">${T.notQualified}</div>` : nothing}
     ${cnt > 0 ? html`
       <h2 id="pt-export-count" class="mb-3 pt-title color-exp">${cnt} ${T.exported(cnt, name)} ${T.selectedBy(cnt)}</h2>
       <div id="pt-nations">
@@ -704,6 +709,7 @@ Promise.all([
           <span class="tt-name-inner">${flagImg(fc)}${countryName(rec.id, rec.country)}</span>
           ${popTag(rec.pop)}
         </div>
+        ${!QUALIFIED_NAMES[id] ? html`<div class="tt-not-qualified">${T.notQualified}</div>` : nothing}
         ${body}
         ${hasMore ? html`<div class="tt-more-label">${leftTruncated && rightTruncated ? T.clickForAllPlural : T.clickForAll}</div>` : nothing}`, tt);
     }
