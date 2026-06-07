@@ -338,6 +338,7 @@ const positionTip = (event, height, wide = false) => {
 let lastTipKey = null;
 
 const hideTip = () => { tt.style.display = 'none'; lastTipKey = null; };
+window.addEventListener('scroll', hideTip, { passive: true });
 
 const showQualifiedTip = (event, name, code) => {
   const nId = QUALIFIED_BY_NAME[name];
