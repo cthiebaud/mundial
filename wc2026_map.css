@@ -33,7 +33,7 @@ body.dim-active #map, body.dim-active #map * { cursor: url("data:image/svg+xml,<
 
 /* tooltip (tt-) */
 #tooltip {
-  position: fixed; pointer-events: none; display: none;
+  position: absolute; pointer-events: none; display: none;
   background: #fff; border: 1px solid #e0dcd6;
   border-radius: 8px; padding: 12px 14px; font-size: 12px;
   color: #1a1a18; max-width: 540px;

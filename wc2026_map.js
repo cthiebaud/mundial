@@ -327,9 +327,9 @@ const DISABLE_TOOLTIP = /Mobi/i.test(navigator.userAgent);
 const positionTip = (event, height, wide = false) => {
   if (DISABLE_TOOLTIP) return;
   const w = wide ? 544 : 274;
-  let x = event.clientX + 16, y = event.clientY + 16;
-  if (x + w > window.innerWidth)  x = event.clientX - (w + 4);
-  if (y + height > window.innerHeight) y = event.clientY - (height + 4);
+  let x = event.pageX + 16, y = event.pageY + 16;
+  if (x + w > window.scrollX + window.innerWidth)  x = event.pageX - (w + 4);
+  if (y + height > window.scrollY + window.innerHeight) y = event.pageY - (height + 4);
   tt.style.left = x + 'px';
   tt.style.top  = y + 'px';
   tt.style.display = 'block';
@@ -338,10 +338,6 @@ const positionTip = (event, height, wide = false) => {
 let lastTipKey = null;
 
 const hideTip = () => { tt.style.display = 'none'; lastTipKey = null; };
-let mouseOverMap = false;
-svg.on('mouseenter.tip', () => { mouseOverMap = true;  })
-   .on('mouseleave.tip', () => { mouseOverMap = false; });
-window.addEventListener('scroll', () => { if (!mouseOverMap) hideTip(); }, { passive: true });
 
 const showQualifiedTip = (event, name, code) => {
   const nId = QUALIFIED_BY_NAME[name];
