@@ -417,12 +417,13 @@ const playerTableTemplate = sourceId => {
   const isQualified   = !!QUALIFIED_NAMES[sourceId];
   const name          = countryName(sourceId, country);
 
-  const exportGroups = [];
+  const exportGroupMap = new Map();
   exportPlayers.forEach(p => {
-    if (!exportGroups.length || exportGroups[exportGroups.length - 1].nation !== p.nation)
-      exportGroups.push({ nation: p.nation, players: [] });
-    exportGroups[exportGroups.length - 1].players.push(p);
+    if (!exportGroupMap.has(p.nation))
+      exportGroupMap.set(p.nation, { nation: p.nation, players: [] });
+    exportGroupMap.get(p.nation).players.push(p);
   });
+  const exportGroups = [...exportGroupMap.values()].sort((a, b) => b.players.length - a.players.length);
 
   const importGroupMap = new Map();
   importPlayers.forEach(p => {
