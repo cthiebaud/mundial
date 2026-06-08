@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Interactive D3.js choropleth map of the 2026 FIFA World Cup tracking player "exports": players born in one country who represent another. Normalised by population. Includes a Python scraping/data pipeline and several standalone infographic HTML files.
 
-Live at: **https://aequologica.cthiebaud.com/mundial/**
+Live at: **https://mundial.cthiebaud.com/**
 GitHub: **https://github.com/cthiebaud/mundial** (standalone repo, also a submodule of `aequologica/aequologica.github.io`)
 
 ---
@@ -81,7 +81,7 @@ from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
     browser = p.chromium.launch()
     page = browser.new_page(viewport={"width": 1200, "height": 630})
-    page.goto("https://aequologica.cthiebaud.com/mundial/wc2026_map_exported.html",
+    page.goto("https://mundial.cthiebaud.com/wc2026_map_exported.html",
               wait_until="networkidle", timeout=30000)
     page.wait_for_timeout(4000)
     page.screenshot(path="wc2026_og.png")

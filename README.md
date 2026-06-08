@@ -2,7 +2,7 @@
 
 Interactive D3.js choropleth map of the 2026 FIFA World Cup showing **where players were born**: how many players born in each country are playing in the tournament, whether for that country or for another.
 
-**Live:** https://aequologica.cthiebaud.com/mundial/
+**Live:** https://mundial.cthiebaud.com/
 
 ---
 
