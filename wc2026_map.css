@@ -45,7 +45,9 @@ body.dim-active #map [data-dim-visible] { cursor: pointer !important; }
 .tt-vdiv { width: 1px; background: var(--color-divider); flex-shrink: 0; margin: 0 10px; }
 .tt-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; justify-content: space-between; }
 .tt-name-inner { display: flex; align-items: center; gap: 7px; }
-.tt-pop { font-size: 10px; color: var(--color-muted); font-weight: normal; white-space: nowrap; margin-left: 8px; }
+.tt-pop { font-size: 10px; color: var(--color-muted); font-weight: normal; white-space: nowrap; }
+.tt-rank { font-size: 10px; color: var(--color-muted); font-weight: normal; white-space: nowrap; margin-left: 6px; }
+.tt-pop-rank { display: flex; align-items: center; margin-left: 8px; flex-shrink: 0; }
 .tt-flag { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; }
 .tt-count { font-size: 28px; font-weight: 500; line-height: 1; margin: 4px 0 2px; }
 .tt-count-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }

@@ -355,7 +355,7 @@ const showQualifiedTip = (event, name, code) => {
     render(html`
       <div class="tt-name tt-name-inner">
         <span class="tt-name-inner">${flagImg(code)}${countryName(nId, name)}</span>
-        ${popTag(POP_REF[name])}
+        <span class="tt-pop-rank">${popTag(POP_REF[name])}${rankTag(name)}</span>
       </div>
       <div class="tt-label">${T.noExport(countryName(nId, name))}</div>
       ${hasImps ? buildImportColHtml(nId) : html`<div class="tt-label">${T.noImport(countryName(nId, name))}</div>`}
@@ -376,12 +376,14 @@ let DATA_REF = {};          // set once data loads, used by applyDim
 let IMPORT_BY_NATION = {};  // nationId → [{name, birthCountry, birthCountryId, caps}]
 let NATIVE_BY_NATION = {};  // nationId → [{name, caps}]
 let POP_REF  = {};          // country name → population in millions
+let FIFA_RANK = {};         // country name → FIFA rank (int, lower = better)
 
 const enablesDim = id => !!(DATA_REF[id] || (QUALIFIED_NAMES[id] && ((IMPORT_BY_NATION[id] ?? []).length > 0 || (NATIVE_BY_NATION[id] ?? []).length > 0)));
 
 const fmtPop = pop => (pop < 1 ? parseFloat(pop.toFixed(2)) : parseFloat(pop.toFixed(1)))
   .toLocaleString(LOCALE, { maximumFractionDigits: pop < 1 ? 2 : 1, minimumFractionDigits: 0, useGrouping: false }) + 'M';
 const popTag  = pop  => pop  ? html`<span class="tt-pop">${T.pop} ${fmtPop(pop)}</span>` : nothing;
+const rankTag = name => { const r = FIFA_RANK[name]; return r ? html`<span class="tt-rank">FIFA #${r}</span>` : nothing; };
 const flagImg = code => code ? html`<img class="tt-flag" src="${FLAG_CDN(code)}">` : nothing;
 const ptWikiRow = p => {
   const wikiLang = p.wiki_langs?.[LANG];
@@ -679,7 +681,8 @@ Promise.all([
   const subText = T.pageSub(exportTotal);
   document.getElementById('page-sub').textContent     = subText;
   document.getElementById('page-sub-mob').textContent = subText;
-  POP_REF  = POP;
+  POP_REF   = POP;
+  FIFA_RANK = appData.fifa_rank || {};
 
   DATA.forEach(rec => {
     rec.players.forEach(p => {
@@ -738,7 +741,7 @@ Promise.all([
       render(html`
         <div class="tt-name tt-name-inner">
           <span class="tt-name-inner">${flagImg(fc)}${countryName(rec.id, rec.country)}</span>
-          ${popTag(rec.pop)}
+          <span class="tt-pop-rank">${popTag(rec.pop)}${rankTag(rec.country)}</span>
         </div>
         ${!QUALIFIED_NAMES[id] ? html`<div class="tt-not-qualified">${T.notQualified}</div>` : nothing}
         ${body}
@@ -762,7 +765,7 @@ Promise.all([
       render(html`
         <div class="tt-name tt-name-inner">
           <span class="tt-name-inner">${flagImg(destFc)}${countryName(destId, destName)}</span>
-          ${popTag(POP[destName])}
+          <span class="tt-pop-rank">${popTag(POP[destName])}${rankTag(destName)}</span>
         </div>
         <div class="tt-nations"><span class="color-exp">←</span> ${countryName(dimSourceId, srcRec.country)} (${allPlayers.length})</div>
         <div class="tt-players ${allPlayers.length > 5 ? 'tt-more' : ''}">
@@ -789,7 +792,7 @@ Promise.all([
       render(html`
         <div class="tt-name tt-name-inner">
           <span class="tt-name-inner">${flagImg(bFc)}${countryName(p0.birthCountryId, p0.birthCountry)}</span>
-          ${popTag(POP[p0.birthCountry])}
+          <span class="tt-pop-rank">${popTag(POP[p0.birthCountry])}${rankTag(p0.birthCountry)}</span>
         </div>
         <div class="tt-nations"><span class="color-imp">→</span> ${countryName(dimSourceId, QUALIFIED_NAMES[dimSourceId])} (${allPlayers.length})</div>
         <div class="tt-players ${allPlayers.length > 5 ? 'tt-more' : ''}">
@@ -820,7 +823,7 @@ Promise.all([
       render(html`
         <div class="tt-name tt-name-inner">
           <span class="tt-name-inner">${flagImg(fc)}${countryName(id, destName)}</span>
-          ${popTag(POP[destName])}
+          <span class="tt-pop-rank">${popTag(POP[destName])}${rankTag(destName)}</span>
         </div>
         ${exportPlayers.length > 0 ? html`
           <div class="tt-nations"><span class="color-imp">→</span> ${countryName(dimSourceId, QUALIFIED_NAMES[dimSourceId])} (${exportPlayers.length})</div>
