@@ -17,6 +17,8 @@ GitHub: **https://github.com/cthiebaud/mundial** (standalone repo, also a submod
 |---|---|
 | `index.html` | Entry point — redirects to the map, carries OG meta tags |
 | `wc2026_map_exported.html` | Main map page (Bootstrap 5, loads JS + JSON via ES module) |
+
+**OG tags:** Both `index.html` and `wc2026_map_exported.html` carry identical OG meta tags. Always update **both files** together when any OG tag changes (og:image, og:url, og:title, og:description, etc.).
 | `wc2026_map.js` | ES module — D3 rendering, zoom, tooltips (lit-html), dim/arc logic, i18n |
 | `wc2026_map_data.json` | All data: player exports + natives by birth country + population + `wiki_langs` |
 | `uk-nations.geojson` | 4 UK home nations polygons (Natural Earth 50m) — England, Scotland, Wales, Northern Ireland rendered as separate choropleth features |
