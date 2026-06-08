@@ -47,8 +47,8 @@ python3 pipeline/build_json.py
 Reads `pipeline/wc2026_players.csv`, writes `wc2026_map_data.json` in the
 project root.
 
-- Groups players by birth country to build the `data` array (exports).
-- Groups players where `birth_country == nation` to build `natives`.
+- `data` array: players born in one country who play for another.
+- `natives`: players born in the country they play for.
 - Preserves any existing `wiki_langs` / `wiki` fields already in the JSON
   (so it is safe to re-run after `add_wiki_urls.py` without losing Wikipedia links).
 - Preserves `pop` (population) data from the existing JSON.
@@ -85,13 +85,16 @@ python3 pipeline/add_wiki_urls.py        # re-enrich (only new players need new 
 
 ### Fixing country name mismatches
 
-Some scraped `birth_country` values use the full formal country name while `nation` uses a short form — breaking the `birth_country == nation` native check. Known case:
+Some scraped `birth_country` values use the full formal country name while `nation` uses a short form — breaking the `birth_country == nation` check that identifies players born in the country they play for. Known case:
 
 | `birth_country` (scraped) | `nation` | Fix |
 |---|---|---|
 | `Democratic Republic of the Congo` | `DR Congo` | normalize to `DR Congo` |
 
-After step 1, check and fix:
+`build_json.py` applies these normalizations automatically via `BIRTH_COUNTRY_ALIASES`.
+If a new mismatch is discovered, add it there.
+
+To check manually after step 1:
 
 ```python
 import pandas as pd
@@ -102,7 +105,8 @@ df.to_csv('pipeline/wc2026_players.csv', index=False)
 print(f"Fixed {mask.sum()} rows")
 ```
 
-Then re-run steps 2–3. Verify totals: every squad should have exactly 26 players (Austria and Canada are known exceptions at 25 due to injuries).
+Then re-run steps 2–3. Verify totals: every squad should have exactly 26 players
+(Austria and Canada are known exceptions at 25 due to injuries).
 
 ---
 
@@ -123,7 +127,7 @@ For each player with a bad `birth_country`:
 
 ---
 
-## Generating the export ratio chart
+## Generating the birth country ratio chart
 
 ```bash
 python3 pipeline/wc2026_make_ratio_chart.py              # Curaçao excluded (default)
@@ -143,7 +147,7 @@ Requires `matplotlib` (`pip install matplotlib`).
 | `wc2026_birthplaces.py` | Scraper: Wikipedia / Wikidata → CSV |
 | `build_json.py` | Rebuilds `wc2026_map_data.json` from CSV |
 | `add_wiki_urls.py` | Enriches JSON with per-language Wikipedia URLs |
-| `wc2026_make_ratio_chart.py` | Generates export-ratio bar chart PNG |
+| `wc2026_make_ratio_chart.py` | Generates birth country ratio bar chart PNG |
 | `wc2026_players.csv` | Full squad roster — source of truth |
 | `wc2026_by_birthcountry.csv` | Aggregated ranking by birth country |
 
