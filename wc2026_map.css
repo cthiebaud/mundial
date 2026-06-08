@@ -23,6 +23,13 @@ body.dim-active #map [data-dim-visible] { cursor: pointer !important; }
 /* page chrome */
 #page-heading { font-size: 20px; font-weight: 500; letter-spacing: -.3px; }
 #page-heading-mob { font-size: 13px; font-weight: 500; letter-spacing: -.2px; line-height: 1.3; margin-bottom: 4px; }
+
+/* page quote (pq-) */
+#page-heading-sub, #page-heading-sub-mob { margin: 2px 0 4px; }
+.pq-text { font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-size: 13px; color: #555; margin: 0 0 3px; line-height: 1.45; }
+.pq-attr { font-size: 10px; color: #999; margin: 0; }
+.pq-author { font-variant: small-caps; letter-spacing: 0.07em; color: #666; }
+.pq-attr cite { font-style: italic; }
 #zoom-hint { font-size: 10px; color: var(--color-dim); pointer-events: none; }
 #legend { font-size: 11px; color: #888; }
 #legend-bar { height: 10px; border-radius: 5px; overflow: hidden; flex: 1; max-width: 280px; }

@@ -136,6 +136,8 @@ All `.flag-qualified` images store `data-cx`/`data-cy` (SVG centroid coordinates
 ### i18n
 UI language follows the browser locale (`navigator.languages[0]`). Supported: `fr`, `de`, `it`, `en` (fallback). Country names use `Intl.DisplayNames` keyed by ISO 3166-1 alpha-2 codes (from the `ISO2` map). A small `_OVERRIDE` map handles non-standard cases (UK home nations use subdivision codes `gb-eng` etc., historical states with no ISO code). UI label strings live in the `T` object, indexed by `LANG`. Static page elements (`<title>`, `<h1>`, etc.) are patched from JS at load time.
 
+**Gotcha — non-breaking spaces in i18n strings:** French typography uses non-breaking spaces in several places — `\xa0` (regular non-breaking space) before `": Wikipedia"` in `pageSub`, and ` ` (narrow no-break space) at the start of `pageHeadingSub` strings. The Edit tool matches bytes literally and will silently fail if the search string uses a regular space instead. **Always use a Python script** (`open(...).read()` / `str.replace()` / `open(...).write()`) when editing i18n strings in `wc2026_map.js`, and verify suspicious characters with `python3 -c "print(repr(line))"` first.
+
 ### Tooltip — two-column layout
 Every tooltip header shows `[flag] Country name` left-aligned and `pop. xM` right-aligned on the same row. Population uses `Intl.toLocaleString(LOCALE, …)` for locale-aware decimal separators. `POP_REF` (module-level) holds population by country name for qualified nations without exports; `POP` (Promise closure) holds the full map.
 

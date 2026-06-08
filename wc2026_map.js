@@ -1,11 +1,19 @@
 import { html, render, nothing } from 'https://cdn.jsdelivr.net/npm/lit-html@3/lit-html.js';
 
-const RATIO_MIN = 0.03;
-const RATIO_MAX = 1.20;
+const RATIO_MIN = 0;
+const RATIO_MAX = 66; // Netherlands (2nd highest) anchors the top of the scale
 
 const PALETTE = d3.interpolateRgbBasis(['#f3e8f7','#ddb8ea','#c285d8','#a354c2','#7b2d8b','#581f65','#361240']);
-const normalize = r => (r - RATIO_MIN) / (RATIO_MAX - RATIO_MIN);
+const normalize = r => (r / RATIO_MAX) ** 2;
 const color = r => PALETTE(Math.max(0, Math.min(1, normalize(r))));
+
+const OUTLIER_COLOR = '#000'; // France (99) is off-scale — rendered black
+const OUTLIER_IDS  = new Set([250]);
+const choroFill = (id, byId) => {
+  if (OUTLIER_IDS.has(id)) return OUTLIER_COLOR;
+  const r = byId[id];
+  return r ? color(r.ratio) : '#e8e4e0';
+};
 
 const W = 900, H = 480;
 const projection = d3.geoNaturalEarth1().scale(152).translate([W/2, H/2 + 10]);
@@ -210,14 +218,15 @@ const T = {
     caps:          'sél.',
     players:       n => `joueur${n > 1 ? 's' : ''}`,
     exported:      (n, name) => `joueur${n > 1 ? 's' : ''} né${n > 1 ? 's' : ''} ${name ? frPrep(name) + ' ' + name : 'ici'}`,
-    pageTitle:     'Mondial 2026 - Joueurs nés dans un pays, et qui jouent pour un autre',
-    pageHeading:   'Mondial 2026 - Joueurs nés dans un pays, et qui jouent pour un autre',
+    pageTitle:      'Lieu de naissance des joueurs du Mondial 2026',
+    pageHeading:    'Lieu de naissance des joueurs du Mondial 2026',
+    pageQuote: { text: '« Aux âmes bien nées, la sélection ne dépend point du lieu de naissance. »', author: 'Pierre Corneille', work: 'Le Cid', ref: 'Acte II, sc. 2 (Don Rodrigue) · 1637', sep: ' — ' },
     pageSub:       n => `${n} joueurs au total · source : Wikipedia`,
-    mapAriaLabel:  'Carte choroplèthe des joueurs nés dans un pays et jouant pour un autre',
+    mapAriaLabel:  'Carte choroplèthe des pays de naissance des joueurs du Mondial 2026',
     notQualified:  'non qualifié',
-    pageDescription: 'Carte choroplèthe du Mondial 2026 — joueurs nés dans un pays, sélectionnés par un autre. Normalisé par population.',
+    pageDescription: 'Carte choroplèthe du Mondial 2026 — pays de naissance des joueurs, dont certains jouent pour un autre pays.',
     zoomHint:      'scroll pour zoomer · glisser pour déplacer',
-    legendCaption: "natifs / million d'hab.",
+    legendCaption: 'joueurs nés dans le pays',
   },
   it: {
     noExport:      name => `Nessun giocatore nato${name ? ' in ' + name : ' qui'} gioca per un altro paese`,
@@ -234,14 +243,15 @@ const T = {
     caps:          'pres.',
     players:       n => `giocator${n === 1 ? 'e' : 'i'}`,
     exported:      (n, name) => `giocator${n === 1 ? 'e nato' : 'i nati'}${name ? ' in ' + name : ' qui'}`,
-    pageTitle:     'Mondiali 2026 - Giocatori nati in un paese, che giocano per un altro',
-    pageHeading:   'Mondiali 2026 - Giocatori nati in un paese, che giocano per un altro',
+    pageTitle:      'Luogo di nascita dei giocatori dei Mondiali 2026',
+    pageHeading:    'Luogo di nascita dei giocatori dei Mondiali 2026',
+    pageQuote: { text: '«Aux âmes bien nées, la sélection ne dépend point du lieu de naissance.»', author: 'Pierre Corneille', work: 'Le Cid', ref: 'Acte II, sc. 2 (Don Rodrigue) · 1637', sep: ' — ' },
     pageSub:       n => `${n} giocatori in totale · fonte: Wikipedia`,
-    mapAriaLabel:  'Mappa coropletica dei giocatori nati in un paese e che giocano per un altro',
+    mapAriaLabel:  'Mappa coropletica dei paesi di nascita dei giocatori dei Mondiali 2026',
     notQualified:  'non qualificato',
-    pageDescription: 'Mappa coropletica dei Mondiali 2026 — giocatori nati in un paese, selezionati da un altro. Normalizzato per popolazione.',
+    pageDescription: 'Mappa coropletica dei Mondiali 2026 — paesi di nascita dei giocatori, alcuni dei quali giocano per un altro paese.',
     zoomHint:      'scorri per zoomare · trascina per spostarti',
-    legendCaption: 'nativi / milione di ab.',
+    legendCaption: 'giocatori nati nel paese',
   },
   de: {
     noExport:      name => name ? `Kein in ${name} geborener Spieler spielt für ein anderes Land` : 'Kein hier geborener Spieler spielt für ein anderes Land',
@@ -258,14 +268,15 @@ const T = {
     caps:          'Sp.',
     players:       () => 'Spieler',
     exported:      (n, name) => name ? 'in ' + name + (n === 1 ? ' geborener Spieler' : ' geborene Spieler') : (n === 1 ? 'hier geborener Spieler' : 'hier geborene Spieler'),
-    pageTitle:     'WM 2026 - Spieler, die in einem Land geboren wurden und für ein anderes spielen',
-    pageHeading:   'WM 2026 - Spieler, die in einem Land geboren wurden und für ein anderes spielen',
+    pageTitle:      'Geburtsort der Spieler der WM 2026',
+    pageHeading:    'Geburtsort der Spieler der WM 2026',
+    pageQuote: { text: '„Aux âmes bien nées, la sélection ne dépend point du lieu de naissance.“', author: 'Pierre Corneille', work: 'Le Cid', ref: 'Acte II, sc. 2 (Don Rodrigue) · 1637', sep: ' – ' },
     pageSub:       n => `${n} Spieler insgesamt · Quelle: Wikipedia`,
-    mapAriaLabel:  'Choroplethenkarte der Spieler, die in einem Land geboren wurden und für ein anderes spielen',
+    mapAriaLabel:  'Choroplethenkarte der Geburtsländer der Spieler der WM 2026',
     notQualified:  'nicht qualifiziert',
-    pageDescription: 'Choroplethenkarte der WM 2026 — Spieler, die in einem Land geboren und für ein anderes ausgewählt wurden. Normiert nach Bevölkerungszahl.',
+    pageDescription: 'Choroplethenkarte der WM 2026 — Geburtsländer der Spieler, darunter einige, die für ein anderes Land spielen.',
     zoomHint:      'Scrollen zum Zoomen · Ziehen zum Verschieben',
-    legendCaption: 'Einheimische / Mio. Einwohner',
+    legendCaption: 'im Land geborene Spieler',
   },
   en: {
     noExport:      name => `No player born${name ? ' in ' + name : ' here'} plays for another country`,
@@ -282,14 +293,15 @@ const T = {
     caps:          'caps',
     players:       n => `player${n > 1 ? 's' : ''}`,
     exported:      (n, name) => `player${n > 1 ? 's' : ''} born${name ? ' in ' + name : ' here'}`,
-    pageTitle:     'World Cup 2026 - Players born in one country, playing for another',
-    pageHeading:   'World Cup 2026 - Players born in one country, playing for another',
+    pageTitle:      'Birthplace of 2026 World Cup Players',
+    pageHeading:    'Birthplace of 2026 World Cup Players',
+    pageQuote: { text: '‘Aux âmes bien nées, la sélection ne dépend point du lieu de naissance.’', author: 'Pierre Corneille', work: 'Le Cid', ref: 'Acte II, sc. 2 (Don Rodrigue) · 1637', sep: ' – ' },
     pageSub:       n => `${n} players total · source: Wikipedia`,
-    mapAriaLabel:  'Choropleth map of players born in one country, playing for another',
+    mapAriaLabel:  'Choropleth map of birth countries of 2026 World Cup players',
     notQualified:  'not qualified',
-    pageDescription: 'Choropleth map of the 2026 World Cup — players born in one country, selected for another. Normalised by population.',
+    pageDescription: 'Choropleth map of the 2026 World Cup — birth countries of players, some of whom play for another country.',
     zoomHint:      'scroll to zoom · drag to pan',
-    legendCaption: 'natives / million inhab.',
+    legendCaption: 'players born in the country',
   },
 }[LANG];
 
@@ -297,8 +309,14 @@ const T = {
 document.documentElement.lang = LANG;
 document.title = T.pageTitle;
 document.querySelector('meta[name="description"]')?.setAttribute('content', T.pageDescription);
-document.getElementById('page-heading').textContent   = T.pageHeading;
-document.getElementById('page-heading-mob').textContent = T.pageHeading;
+document.getElementById('page-heading').textContent     = T.pageHeading;
+document.getElementById('page-heading-mob').textContent  = T.pageHeading;
+['page-heading-sub', 'page-heading-sub-mob'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const q = T.pageQuote;
+  el.innerHTML = `<p class="pq-text">${q.text}</p><p class="pq-attr"><span class="pq-author">${q.author}</span>${q.sep}<cite>${q.work}</cite>, ${q.ref}</p>`;
+});
 document.getElementById('zoom-hint').textContent      = T.zoomHint;
 document.getElementById('legend-caption').textContent = T.legendCaption;
 document.getElementById('map').setAttribute('aria-label', T.mapAriaLabel);
@@ -354,7 +372,7 @@ const showQualifiedTip = (event, name, code) => {
 
     render(html`
       <div class="tt-name tt-name-inner">
-        <span class="tt-name-inner">${flagImg(code)}${countryName(nId, name)}</span>
+        <span class="tt-name-inner">${flagImg(code)}${countryName(nId, name)}${DATA_REF[nId]?.totalCount ? html`<span class="tt-count" style="color:#14532d;font-size:18px;margin:0;line-height:1">${DATA_REF[nId].totalCount}</span>` : nothing}</span>
         <span class="tt-pop-rank">${popTag(POP_REF[name])}${rankTag(name)}</span>
       </div>
       <div class="tt-label">${T.noExport(countryName(nId, name))}</div>
@@ -671,18 +689,36 @@ Promise.all([
   const DATA = appData.data;
   const POP  = appData.pop;
   const byId = {};
+  if (appData.natives) {
+    Object.entries(appData.natives).forEach(([name, players]) => {
+      const nId = QUALIFIED_BY_NAME[name];
+      if (nId != null) NATIVE_BY_NATION[nId] = players;
+    });
+  }
   DATA.forEach(d => {
-    d.pop   = POP[d.country] || null;
-    d.ratio = d.pop ? d.count / d.pop : null;
+    d.pop        = POP[d.country] || null;
+    d.nativeCount = (NATIVE_BY_NATION[d.id] ?? []).length;
+    d.totalCount  = d.count + d.nativeCount;
+    d.ratio       = d.totalCount;
     byId[d.id] = d;
   });
   DATA_REF = byId;
-  const exportTotal = DATA.reduce((s, r) => s + r.count, 0);
-  const subText = T.pageSub(exportTotal);
-  document.getElementById('page-sub').textContent     = subText;
-  document.getElementById('page-sub-mob').textContent = subText;
+  // Add coloring entries for qualified nations all of whose players play for their own country
+  Object.entries(NATIVE_BY_NATION).forEach(([nId, players]) => {
+    const id = +nId;
+    if (byId[id]) return;
+    const name = QUALIFIED_NAMES[id];
+    const pop  = POP[name] || null;
+    byId[id] = { id, country: name, count: 0, nativeCount: players.length,
+                 totalCount: players.length, pop, ratio: players.length,
+                 players: [], top: [], nations: [] };
+  });
   POP_REF   = POP;
   FIFA_RANK = appData.fifa_rank || {};
+  OUTLIER_IDS.forEach(id => {
+    const el = document.getElementById('legend-outlier-count');
+    if (el && byId[id]) el.textContent = byId[id].totalCount;
+  });
 
   DATA.forEach(rec => {
     rec.players.forEach(p => {
@@ -693,12 +729,6 @@ Promise.all([
       IMPORT_BY_NATION[nId].push({ name: p.name, birthCountry: rec.country, birthCountryId: rec.id, caps: p.caps, wiki_langs: p.wiki_langs });
     });
   });
-  if (appData.natives) {
-    Object.entries(appData.natives).forEach(([name, players]) => {
-      const nId = QUALIFIED_BY_NAME[name];
-      if (nId != null) NATIVE_BY_NATION[nId] = players;
-    });
-  }
 
   // ── Shared tooltip/click helpers (used by both world and UK nation paths) ──────
 
@@ -709,8 +739,9 @@ Promise.all([
     const importCount  = hasImports ? (IMPORT_BY_NATION[id] ?? []).length : 0;
     if (lastTipKey !== id) {
       lastTipKey = id;
-      const _r2   = rec.ratio !== null ? rec.ratio.toFixed(2) : '?';
-      const ratio = _r2 === '0.00' ? rec.ratio.toPrecision(2) : _r2;
+      const exportRatio = rec.pop && rec.count ? rec.count / rec.pop : null;
+      const _r2   = exportRatio !== null ? exportRatio.toFixed(2) : '?';
+      const ratio = _r2 === '0.00' ? exportRatio.toPrecision(2) : _r2;
       const fc    = ISO2[rec.id];
 
       const leftCol = html`
@@ -740,7 +771,7 @@ Promise.all([
       const hasMore        = leftTruncated || rightTruncated;
       render(html`
         <div class="tt-name tt-name-inner">
-          <span class="tt-name-inner">${flagImg(fc)}${countryName(rec.id, rec.country)}</span>
+          <span class="tt-name-inner">${flagImg(fc)}${countryName(rec.id, rec.country)}<span class="tt-count" style="color:#14532d;font-size:18px;margin:0;line-height:1">${rec.totalCount}</span></span>
           <span class="tt-pop-rank">${popTag(rec.pop)}${rankTag(rec.country)}</span>
         </div>
         ${!QUALIFIED_NAMES[id] ? html`<div class="tt-not-qualified">${T.notQualified}</div>` : nothing}
@@ -860,13 +891,13 @@ Promise.all([
       if (inDest)   { showImportTip(event, id); return; }
       if (inImport) { showImportSourceTip(event, id); return; }
       if (id === dimSourceId) {
-        if (byId[id]) showExportTip(event, id);
+        if (byId[id]?.count > 0) showExportTip(event, id);
         else if (QUALIFIED_NAMES[id]) showQualifiedTip(event, QUALIFIED_NAMES[id], ISO2[id]);
         return;
       }
       hideTip(); return;
     }
-    if (byId[id]) showExportTip(event, id);
+    if (byId[id]?.count > 0) showExportTip(event, id);
     else if (QUALIFIED_NAMES[id]) showQualifiedTip(event, QUALIFIED_NAMES[id], ISO2[id]);
     else hideTip();
   };
@@ -888,7 +919,7 @@ Promise.all([
     .join('path')
     .attr('class','country')
     .attr('d', path)
-    .attr('fill', d => { const r = byId[+d.id]; return r && r.ratio !== null ? color(r.ratio) : '#e8e4e0'; })
+    .attr('fill', d => choroFill(+d.id, byId))
     .attr('stroke','#ccc8c0').attr('stroke-width',.3)
     .attr('data-enables-dim', d => enablesDim(+d.id) ? '' : null)
     .style('cursor', d => enablesDim(+d.id) ? 'pointer' : 'default')
@@ -908,7 +939,7 @@ Promise.all([
     .join('path')
     .attr('class','country country-uk')
     .attr('d', path)
-    .attr('fill', d => { const r = byId[d._id]; return r && r.ratio !== null ? color(r.ratio) : '#e8e4e0'; })
+    .attr('fill', d => choroFill(d._id, byId))
     .attr('stroke','#ccc8c0').attr('stroke-width',.3)
     .attr('data-enables-dim', d => enablesDim(d._id) ? '' : null)
     .style('cursor', d => enablesDim(d._id) ? 'pointer' : 'default')
