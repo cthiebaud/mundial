@@ -1,6 +1,6 @@
-# Mundial 2026 — Exported Players
+# Mundial 2026 — Birthplace of Players
 
-Interactive D3.js choropleth map of the 2026 FIFA World Cup tracking **player exports**: players born in one country who represent another national team, normalised by population.
+Interactive D3.js choropleth map of the 2026 FIFA World Cup showing **where players were born**: how many players born in each country are playing in the tournament, whether for that country or for another.
 
 **Live:** https://aequologica.cthiebaud.com/mundial/
 
@@ -13,25 +13,27 @@ Interactive D3.js choropleth map of the 2026 FIFA World Cup tracking **player ex
 | `index.html` | Entry point — redirects to the map |
 | `wc2026_map_exported.html` | Main map page (Bootstrap 5) |
 | `wc2026_map.js` | All D3 rendering, zoom, tooltips, dim/arc logic, i18n |
-| `wc2026_map_data.json` | App data: player exports by birth country + population |
+| `wc2026_map_data.json` | App data: all players by birth country (natives + playing for another country) + population |
 | `uk-nations.geojson` | Polygons for England, Scotland, Wales, Northern Ireland |
-| `wc2026_og.png` | 1200×630 Open Graph preview image |
-| `wc2026_export_ratio.png` | Bar chart of export ratio (top countries) |
+| `wc2026_og_v3.png` | 1200×630 Open Graph preview image |
+| `wc2026_export_ratio.png` | Bar chart of players born in a country but playing for another (top countries) |
 
 ## Data pipeline
 
 | File | Purpose |
 |---|---|
 | `wc2026_birthplaces.py` | Scraper: Wikipedia → `wc2026_players.csv` |
+| `build_json.py` | Rebuilds `wc2026_map_data.json` from CSV |
 | `add_wiki_urls.py` | Enriches JSON with per-language Wikipedia links (`wiki_langs`) |
 | `wc2026_players.csv` | Full squad roster with birth city/country (source of truth) |
 | `wc2026_by_birthcountry.csv` | Aggregated ranking by birth country |
 | `wc2026_make_ratio_chart.py` | Generates `wc2026_export_ratio.png` from JSON data |
 
+See `pipeline/README.md` for full instructions.
+
 ## chains/
 
-Standalone export-chain infographics visualising the longest multi-hop
-birth-country → selection paths.
+Standalone infographics visualising the longest multi-hop birth-country → plays-for paths.
 
 | File | Purpose |
 |---|---|
@@ -65,4 +67,4 @@ The UI language follows the browser locale. Supported: **French** (`fr`), **Germ
 
 ## Tooltip
 
-Hovering a country shows a two-column tooltip when the country both exports players and is a qualified nation — export data on the left, import data on the right. Collapses to one column when either side is empty. Player names in the dim-mode table link to their Wikipedia page in the UI language, with an `(en)` fallback.
+Hovering a country shows a two-column tooltip when the country both has players born there playing for other nations AND is a qualified nation — the left column shows players born there playing elsewhere, the right column shows players born elsewhere playing for that nation. Collapses to one column when either side is empty. Player names in the dim-mode table link to their Wikipedia page in the UI language, with an `(en)` fallback.
