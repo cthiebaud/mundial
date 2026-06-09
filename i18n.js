@@ -4,6 +4,7 @@ export const LOCALE = navigator.languages?.[0] ?? navigator.language ?? 'en';
 const _LANG = LOCALE.toLowerCase().startsWith('fr') ? 'fr'
            : LOCALE.toLowerCase().startsWith('de') ? 'de'
            : LOCALE.toLowerCase().startsWith('it') ? 'it'
+           : LOCALE.toLowerCase().startsWith('es') ? 'es'
            : 'en';
 
 document.documentElement.lang = _LANG;
@@ -14,12 +15,12 @@ const _regionNames = (() => {
 
 // Entries Intl.DisplayNames cannot handle (subdivision codes, historical states, edge cases)
 const _OVERRIDE = {
-  8260: { fr:'Angleterre',      de:'England',      it:'Inghilterra',    en:'England' },
-  8261: { fr:'Écosse',          de:'Schottland',   it:'Scozia',         en:'Scotland' },
-  8262: { fr:'Pays de Galles',  de:'Wales',        it:'Galles',         en:'Wales' },
-  8263: { fr:'Irlande du Nord', de:'Nordirland',   it:'Irlanda del Nord', en:'Northern Ireland' },
-  'Soviet Union':               { fr:'Union soviétique', de:'Sowjetunion',  it:'Unione Sovietica', en:'Soviet Union' },
-  'Kingdom of the Netherlands': { fr:'Pays-Bas',         de:'Niederlande',  it:'Paesi Bassi',      en:'Netherlands' },
+  8260: { fr:'Angleterre',      de:'England',      it:'Inghilterra',    es:'Inglaterra',     en:'England' },
+  8261: { fr:'Écosse',          de:'Schottland',   it:'Scozia',         es:'Escocia',        en:'Scotland' },
+  8262: { fr:'Pays de Galles',  de:'Wales',        it:'Galles',         es:'Gales',          en:'Wales' },
+  8263: { fr:'Irlande du Nord', de:'Nordirland',   it:'Irlanda del Nord', es:'Irlanda del Norte', en:'Northern Ireland' },
+  'Soviet Union':               { fr:'Union soviétique', de:'Sowjetunion',  it:'Unione Sovietica', es:'Unión Soviética',  en:'Soviet Union' },
+  'Kingdom of the Netherlands': { fr:'Pays-Bas',         de:'Niederlande',  it:'Paesi Bassi',      es:'Países Bajos',     en:'Netherlands' },
 };
 
 // For id=null entries that do have a standard alpha-2 code
@@ -65,6 +66,11 @@ const _itPrep   = name => name?.startsWith('Stati Uniti') ? 'negli' : name?.star
 const _itDefArt = name => name?.startsWith('Stati Uniti') ? 'gli '  : name?.startsWith('Paesi Bassi') ? 'i '   : '';
 // Italian "da" contracted with article (da → dagli / dai)
 const _itDa     = name => name?.startsWith('Stati Uniti') ? 'dagli' : name?.startsWith('Paesi Bassi') ? 'dai'  : 'da';
+
+// Spanish preposition "en" before country name — adds article for plural countries
+const _esPrep   = name => (name?.startsWith('Estados Unidos') || name?.startsWith('Países Bajos')) ? 'en los' : 'en';
+// Spanish definite article for use after non-contracting prepositions (por los)
+const _esDefArt = name => (name?.startsWith('Estados Unidos') || name?.startsWith('Países Bajos')) ? 'los '   : '';
 
 // UI label strings
 export const T = {
@@ -142,6 +148,31 @@ export const T = {
     pageDescription: 'Choroplethenkarte der WM 2026 — Geburtsländer der Spieler, darunter einige, die für ein anderes Land spielen.',
     zoomHint:      'Scrollen zum Zoomen · Ziehen zum Verschieben',
     legendCaption: 'im Land geborene Spieler',
+  },
+  es: {
+    noExport:      name => `Ningún jugador nacido${name ? ' ' + _esPrep(name) + ' ' + name : ' aquí'} juega para otro país`,
+    perMillion:    '/ millón de hab.',
+    ofSquad:       'de la selección',
+    noImport:      name => `Todos los jugadores de la selección nacieron${name ? ' ' + _esPrep(name) + ' ' + name : ' aquí'}`,
+    selectedBy:    n => `y seleccionado${n === 1 ? '' : 's'} por otro país`,
+    clickForAll:   'Haz clic en el país para ver la lista completa',
+    clickForAllPlural: 'Haz clic en el país para ver las listas completas',
+    selectedByLabel: name => `Jugadores seleccionados por ${_esDefArt(name)}${name} nacidos en otro país`,
+    ptNative:      (n, name) => name ? `jugador${n === 1 ? '' : 'es'} nacido${n === 1 ? '' : 's'} ${_esPrep(name)} ${name} y seleccionado${n === 1 ? '' : 's'} por ${_esDefArt(name)}${name}` : `jugador${n === 1 ? '' : 'es'} nacido${n === 1 ? '' : 's'} y seleccionado${n === 1 ? '' : 's'} aquí`,
+    ptImportTitle: (n, name) => `jugador${n === 1 ? '' : 'es'} seleccionado${n === 1 ? '' : 's'} por ${_esDefArt(name)}${name} nacido${n === 1 ? '' : 's'} en otro país`,
+    pop:           'pob.',
+    caps:          'int.',
+    players:       n => `jugador${n === 1 ? '' : 'es'}`,
+    exported:      (n, name) => `jugador${n === 1 ? '' : 'es'} nacido${n === 1 ? '' : 's'}${name ? ' ' + _esPrep(name) + ' ' + name : ' aquí'}`,
+    pageTitle:      'Lugar de nacimiento de los jugadores del Mundial 2026',
+    pageHeading:    'Lugar de nacimiento de los jugadores del Mundial 2026',
+    pageQuote: { text: '«Aux âmes bien nées, la sélection ne dépend point du lieu de naissance.»', author: 'Pierre Corneille', work: 'El Cid', ref: 'Acto II, esc. 2 (Don Rodrigo) · 1637', sep: ' — ' },
+    pageSub:       n => `${n} jugadores en total · fuente: Wikipedia`,
+    mapAriaLabel:  'Mapa coroplético de los países de nacimiento de los jugadores del Mundial 2026',
+    notQualified:  'no clasificado',
+    pageDescription: 'Mapa coroplético del Mundial 2026 — países de nacimiento de los jugadores, algunos de los cuales juegan para otro país.',
+    zoomHint:      'rueda para zoom · arrastra para mover',
+    legendCaption: 'jugadores nacidos en el país',
   },
   en: {
     noExport:      name => `No player born${name ? ' in ' + name : ' here'} plays for another country`,
