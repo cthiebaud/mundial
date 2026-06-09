@@ -1,6 +1,6 @@
 import { whereNumeric } from 'https://cdn.jsdelivr.net/npm/iso-3166-1@2/+esm';
 
-export const LOCALE = navigator.languages?.[0] ?? navigator.language ?? 'fr';
+export const LOCALE = navigator.languages?.[0] ?? navigator.language ?? 'en';
 const LANG = LOCALE.toLowerCase().startsWith('fr') ? 'fr'
            : LOCALE.toLowerCase().startsWith('de') ? 'de'
            : LOCALE.toLowerCase().startsWith('it') ? 'it'
