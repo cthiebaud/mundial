@@ -19,10 +19,11 @@ GitHub: **https://github.com/cthiebaud/mundial** (standalone repo)
 | `wc2026_map_exported.html` | Main map page (Bootstrap 5, loads JS + JSON via ES module) |
 
 **OG tags:** Both `index.html` and `wc2026_map_exported.html` carry identical OG meta tags. Always update **both files** together when any OG tag changes (og:image, og:url, og:title, og:description, etc.).
-| `wc2026_map.js` | ES module — D3 rendering, zoom, tooltips (lit-html), dim/arc logic, i18n |
+| `wc2026_map.js` | ES module — D3 rendering, zoom, tooltips (lit-html), dim/arc logic |
+| `i18n.js` | ES module — language detection, `T` strings, `countryName()`, `wikiUrl()` |
 | `wc2026_map_data.json` | All data: player exports + natives by birth country + population + `wiki_langs` |
 | `uk-nations.geojson` | 4 UK home nations polygons (Natural Earth 50m) — England, Scotland, Wales, Northern Ireland rendered as separate choropleth features |
-| `wc2026_og_v3.png` | 1200×630 Open Graph preview image for LinkedIn/social |
+| `wc2026_og_v3.png` | 1200×640 Open Graph preview image for LinkedIn/social |
 | `chains/` | Export chain infographics — see section below |
 | `pipeline/` | Data acquisition scripts and source CSVs — see `pipeline/README.md` |
 
@@ -40,6 +41,8 @@ All dependencies served from a single CDN — **jsDelivr** (`cdn.jsdelivr.net/np
 | `circle-flags` | 2 | Circular flag SVGs (map flags, tooltip headers) |
 | `flag-icons` | 7 | 4×3 rectangular flag SVGs (player lists, player table) — handles subdivision codes (`gb-eng` etc.) |
 | `lit-html` | 3 | HTML templating for all tooltips and the player table |
+| `iso-3166-1` | 2 | ISO 3166-1 lookups used by `i18n.js` → `countryName()` (ESM, loaded via jsDelivr) |
+| `world-atlas` | 2 | 110m TopoJSON world map fetched at runtime by `wc2026_map.js` |
 
 `wc2026_map.js` is loaded as `<script type="module">` so it can use the `import` statement at the top.
 
@@ -99,7 +102,7 @@ Key helpers (module-level, return `TemplateResult` or `nothing`):
 - `flagImg(code)` — renders `<img class="tt-flag" src="...">` (circle-flags CDN), or `nothing`
 - `ptWikiRow(p)` — renders a player name with optional Wikipedia link in the UI language
 
-Tooltip functions (all inside the Promise callback, access `POP` closure):
+Tooltip functions (all module-level, access `app.pop` via the `app` object):
 - `buildImportColHtml(nationId)` → `TemplateResult` (reusable import column)
 - `showQualifiedTip`, `showExportTip`, `showImportTip`, `showImportSourceTip`, `showCombinedTip` — each calls `render(html\`...\`, tt)`
 
@@ -131,26 +134,38 @@ The four home nations (England, Scotland, Wales, Northern Ireland) are handled a
 Cape Verde (id=132) and Curaçao (id=531) don't appear reliably in the 110m topojson — placed manually via `STANDALONE_FLAGS` array with explicit lon/lat.
 
 ### Zoom-stable flags and arcs
-All `.flag-qualified` images store `data-cx`/`data-cy` (SVG centroid coordinates) and `data-sw` (base stroke-width for arcs). The zoom handler reads these to keep flags and arcs visually consistent at any zoom level.
+All `.flag-qualified` images store `data-cx`/`data-cy` (SVG centroid coordinates). Arc `path` and `polygon` elements store `data-sw` (base stroke-width), `data-sx`/`data-sy` (source centroid), and `data-tx`/`data-ty` (target centroid). The zoom handler reads these attributes to rescale flags and recompute arc geometry at any zoom level, keeping both visually consistent.
 
 ### i18n
-UI language follows the browser locale (`navigator.languages[0]`). Supported: `fr`, `de`, `it`, `en` (fallback). Country names use `Intl.DisplayNames` keyed by ISO 3166-1 alpha-2 codes (from the `ISO2` map). A small `_OVERRIDE` map handles non-standard cases (UK home nations use subdivision codes `gb-eng` etc., historical states with no ISO code). UI label strings live in the `T` object, indexed by `LANG`. Static page elements (`<title>`, `<h1>`, etc.) are patched from JS at load time.
+UI language follows the browser locale (`navigator.languages[0]`). Supported: `fr`, `de`, `it`, `es`, `en` (fallback). Country names are resolved by `countryName()` in `i18n.js` using `Intl.DisplayNames` (backed by the `iso-3166-1` npm package for alpha-2 lookups). A small `_OVERRIDE` map handles non-standard cases (UK home nations use subdivision codes `gb-eng` etc., historical states with no ISO code). `T` is the already-resolved label object for the active language — it is not a nested object keyed by language; the internal `_LANG` variable selects the entry at module load time. Static page elements (`<title>`, `<h1>`, etc.) are patched from JS at load time.
 
-**Gotcha — non-breaking spaces in i18n strings:** French typography uses non-breaking spaces in several places — `\xa0` (regular non-breaking space) before `": Wikipedia"` in `pageSub`, and ` ` (narrow no-break space) at the start of `pageHeadingSub` strings. The Edit tool matches bytes literally and will silently fail if the search string uses a regular space instead. **Always use a Python script** (`open(...).read()` / `str.replace()` / `open(...).write()`) when editing i18n strings in `wc2026_map.js`, and verify suspicious characters with `python3 -c "print(repr(line))"` first.
+i18n is now extracted into **`i18n.js`** (ES module imported by `wc2026_map.js`). It exports `LOCALE`, `T`, `countryName`, and `wikiUrl`. Wikipedia links are provided for `en`, `fr`, `de`, `it`, `es`; all other browser locales fall back to the English Wikipedia URL without an `(en)` suffix.
 
-### Tooltip — two-column layout
-Every tooltip header shows `[flag] Country name` left-aligned and `pop. xM` right-aligned on the same row. Population uses `Intl.toLocaleString(LOCALE, …)` for locale-aware decimal separators. `POP_REF` (module-level) holds population by country name for qualified nations without exports; `POP` (Promise closure) holds the full map.
+**Gotcha — non-breaking spaces in i18n strings:** French typography uses non-breaking spaces in several places — `\xa0` (regular non-breaking space) before `": Wikipedia"` in `pageSub`, and ` ` (narrow no-break space) at the start of `pageHeadingSub` strings. The Edit tool matches bytes literally and will silently fail if the search string uses a regular space instead. **Always use a Python script** (`open(...).read()` / `str.replace()` / `open(...).write()`) when editing i18n strings in `i18n.js`, and verify suspicious characters with `python3 -c "print(repr(line))"` first.
 
-The main (non-dim) tooltip shows two columns when hovering over a country that both exports players AND is a qualified nation:
-- **Left column**: raw export count (big number) + ratio/million (small sub) + destination nations + top 5 players with `→ destination`
-- **Right column**: raw import count (big number, red) + `/ 26` label + birth nations + top 5 players sorted by caps with `← birth country`
+### Tooltip — variants and layout
+Tooltips are **disabled on mobile** (`/Mobi/i` UA check). On desktop, hovering a country dispatches to one of five functions:
 
-Collapses to a single column when one side is empty.
+| Function | Trigger |
+|---|---|
+| `showExportTip` | Any country where `app.byId[id].count > 0` (exports players) — qualified or not |
+| `showQualifiedTip` | Qualified nation with no exports |
+| `showCombinedTip` | Dim mode: country is both a dim destination and an import source |
+| `showImportTip` | Dim mode: hovering a destination flag |
+| `showImportSourceTip` | Dim mode: hovering a birth-country source flag |
 
-`IMPORT_BY_NATION` (module-level, populated on data load) maps each qualified nation ID to the list of imported players. Self-import is excluded by comparing `countryName()` output for birth country and nation — this catches name-mismatch cases like DR Congo (`id=null`, name="Democratic Republic of the Congo") vs. qualified nation 180 ("DR Congo").
+**`showExportTip` layout:** Non-qualified birth countries show the country name with a *not qualified* badge (`tt-non-qualified` class on `#tooltip`). Qualified nations with both exports and imports render a two-column layout:
+- **Left column**: raw export count + ratio/million + destination nations + top 5 players with `→ destination`
+- **Right column**: raw import count + birth nations + top 5 players sorted by caps with `← birth country`
+
+Collapses to a single column when the import side is empty.
+
+Every tooltip header shows `[flag] Country name` left-aligned and `pop. xM` right-aligned on the same row. Population uses `Intl.toLocaleString(LOCALE, …)` for locale-aware decimal separators.
+
+`app.importByNation` (property of the module-level `app` object, populated on data load) maps each qualified nation ID to the list of imported players. Self-import is excluded by comparing `countryName()` output for birth country and nation — this catches name-mismatch cases like DR Congo (`id=null`, name="Democratic Republic of the Congo") vs. qualified nation 180 ("DR Congo").
 
 ### Wikipedia links in player table
-Players in the dim-mode table link to their Wikipedia page in the UI language when available, with `(en)` fallback link otherwise. `wiki_langs: {en, fr?, de?, it?}` is stored per player in the JSON and populated by `add_wiki_urls.py`.
+Players in the dim-mode table link to their Wikipedia page in the UI language when available, with `(en)` fallback link otherwise. `wiki_langs: {en, fr?, de?, it?, es?}` is stored per player in the JSON and populated by `add_wiki_urls.py`.
 
 ### Mobile layout
 On screens narrower than 768px (`d-md-none` / `d-md-flex` Bootstrap breakpoint):
@@ -171,14 +186,15 @@ On portrait mobile only (landscape and desktop are unaffected):
 Shown below the map in dim mode. Structure rendered by `playerTableTemplate` via lit-html:
 - Header row: `[flag] Country` left + `pop. xM` right
 - Export section (bordered top): count heading + grouped player rows by destination nation
+- Natives section (conditional): players born there playing for that same country (`app.nativeByNation`)
 - Import section (bordered top, conditional): count heading + grouped player rows by birth country
 - Player names link to Wikipedia in the UI language when `wiki_langs` data is available
 
 ### Dim / arc mode
-- Left-click an exporting country → dims all qualified nation flags except destinations; draws curved arcs with √count-scaled width; shows player table below map
+- Left-click any country where `enablesDim()` returns true (has exports, or is a qualified nation with imports/natives) → dims all qualified nation flags except relevant ones; draws curved arcs with √count-scaled width; shows player table below map
 - Any second click → clears dim
-- `dimActive` flag prevents tooltip from reappearing during dim
-- `currentK` tracks current zoom scale so arcs are drawn at correct size on click
+- `dimState.active` flag prevents tooltip from reappearing during dim
+- `dimState.k` tracks current zoom scale so arcs are redrawn at correct size on zoom
 
 ### Data join ordering in the render callback
 Order matters for SVG z-layering:

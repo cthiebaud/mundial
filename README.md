@@ -27,10 +27,11 @@ Interactive D3.js choropleth map of the 2026 FIFA World Cup showing **where play
 |---|---|
 | `index.html` | Entry point — redirects to the map |
 | `wc2026_map_exported.html` | Main map page (Bootstrap 5) |
-| `wc2026_map.js` | All D3 rendering, zoom, tooltips, dim/arc logic, i18n |
+| `wc2026_map.js` | All D3 rendering, zoom, tooltips, dim/arc logic |
+| `i18n.js` | Language detection, UI strings, `countryName()`, `wikiUrl()` |
 | `wc2026_map_data.json` | App data: all players by birth country (natives + playing for another country) + population |
 | `uk-nations.geojson` | Polygons for England, Scotland, Wales, Northern Ireland |
-| `wc2026_og_v3.png` | 1200×630 Open Graph preview image |
+| `wc2026_og_v3.png` | 1200×640 Open Graph preview image |
 
 ## Data pipeline
 
@@ -92,8 +93,19 @@ Landscape mobile and desktop are unaffected.
 
 ## i18n
 
-The UI language follows the browser locale. Supported: **French** (`fr`), **German** (`de`), **Italian** (`it`), English (fallback). Country names use the browser's `Intl.DisplayNames` API.
+The UI language follows the browser locale. Supported: **French** (`fr`), **German** (`de`), **Italian** (`it`), **Spanish** (`es`), English (fallback). Country names use the browser's `Intl.DisplayNames` API. Wikipedia player links are available in all five languages; other locales fall back to the English Wikipedia URL.
 
 ## Tooltip
 
-Hovering a country shows a two-column tooltip when the country both has players born there playing for other nations AND is a qualified nation — the left column shows players born there playing elsewhere, the right column shows players born elsewhere playing for that nation. Collapses to one column when either side is empty. Player names in the dim-mode table link to their Wikipedia page in the UI language, with an `(en)` fallback.
+Hovering a country triggers one of several tooltip variants (desktop only — tooltips are disabled on mobile):
+
+| Situation | Tooltip shown |
+|---|---|
+| Players born there, playing for another country (any country) | Export tooltip — single column; non-qualified countries show a *not qualified* badge |
+| Qualified nation, no exports, but imported players | Import-only tooltip |
+| Qualified nation with both exports and imports | Two-column tooltip: left = exports, right = imports |
+| Qualified nation, no exports, no imports | Qualified tooltip with "no export / no import" message |
+
+In dim mode (after clicking an exporting country), hovering a destination flag shows that nation's incoming players from the selected source; hovering a birth-country flag shows its players selected by the dim'd nation.
+
+Player names in the dim-mode table link to their Wikipedia page in the UI language, with an `(en)` fallback.
