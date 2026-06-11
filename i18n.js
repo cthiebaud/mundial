@@ -107,7 +107,7 @@ export const T = {
     tabChain:      'Chemin le plus long',
     tabPlayersHint:'Cliquez sur un pays pour voir ses joueurs.',
     chainLegend:   { pre: 'Le plus long', bornIn: 'né en', playsFor: 'joue pour', post: 'chemin' },
-    chainSubtitle: (p, c) => `Mondial 2026 · ${p} joueurs · ${c} pays`,
+    chainSubtitle: (p, c) => `${p} joueurs · ${c} pays`,
   },
   it: {
     noExport:      name => `Nessun giocatore nato${name ? ' ' + _itPrep(name) + ' ' + name : ' qui'} gioca per un altro paese`,
@@ -135,7 +135,7 @@ export const T = {
     tabChain:      'Percorso più lungo',
     tabPlayersHint:'Clicca su un paese per vedere i suoi giocatori.',
     chainLegend:   { pre: 'Il più lungo', bornIn: 'nato in', playsFor: 'gioca per', post: 'cammino' },
-    chainSubtitle: (p, c) => `Mondiale 2026 · ${p} giocatori · ${c} paesi`,
+    chainSubtitle: (p, c) => `${p} giocatori · ${c} paesi`,
   },
   de: {
     noExport:      name => name ? `Kein in ${name} geborener Spieler spielt für ein anderes Land` : 'Kein hier geborener Spieler spielt für ein anderes Land',
@@ -164,7 +164,7 @@ export const T = {
     tabChain:      'Längster Pfad',
     tabPlayersHint:'Klicke auf ein Land, um seine Spieler zu sehen.',
     chainLegend:   { pre: 'Der längste', bornIn: 'geboren in', playsFor: 'spielt für', post: 'Weg' },
-    chainSubtitle: (p, c) => `WM 2026 · ${p} Spieler · ${c} Länder`,
+    chainSubtitle: (p, c) => `${p} Spieler · ${c} Länder`,
   },
   es: {
     noExport:      name => `Ningún jugador nacido${name ? ' ' + _esPrep(name) + ' ' + name : ' aquí'} juega para otro país`,
@@ -193,7 +193,7 @@ export const T = {
     tabChain:      'Camino más largo',
     tabPlayersHint:'Haz clic en un país para ver sus jugadores.',
     chainLegend:   { pre: 'El más largo', bornIn: 'nacido en', playsFor: 'juega para', post: 'camino' },
-    chainSubtitle: (p, c) => `Mundial 2026 · ${p} jugadores · ${c} países`,
+    chainSubtitle: (p, c) => `${p} jugadores · ${c} países`,
   },
   en: {
     noExport:      name => `No player born${name ? ' in ' + name : ' here'} plays for another country`,
@@ -222,6 +222,6 @@ export const T = {
     tabChain:      'Longest path',
     tabPlayersHint:'Click a country on the map to see its players.',
     chainLegend:   { pre: 'Longest', bornIn: 'born in', playsFor: 'plays for', post: 'path' },
-    chainSubtitle: (p, c) => `World Cup 2026 · ${p} players · ${c} countries`,
+    chainSubtitle: (p, c) => `${p} players · ${c} countries`,
   },
 }[_LANG];
