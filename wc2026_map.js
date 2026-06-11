@@ -190,7 +190,7 @@ document.title = DOCUMENT_TITLE;
 document.querySelector('meta[name="description"]')?.setAttribute('content', T.pageDescription);
 document.getElementById('page-heading').textContent     = T.pageHeading;
 document.getElementById('page-heading-mob').textContent  = T.pageHeading;
-['page-heading-sub', 'page-heading-sub-mob'].forEach(id => {
+['page-heading-sub', 'page-heading-sub-mob', 'mobile-quote'].forEach(id => {
   const el = document.getElementById(id);
   if (!el) return;
   const q = T.pageQuote;

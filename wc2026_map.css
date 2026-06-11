@@ -26,7 +26,8 @@ body.dim-active #map [data-dim-visible] { cursor: pointer !important; }
 #page-heading-mob { font-size: 13px; font-weight: 500; letter-spacing: -.2px; line-height: 1.3; margin-bottom: 4px; }
 
 /* page quote (pq-) */
-#page-heading-sub, #page-heading-sub-mob { margin: 2px 0 4px; }
+#page-heading-sub, #page-heading-sub-mob, #mobile-quote { margin: 2px 0 4px; }
+#mobile-quote { display: none; }
 .pq-text { font-family: Georgia, 'Times New Roman', serif; font-size: 13px; color: #555; margin: 0 0 3px; line-height: 1.45; }
 .pq-attr { font-size: 10px; color: #999; margin: 0; }
 .pq-author { font-variant: small-caps; letter-spacing: 0.07em; color: #666; }
@@ -53,12 +54,15 @@ body.dim-active #map [data-dim-visible] { cursor: pointer !important; }
     position: fixed !important;
     bottom: 0; left: 0; right: 0;
     z-index: 100;
-    background: #f5f2ec;
-    border-bottom: none !important;
-    border-top: 1px solid var(--color-divider);
+    background: #eeebe4;
     padding: 0 1rem;
     margin: 0 !important;
   }
+}
+
+@media (max-width: 767.98px) and (orientation: portrait) {
+  #page-heading-sub-mob { display: none; }
+  body:not(.dim-active):not(:has(#tab-chain.active)) #mobile-quote { display: block; margin: 1rem 0; }
 }
 
 /* tooltip (tt-) */
@@ -106,11 +110,12 @@ body.dim-active #map [data-dim-visible] { cursor: pointer !important; }
 .pt-wiki { color: inherit; border-bottom: 1px dotted var(--color-muted); }
 .pt-wiki:hover { border-bottom-color: #7b2d8b; color: #7b2d8b; }
 
-/* nav tabs */
+/* nav pills */
 #bottomTabList { align-items: stretch; }
 #bottomTabList .nav-item { display: flex; }
-#bottomTabList .nav-link { display: flex; align-items: flex-start; background-color: transparent !important; }
-#bottomTabList .nav-link.active { background-color: transparent !important; }
+#bottomTabList .nav-link { display: flex; align-items: center; color: #444; }
+#bottomTabList .nav-link:hover { background-color: #e2e6ea; color: #000; }
+#bottomTabList .nav-link.active { background-color: #f8f9fa; color: #000; border: 1px solid #dee2e6; }
 
 /* player table accordion overrides */
 .accordion-flush .accordion-item { background-color: transparent; border-color: var(--color-divider); }
