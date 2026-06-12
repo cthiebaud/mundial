@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-11",
+  "updated": "2026-06-12",
   "source": "eloratings.net",
   "rankings": [
     {
@@ -124,7 +124,7 @@
     {
       "id": 484,
       "rank": 18,
-      "pts": 1875,
+      "pts": 1881,
       "iso2": "mx",
       "name": "Mexico"
     },
@@ -551,7 +551,7 @@
     {
       "id": 710,
       "rank": 80,
-      "pts": 1517,
+      "pts": 1511,
       "iso2": "za",
       "name": "South Africa"
     },
