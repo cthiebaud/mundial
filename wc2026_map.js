@@ -217,7 +217,7 @@ render(html`<p class="py-4 text-center sub fst-italic">${T.tabPlayersHint}</p>`,
 // Chain tab: load data lazily, render when tab is shown, re-render on resize
 // Both callbacks reference symbols defined later in the module — safe because they
 // are only invoked on user interaction, after the module has fully loaded.
-const _chainOnClick    = node => { activateCountry(ISO2_REVERSE[node.code]); _zoomToActiveDimFlags(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+const _chainOnClick    = node => { activateCountry(ISO2_REVERSE[node.code]); _zoomToActiveDimFlags(); };
 const _chainGetIndex   = () => {
   if (!_chainData || dimState.sourceId == null) return -1;
   return _chainData.nodes.findIndex(n => ISO2_REVERSE[n.code] === dimState.sourceId);
@@ -286,7 +286,7 @@ fetch('./chains/wc2026_chain_longest.json').then(r => r.json()).then(d => {
   if (document.getElementById('tab-chain')?.classList.contains('active')) _renderChain();
 });
 document.getElementById('tab-chain-btn')?.addEventListener('shown.bs.tab', () => {
-  if (_chainData) _renderChain();
+  if (_chainData) { _renderChain(); requestAnimationFrame(() => _chainUpdate?.scrollActive()); }
 });
 
 // Elo ranking tab — two-column layout: ranking list (flex:1) + collapsible sidebar
@@ -429,7 +429,7 @@ const _renderElo = () => {
   _filterCountEl.textContent = items.length;
   _eloUpdate = renderEloRanking(_eloMain, {
     items,
-    onCountryClick: id => { if (dimState.sourceId === id) { clearDim(); } else { activateCountry(id); _zoomToActiveDimFlags(); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
+    onCountryClick: id => { if (dimState.sourceId === id) { clearDim(); } else { activateCountry(id); _zoomToActiveDimFlags(); } },
     isClickable: id => enablesDim(id),
     isMuted:     id => !QUALIFIED_NAMES[id],
     getSelectedId: () => dimState.sourceId,
@@ -448,7 +448,10 @@ fetch('./wc2026_elo_rank.json').then(r => r.json()).then(d => {
   );
   if (document.getElementById('tab-elo')?.classList.contains('active')) _renderElo();
 }).catch(() => {});
-document.getElementById('tab-elo-btn')?.addEventListener('shown.bs.tab', _renderElo);
+document.getElementById('tab-elo-btn')?.addEventListener('shown.bs.tab', () => {
+  _renderElo();
+  requestAnimationFrame(() => document.querySelector('#tab-elo .elo-item--active')?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+});
 let _chainResizeTimer = null;
 window.addEventListener('resize', () => {
   clearTimeout(_chainResizeTimer);

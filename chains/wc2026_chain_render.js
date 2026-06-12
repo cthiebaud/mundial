@@ -250,7 +250,9 @@ export function renderChain(chain, container, opts = {}) {
   wrapper.appendChild(svg);
 
   // Returned function updates only selection state — no SVG rebuild, no flicker.
-  return newIdx => {
+  let _currentIdx = selIdx;
+  const update = newIdx => {
+    _currentIdx = newIdx;
     _selBgs.forEach((r, i) => r.setAttribute('visibility', i === newIdx ? 'visible' : 'hidden'));
     _navBtns.forEach(({ btn, delta }) => {
       const dis = newIdx >= 0 && (delta < 0 ? newIdx === 0 : newIdx === nn - 1);
@@ -258,4 +260,6 @@ export function renderChain(chain, container, opts = {}) {
       btn.style.cursor  = dis ? 'default' : 'pointer';
     });
   };
+  update.scrollActive = () => { if (_currentIdx >= 0) _selBgs[_currentIdx]?.scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+  return update;
 }
