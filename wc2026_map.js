@@ -217,7 +217,7 @@ render(html`<p class="py-4 text-center sub fst-italic">${T.tabPlayersHint}</p>`,
 // Chain tab: load data lazily, render when tab is shown, re-render on resize
 // Both callbacks reference symbols defined later in the module — safe because they
 // are only invoked on user interaction, after the module has fully loaded.
-const _chainOnClick    = node => activateCountry(ISO2_REVERSE[node.code]);
+const _chainOnClick    = node => { activateCountry(ISO2_REVERSE[node.code]); _zoomToActiveDimFlags(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 const _chainGetIndex   = () => {
   if (!_chainData || dimState.sourceId == null) return -1;
   return _chainData.nodes.findIndex(n => ISO2_REVERSE[n.code] === dimState.sourceId);
@@ -400,12 +400,33 @@ const _buildEloItems = () => (_eloData?.rankings ?? [])
   }))
   .filter(({ id }) => _catChecked(_flagCat(id)));
 
+const _zoomToActiveDimFlags = () => {
+  const xs = [], ys = [];
+  g.selectAll(`.flag-qualified[data-id="${dimState.sourceId}"]`).each(function() {
+    const cx = +this.getAttribute('data-cx'), cy = +this.getAttribute('data-cy');
+    if (isFinite(cx) && isFinite(cy)) { xs.push(cx); ys.push(cy); }
+  });
+  g.selectAll('.flag-qualified[data-dim-visible]').each(function() {
+    const cx = +this.getAttribute('data-cx'), cy = +this.getAttribute('data-cy');
+    if (isFinite(cx) && isFinite(cy)) { xs.push(cx); ys.push(cy); }
+  });
+  if (!xs.length) return;
+  const [vbX, vbY, vbW, vbH] = svg.attr('viewBox').split(' ').map(Number);
+  const x0 = Math.min(...xs), x1 = Math.max(...xs);
+  const y0 = Math.min(...ys), y1 = Math.max(...ys);
+  const pad = 20;
+  const k = Math.max(1, Math.min(12, Math.min(vbW / (x1 - x0 + 2 * pad), vbH / (y1 - y0 + 2 * pad))));
+  const tx = vbX + vbW / 2 - k * (x0 + x1) / 2;
+  const ty = vbY + vbH / 2 - k * (y0 + y1) / 2;
+  svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
+};
+
 const _renderElo = () => {
   const items = _buildEloItems();
   _filterCountEl.textContent = items.length;
   _eloUpdate = renderEloRanking(_eloMain, {
     items,
-    onCountryClick: id => { if (dimState.sourceId === id) { clearDim(); } else { activateCountry(id); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
+    onCountryClick: id => { if (dimState.sourceId === id) { clearDim(); } else { activateCountry(id); _zoomToActiveDimFlags(); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
     isClickable: id => enablesDim(id),
     isMuted:     id => !QUALIFIED_NAMES[id],
     getSelectedId: () => dimState.sourceId,
