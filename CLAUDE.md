@@ -19,7 +19,10 @@ GitHub: **https://github.com/cthiebaud/mundial** (standalone repo)
 | `wc2026_map_exported.html` | Main map page (Bootstrap 5, loads JS + JSON via ES module) |
 
 **OG tags:** Both `index.html` and `wc2026_map_exported.html` carry identical OG meta tags. Always update **both files** together when any OG tag changes (og:image, og:url, og:title, og:description, etc.).
-| `wc2026_map.js` | ES module — D3 rendering, zoom, tooltips (lit-html), dim/arc logic |
+| `wc2026_map.js` | ES module — D3 rendering, zoom, tooltips (lit-html), filter sidebar, Elo tab, dim/arc logic |
+| `wc2026_map.css` | All custom styles (map, header, legend, tooltips, Elo list, filter table) |
+| `wc2026_elo_ranking.js` | ES module — reusable Elo ranking list component |
+| `wc2026_elo_rank.json` | Current World Football Elo ratings (fetched at runtime) |
 | `i18n.js` | ES module — language detection, `T` strings, `countryName()`, `wikiUrl()` |
 | `wc2026_map_data.json` | All data: player exports + natives by birth country + population + `wiki_langs` |
 | `uk-nations.geojson` | 4 UK home nations polygons (Natural Earth 50m) — England, Scotland, Wales, Northern Ireland rendered as separate choropleth features |
@@ -167,20 +170,26 @@ Every tooltip header shows `[flag] Country name` left-aligned and `pop. xM` righ
 ### Wikipedia links in player table
 Players in the dim-mode table link to their Wikipedia page in the UI language when available, with `(en)` fallback link otherwise. `wiki_langs: {en, fr?, de?, it?, es?}` is stored per player in the JSON and populated by `add_wiki_urls.py`.
 
-### Mobile layout
-On screens narrower than 768px (`d-md-none` / `d-md-flex` Bootstrap breakpoint):
-- The desktop `<header>` is hidden (`d-none d-md-flex`)
-- The legend row becomes two columns: **left** = title + subtitle (mobile only, `d-md-none`), **right** = legend bar + caption
-- Legend bar and ticks shrink to 90px max-width via `@media (max-width: 767.98px)`
-- Legend caption and legend bar are right-aligned on mobile, left-aligned on desktop
+### Fixed header + map architecture
+The page uses two fixed elements:
+- **`#page-header`** (`position: fixed; top: 0; z-index: 200`): CSS grid with two overlapping `grid-row:1 grid-column:1` children — `#page-heading-sub` (quote + legend) on the left, `#filter-sidebar` on the right (justified-end). Row height = tallest child.
+- **`#map-container`** (`position: fixed !important; top: var(--page-header-h)`): sits immediately below the header. `!important` is required to override Bootstrap's `.position-relative`.
+- **`body.paddingTop`** is set by JS (`_syncPaddingTop`), measuring `map-container.getBoundingClientRect().bottom` — **not** a CSS formula. A `resize` listener keeps it in sync. Do not add a CSS `padding-top` to body; it will conflict.
+- **`--page-header-h`** CSS variable is set once after measuring `_pageHeader.offsetHeight` (forces reflow) so the map's `top` is pixel-accurate.
+
+### Legend
+The legend (`#legend`) lives as the third child of `#page-heading-sub`, bottom-aligned via `mt-auto` on a `d-flex flex-column h-100` wrapper.
+- **Gradient direction**: `linear-gradient(to left, …)` — **high values (dark) on the left, 0 on the right**. Ticks read: `66 · 55 · 35 · 15 · 0`.
+- **Outlier**: France (id=250) is off-scale, rendered black (`#000`), shown as a standalone dot to the left of the gradient bar.
+- On narrow screens (`max-width: 767.98px`), the bar and ticks shrink to 90px.
+
+### Mobile layout (`@media (max-width: 767.98px)`)
+Legend bar/ticks shrink to 90px. The fixed header and map are always present on all screen sizes.
 
 ### Mobile portrait sticky layout (`@media (max-width: 767.98px) and (orientation: portrait)`)
 On portrait mobile only (landscape and desktop are unaffected):
-- **Map fixed at top**: `#map-container` gets `position: fixed !important` — the `!important` is required because Bootstrap's `.position-relative` utility is declared with `!important` and would otherwise win.
-- **Body offset**: `body { padding-top: calc(100vw * 480 / 900) }` pushes all page content below the fixed map. The formula matches the SVG's `viewBox="0 0 900 480"` aspect ratio so the offset is exact at any viewport width.
 - **Tab bar fixed at bottom**: `#bottomTabList` gets `position: fixed !important; bottom: 0; left: 0; right: 0` so the navigation stays visible while the tab content scrolls freely above it.
 - **Bottom clearance**: `body { padding-bottom: 48px }` prevents the last line of tab content from being hidden behind the fixed tab bar.
-- **Border flip**: Bootstrap's nav-tabs border is on the bottom by default; overridden to `border-bottom: none; border-top: 1px solid var(--color-divider)` since the bar is now at the bottom of the screen.
 
 ### Player table
 Shown below the map in dim mode. Structure rendered by `playerTableTemplate` via lit-html:
@@ -190,9 +199,17 @@ Shown below the map in dim mode. Structure rendered by `playerTableTemplate` via
 - Import section (bordered top, conditional): count heading + grouped player rows by birth country
 - Player names link to Wikipedia in the UI language when `wiki_langs` data is available
 
+### Elo ranking tab and filter sidebar
+The **Elo ranking** tab (default active) shows all countries as pill badges, rendered by `renderEloRanking` from `wc2026_elo_ranking.js`. Countries are filtered by the sidebar cube (`qualified × importer × exporter`); clicking a badge activates dim mode; clicking the active badge clears it.
+
+**Critical ordering**: `_renderElo()` must be called **after** `buildIndices(rawData)` in the `Promise.all` callback. If called before (e.g. when the Elo JSON loads first), `app.byId` is empty, non-qualified exporters get wrongly bucketed as category `'o'` (filtered out by default), and `enablesDim()` returns false for all items (nothing clickable).
+
+The filter sidebar's natural height is measured before its first collapse (`classList.remove('collapsed') → scrollHeight → classList.add('collapsed')`), stored in `--filter-sidebar-h`, which drives the toggle button's `min-height`. The actual header height (`--page-header-h`) is measured separately via `offsetHeight`.
+
 ### Dim / arc mode
-- Left-click any country where `enablesDim()` returns true (has exports, or is a qualified nation with imports/natives) → dims all qualified nation flags except relevant ones; draws curved arcs with √count-scaled width; shows player table below map
-- Any second click → clears dim
+- Left-click any country on the map or in the Elo list where `enablesDim()` returns true → dims all qualified nation flags except relevant ones; draws curved arcs with √count-scaled width; shows player table below map
+- Clicking the **same** active Elo item again → clears dim
+- Any other map click → clears dim
 - `dimState.active` flag prevents tooltip from reappearing during dim
 - `dimState.k` tracks current zoom scale so arcs are redrawn at correct size on zoom
 
