@@ -2,6 +2,7 @@ import { html, render, nothing } from 'https://cdn.jsdelivr.net/npm/lit-html@3/l
 import { renderChain } from './chains/wc2026_chain_render.js';
 import { renderEloRanking } from './wc2026_elo_ranking.js';
 import { LOCALE, T, countryName, wikiUrl } from './i18n.js';
+import { whereNumeric } from 'https://cdn.jsdelivr.net/npm/iso-3166-1@2/+esm';
 
 const RATIO_MIN = 0;
 const RATIO_MAX = 66; // Netherlands (2nd highest) anchors the top of the scale
@@ -189,9 +190,7 @@ const _NULL_CENTROID_ID = { 'Democratic Republic of the Congo': 180, 'U.S.': 840
 // Apply locale to static page elements
 document.title = DOCUMENT_TITLE;
 document.querySelector('meta[name="description"]')?.setAttribute('content', T.pageDescription);
-document.getElementById('page-heading').textContent     = T.pageHeading;
-document.getElementById('page-heading-mob').textContent  = T.pageHeading;
-['page-heading-sub', 'page-heading-sub-mob', 'mobile-quote'].forEach(id => {
+['page-heading-sub'].forEach(id => {
   const el = document.getElementById(id);
   if (!el) return;
   const q = T.pageQuote;
@@ -288,57 +287,96 @@ document.getElementById('tab-chain-btn')?.addEventListener('shown.bs.tab', () =>
   if (_chainData) _renderChain();
 });
 
-// Elo ranking tab
-const _eloEl = () => document.getElementById('tab-elo');
+// Elo ranking tab — two-column layout: ranking list (flex:1) + collapsible sidebar
 let _eloUpdate = null;
 let _eloData   = null;
+const _eloMain    = document.createElement('div');
+_eloMain.className = 'elo-main';
+const _filterSidebar = document.createElement('div');
+_filterSidebar.id = 'filter-sidebar';
+_filterSidebar.classList.add('collapsed');
+const _eloLayout  = document.createElement('div');
+_eloLayout.className = 'elo-layout';
+document.getElementById('page-header')?.appendChild(_filterSidebar);
+_eloLayout.appendChild(_eloMain);
+document.getElementById('tab-elo')?.appendChild(_eloLayout);
 
 // ── Persistent filter table — isQualified × isImporting × isExporting cube ──
 // Row and column headers are clickable: toggles all checkboxes in that row/column.
 // The same DOM node is re-appended on each render so checked state survives tab switches.
-const _eloFilterGrp = document.createElement('div');
-_eloFilterGrp.innerHTML = `<table class="elo-filter-table table table-sm table-bordered">
+const _filterGrp = document.createElement('div');
+_filterGrp.innerHTML = `<table class="filter-table table table-sm table-bordered">
   <thead><tr>
-    <th colspan="2"></th>
-    <th class="efg-col" data-col="exp">Exporter<sup style="color:#3b82f6">●</sup></th>
-    <th class="efg-col" data-col="nexp">Non-exp.</th>
+    <th colspan="2" class="ftbl-col" data-col="all" style="text-align:left">Country<span class="filter-count" style="float:right;margin-left:8px"></span></th>
+    <th class="ftbl-col" data-col="exp">Exporter<sup style="color:#3b82f6">●</sup></th>
+    <th class="ftbl-col" data-col="nexp">Non-exp.</th>
   </tr></thead>
   <tbody>
     <tr>
-      <td rowspan="2" class="efg-grp" data-row="q">Qualified</td>
-      <td class="efg-sub" data-row="qi">Importer<sup style="color:#ef4444">●</sup></td>
-      <td><input type="checkbox" class="form-check-input" id="elo-f-qie" checked></td>
-      <td><input type="checkbox" class="form-check-input" id="elo-f-qi"  checked></td>
+      <td rowspan="2" class="ftbl-grp" data-row="q">Qualified</td>
+      <td class="ftbl-sub" data-row="qi">Importer<sup style="color:#ef4444">●</sup></td>
+      <td><input type="checkbox" class="form-check-input" id="filter-qie" checked></td>
+      <td><input type="checkbox" class="form-check-input" id="filter-qi"  checked></td>
     </tr>
     <tr>
-      <td class="efg-sub" data-row="qni">Non-imp.</td>
-      <td><input type="checkbox" class="form-check-input" id="elo-f-qe"  checked></td>
-      <td><input type="checkbox" class="form-check-input" id="elo-f-q"   checked></td>
+      <td class="ftbl-sub" data-row="qni">Non-imp.</td>
+      <td><input type="checkbox" class="form-check-input" id="filter-qe"  checked></td>
+      <td><input type="checkbox" class="form-check-input" id="filter-q"   checked></td>
     </tr>
     <tr>
-      <td colspan="2" class="efg-grp efg-grp--nq" data-row="nq">Non-Qualified</td>
-      <td><input type="checkbox" class="form-check-input" id="elo-f-e"   checked></td>
-      <td><input type="checkbox" class="form-check-input" id="elo-f-o"></td>
+      <td colspan="2" class="ftbl-grp ftbl-grp--nq" data-row="nq">Non-Qualified</td>
+      <td><input type="checkbox" class="form-check-input" id="filter-e"   checked></td>
+      <td><input type="checkbox" class="form-check-input" id="filter-o"></td>
     </tr>
   </tbody>
 </table>`;
 
-const _eloF_QIE = _eloFilterGrp.querySelector('#elo-f-qie');
-const _eloF_QI  = _eloFilterGrp.querySelector('#elo-f-qi');
-const _eloF_QE  = _eloFilterGrp.querySelector('#elo-f-qe');
-const _eloF_Q   = _eloFilterGrp.querySelector('#elo-f-q');
-const _eloF_E   = _eloFilterGrp.querySelector('#elo-f-e');
-const _eloF_O   = _eloFilterGrp.querySelector('#elo-f-o');
+const _fltQIE = _filterGrp.querySelector('#filter-qie');
+const _fltQI  = _filterGrp.querySelector('#filter-qi');
+const _fltQE  = _filterGrp.querySelector('#filter-qe');
+const _fltQ   = _filterGrp.querySelector('#filter-q');
+const _fltE   = _filterGrp.querySelector('#filter-e');
+const _fltO   = _filterGrp.querySelector('#filter-o');
 
-const _efgToggle = chks => { const on = chks.every(c => c.checked); chks.forEach(c => c.checked = !on); _renderElo(); };
-_eloFilterGrp.querySelector('[data-row="q"]'   ).addEventListener('click', () => _efgToggle([_eloF_QIE, _eloF_QI, _eloF_QE, _eloF_Q]));
-_eloFilterGrp.querySelector('[data-row="qi"]'  ).addEventListener('click', () => _efgToggle([_eloF_QIE, _eloF_QI]));
-_eloFilterGrp.querySelector('[data-row="qni"]' ).addEventListener('click', () => _efgToggle([_eloF_QE,  _eloF_Q]));
-_eloFilterGrp.querySelector('[data-row="nq"]'  ).addEventListener('click', () => _efgToggle([_eloF_E,   _eloF_O]));
-_eloFilterGrp.querySelector('[data-col="exp"]' ).addEventListener('click', () => _efgToggle([_eloF_QIE, _eloF_QE, _eloF_E]));
-_eloFilterGrp.querySelector('[data-col="nexp"]').addEventListener('click', () => _efgToggle([_eloF_QI,  _eloF_Q,  _eloF_O]));
-const _eloFilterCountEl = _eloFilterGrp.querySelector('thead th');
-_eloFilterGrp.addEventListener('change', () => _renderElo());
+const _flagCat = id => {
+  const qual = !!QUALIFIED_NAMES[id];
+  const imp  = (app.importByNation[id]?.length ?? 0) > 0;
+  const exp  = (app.byId[id]?.count ?? 0) > 0;
+  if  (qual &&  imp &&  exp) return 'qie';
+  if  (qual &&  imp && !exp) return 'qi';
+  if  (qual && !imp &&  exp) return 'qe';
+  if  (qual && !imp && !exp) return 'q';
+  if (!qual &&               exp) return 'e';
+  return 'o';
+};
+const _catChecked = cat => ({qie:_fltQIE,qi:_fltQI,qe:_fltQE,q:_fltQ,e:_fltE,o:_fltO})[cat].checked;
+const _applyFlagFilter = () => {
+  d3.selectAll('.flag-qualified[data-elo-cat]')
+    .attr('visibility', function() { return _catChecked(this.getAttribute('data-elo-cat')) ? null : 'hidden'; });
+};
+const _filterToggle = chks => { const on = chks.every(c => c.checked); chks.forEach(c => c.checked = !on); _renderElo(); _applyFlagFilter(); };
+_filterGrp.querySelector('[data-row="q"]'   ).addEventListener('click', () => _filterToggle([_fltQIE, _fltQI, _fltQE, _fltQ]));
+_filterGrp.querySelector('[data-row="qi"]'  ).addEventListener('click', () => _filterToggle([_fltQIE, _fltQI]));
+_filterGrp.querySelector('[data-row="qni"]' ).addEventListener('click', () => _filterToggle([_fltQE,  _fltQ]));
+_filterGrp.querySelector('[data-row="nq"]'  ).addEventListener('click', () => _filterToggle([_fltE,   _fltO]));
+_filterGrp.querySelector('[data-col="exp"]' ).addEventListener('click', () => _filterToggle([_fltQIE, _fltQE, _fltE]));
+_filterGrp.querySelector('[data-col="nexp"]').addEventListener('click', () => _filterToggle([_fltQI,  _fltQ,  _fltO]));
+const _filterCountEl = _filterGrp.querySelector('.filter-count');
+_filterGrp.querySelector('[data-col="all"]').addEventListener('click', () => _filterToggle([_fltQIE, _fltQI, _fltQE, _fltQ, _fltE, _fltO]));
+_filterGrp.addEventListener('change', () => { _renderElo(); _applyFlagFilter(); });
+const _filterSidebarToggle = document.createElement('button');
+_filterSidebarToggle.className = 'filter-sidebar-toggle';
+_filterSidebarToggle.title = 'Toggle filter';
+_filterSidebarToggle.textContent = '‹';
+_filterSidebarToggle.addEventListener('click', () => {
+  const collapsed = _filterSidebar.classList.toggle('collapsed');
+  _filterSidebarToggle.textContent = collapsed ? '‹' : '›';
+});
+const _filterSidebarBody = document.createElement('div');
+_filterSidebarBody.className = 'filter-sidebar-body';
+_filterSidebarBody.appendChild(_filterGrp);
+_filterSidebar.appendChild(_filterSidebarToggle);
+_filterSidebar.appendChild(_filterSidebarBody);
 
 const _buildEloItems = () => (_eloData?.rankings ?? [])
   .map(({ id, rank, pts, iso2, name }) => ({
@@ -346,24 +384,13 @@ const _buildEloItems = () => (_eloData?.rankings ?? [])
     exp: (app.byId[id]?.count ?? 0) > 0,
     imp: (app.importByNation[id]?.length ?? 0) > 0,
   }))
-  .filter(({ id }) => {
-    const qual = !!QUALIFIED_NAMES[id];
-    const imp  = (app.importByNation[id]?.length ?? 0) > 0;
-    const exp  = (app.byId[id]?.count ?? 0) > 0;
-    if  (qual &&  imp &&  exp) return _eloF_QIE.checked;
-    if  (qual &&  imp && !exp) return _eloF_QI.checked;
-    if  (qual && !imp &&  exp) return _eloF_QE.checked;
-    if  (qual && !imp && !exp) return _eloF_Q.checked;
-    if (!qual &&               exp) return _eloF_E.checked;
-    return _eloF_O.checked;
-  });
+  .filter(({ id }) => _catChecked(_flagCat(id)));
 
 const _renderElo = () => {
   const items = _buildEloItems();
-  _eloFilterCountEl.textContent = items.length;
-  _eloUpdate = renderEloRanking(_eloEl(), {
+  _filterCountEl.textContent = items.length;
+  _eloUpdate = renderEloRanking(_eloMain, {
     items,
-    controls: _eloFilterGrp,
     onCountryClick: id => { activateCountry(id); window.scrollTo({ top: 0, behavior: 'smooth' }); },
     isClickable: id => enablesDim(id),
     isMuted:     id => !QUALIFIED_NAMES[id],
@@ -411,6 +438,7 @@ const ISO2 = {
 };
 
 const ISO2_REVERSE = Object.fromEntries(Object.entries(ISO2).map(([id, c]) => [c, +id]));
+const iso2ForId = id => ISO2[id] ?? whereNumeric(String(id).padStart(3,'0'))?.alpha2?.toLowerCase() ?? null;
 
 // Birth country names not in ISO 3166-1 numeric that have a known alpha-2 code
 const _NULL_CODE = { 'Democratic Republic of the Congo': 'cd', 'U.S.': 'us', 'Isle of Man': 'im' };
@@ -1175,6 +1203,33 @@ ukFeatures
       .on('mousemove', (event) => onCountryMousemove(event, f._id))
       .on('click',     (event) => onCountryClick(event, f._id));
   });
+
+// ── Stamp existing qualified flags with elo-filter category ──────────────────
+g.selectAll('.flag-qualified[data-id]').attr('data-elo-cat', function() {
+  return _flagCat(+this.getAttribute('data-id'));
+});
+
+// ── Non-qualified flags (E = exporter, O = other) ────────────────────────────
+worldFeatures
+  .filter(d => { const id = +d.id; return !QUALIFIED_NAMES[id] && !STANDALONE_IDS.has(id) && iso2ForId(id); })
+  .forEach(d => {
+    const id = +d.id;
+    const [cx, cy] = dotCentroid(d);
+    g.append('image')
+      .call(placeFlag)
+      .attr('href', FLAG_CDN(iso2ForId(id)))
+      .attr('data-id', id)
+      .attr('data-elo-cat', _flagCat(id))
+      .attr('data-cx', cx).attr('data-cy', cy)
+      .attr('x', cx - FLAG/2).attr('y', cy - FLAG/2)
+      .attr('pointer-events', 'all')
+      .attr('data-enables-dim', enablesDim(id) ? '' : null)
+      .attr('cursor', enablesDim(id) ? 'pointer' : 'default')
+      .on('mousemove', (event) => onCountryMousemove(event, id))
+      .on('click',     (event) => onCountryClick(event, id));
+  });
+
+_applyFlagFilter();
 
 // ── Centroids map (for arc drawing) ──────────────────────────────────────────
 topojson.feature(world, world.objects.countries).features

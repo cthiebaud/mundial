@@ -8,8 +8,7 @@ const _CDN = c => `https://cdn.jsdelivr.net/npm/circle-flags@2/flags/${c}.svg`;
 //   isClickable(id)      — optional per-item predicate; defaults to all clickable
 //   isMuted(id)          — optional per-item predicate; adds elo-item--muted class
 //   getSelectedId()      — optional; called once at render to set initial highlight
-//   controls             — optional DOM element placed right-aligned in the header row
-//   title, source, date  — header strings
+//   title, source, date  — header strings (currently unused — header commented out)
 //
 // Returns update(id) for surgical highlight changes after render.
 export function renderEloRanking(container, opts = {}) {
@@ -19,7 +18,6 @@ export function renderEloRanking(container, opts = {}) {
     isClickable  = null,
     isMuted      = null,
     getSelectedId = null,
-    controls     = null,
     title  = 'World Football Elo Ratings',
     source = 'eloratings.net',
     date   = '',
@@ -27,22 +25,22 @@ export function renderEloRanking(container, opts = {}) {
 
   const wrap = document.createElement('div');
 
-  const hdr = document.createElement('div');
-  hdr.className = 'elo-header';
-  if (controls) {
-    hdr.style.cssText = 'flex-direction:row;align-items:flex-start;justify-content:space-between;gap:8px';
-    const left = document.createElement('div');
-    left.innerHTML =
-      `<span class="elo-title">${title}</span><br>` +
-      `<span class="elo-meta">${items.length} nations · ${source}${date ? ' · ' + date : ''}</span>`;
-    hdr.appendChild(left);
-    hdr.appendChild(controls);
-  } else {
-    hdr.innerHTML =
-      `<span class="elo-title">${title}</span>` +
-      `<span class="elo-meta">${items.length} nations · ${source}${date ? ' · ' + date : ''}</span>`;
-  }
-  wrap.appendChild(hdr);
+  // const hdr = document.createElement('div');
+  // hdr.className = 'elo-header';
+  // if (controls) {
+  //   hdr.style.cssText = 'flex-direction:row;align-items:flex-start;justify-content:space-between;gap:8px';
+  //   const left = document.createElement('div');
+  //   left.innerHTML =
+  //     `<span class="elo-title">${title}</span><br>` +
+  //     `<span class="elo-meta">${items.length} nations · ${source}${date ? ' · ' + date : ''}</span>`;
+  //   hdr.appendChild(left);
+  //   hdr.appendChild(controls);
+  // } else {
+  //   hdr.innerHTML =
+  //     `<span class="elo-title">${title}</span>` +
+  //     `<span class="elo-meta">${items.length} nations · ${source}${date ? ' · ' + date : ''}</span>`;
+  // }
+  // wrap.appendChild(hdr);
 
   const ul = document.createElement('ul');
   ul.className = 'elo-list';
