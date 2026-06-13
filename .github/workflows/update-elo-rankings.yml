@@ -20,7 +20,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install requests pycountry
+        run: pip install requests pycountry beautifulsoup4
 
       - name: Fetch and update Elo rankings
         run: python3 pipeline/update_elo_rankings.py
