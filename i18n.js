@@ -123,6 +123,9 @@ export const T = {
     eloSource:   'source : ',
     eloUpdated:  ' · mis à jour ',
     eloFilter:   '|filtre|',
+    eloSort:     'tri',
+    eloSortLabels: { elo: 'classement', exp: 'exports', imp: 'imports', dlt: 'Δ', az: 'A–Z' },
+    filterLabels: { country: 'filtre', exporter: 'export.', nonExp: 'non-exp.', qualified: 'qualifié', importer: 'import.', nonImp: 'non-imp.', nonQual: 'non-qual.' },
   },
   it: {
     pageHeading:    'Luogo di nascita dei giocatori dei Mondiali 2026',
@@ -158,6 +161,9 @@ export const T = {
     eloSource:   'fonte: ',
     eloUpdated:  ' · aggiornato ',
     eloFilter:   '|filtro|',
+    eloSort:     'ordine',
+    eloSortLabels: { elo: 'classifica', exp: 'export', imp: 'import', dlt: 'Δ', az: 'A–Z' },
+    filterLabels: { country: 'filtro', exporter: 'export.', nonExp: 'non-exp.', qualified: 'qualific.', importer: 'import.', nonImp: 'non-imp.', nonQual: 'non-qual.' },
   },
   de: {
     pageHeading:    'Geburtsort der Spieler der WM 2026',
@@ -193,6 +199,9 @@ export const T = {
     eloSource:   'Quelle: ',
     eloUpdated:  ' · aktualisiert ',
     eloFilter:   '|Filter|',
+    eloSort:     'Sort.',
+    eloSortLabels: { elo: 'Rang', exp: 'Export', imp: 'Import', dlt: 'Δ', az: 'A–Z' },
+    filterLabels: { country: 'Filter', exporter: 'Export.', nonExp: 'kein-Exp.', qualified: 'qualif.', importer: 'Import.', nonImp: 'kein-Imp.', nonQual: 'nicht-qual.' },
   },
   es: {
     pageHeading:    'Lugar de nacimiento de los jugadores del Mundial 2026',
@@ -228,6 +237,9 @@ export const T = {
     eloSource:   'fuente: ',
     eloUpdated:  ' · actualizado ',
     eloFilter:   '|filtro|',
+    eloSort:     'orden',
+    eloSortLabels: { elo: 'ranking', exp: 'exports', imp: 'imports', dlt: 'Δ', az: 'A–Z' },
+    filterLabels: { country: 'filtro', exporter: 'export.', nonExp: 'no-exp.', qualified: 'clasific.', importer: 'import.', nonImp: 'no-imp.', nonQual: 'no-clasif.' },
   },
   en: {
     pageHeading:    'Birthplace of 2026 World Cup Players',
@@ -263,5 +275,8 @@ export const T = {
     eloSource:   'source: ',
     eloUpdated:  ' · updated ',
     eloFilter:   '|filter|',
+    eloSort:     'sort',
+    eloSortLabels: { elo: 'ranking', exp: 'exports', imp: 'imports', dlt: 'Δ', az: 'A–Z' },
+    filterLabels: { country: 'filter', exporter: 'exporter', nonExp: 'non-exp.', qualified: 'qualified', importer: 'importer', nonImp: 'non-imp.', nonQual: 'non-qual.' },
   },
 }[_LANG];

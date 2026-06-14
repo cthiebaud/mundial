@@ -296,8 +296,9 @@ fetch('./chains/wc2026_chain_longest.json').then(r => r.json()).then(d => {
 // Elo ranking tab — two-column layout: ranking list (flex:1) + collapsible sidebar
 let _eloUpdate = null;
 let _eloData   = null;
-let _eloSort    = 'elo';
-let _eloFifaOnly = false;
+let _sortOrder  = ['elo', 'exp', 'imp', 'dlt', 'az'];
+let _sortDir    = 'desc';
+const _fifaMemberIds = new Set();
 const _eloMain    = document.createElement('div');
 _eloMain.className = 'elo-main';
 const _filterSidebar = document.createElement('div');
@@ -316,35 +317,54 @@ const _filterGrp = document.createElement('div');
 _filterGrp.innerHTML = `<table class="filter-table table table-sm table-bordered">
   <tbody>
     <tr>
-      <td colspan="2" class="ftbl-col text-muted" data-col="all">country</td>
-      <td class="ftbl-col text-muted" data-col="exp">exporter<sup style="color:#3b82f6">●</sup></td>
-      <td class="ftbl-col text-muted" data-col="nexp">non-exp.</td>
+      <td class="ftbl-sort-header text-muted">${T.eloSort}</td>
+      <td colspan="2" class="ftbl-col text-muted" data-col="all">${T.filterLabels.country}<span id="filter-count" style="float:right"></span></td>
+      <td class="ftbl-col text-muted" data-col="exp">${T.filterLabels.exporter}<sup style="color:#3b82f6">●</sup></td>
+      <td class="ftbl-col text-muted" data-col="nexp">${T.filterLabels.nonExp}</td>
     </tr>
     <tr>
-      <td rowspan="2" class="ftbl-grp text-muted" data-row="q">qualified</td>
-      <td class="ftbl-sub text-muted" data-row="qi">importer<sup style="color:#ef4444">●</sup></td>
-      <td class="text-muted"><input type="checkbox" class="form-check-input" id="filter-qie" checked></td>
-      <td class="text-muted"><input type="checkbox" class="form-check-input" id="filter-qi"  checked></td>
+      <td rowspan="4" class="ftbl-sort-col p-0 text-muted">
+        <div class="ftbl-sort-list">
+          <div class="ftbl-sort-item" data-sort="elo"><button class="sort-dir-btn"></button>${T.eloSortLabels.elo}</div>
+          <div class="ftbl-sort-item" data-sort="exp">${T.eloSortLabels.exp}</div>
+          <div class="ftbl-sort-item" data-sort="imp">${T.eloSortLabels.imp}</div>
+          <div class="ftbl-sort-item" data-sort="dlt">${T.eloSortLabels.dlt}</div>
+          <div class="ftbl-sort-item" data-sort="az">${T.eloSortLabels.az}</div>
+        </div>
+      </td>
+      <td rowspan="2" class="ftbl-grp text-muted" data-row="q">${T.filterLabels.qualified}</td>
+      <td class="ftbl-sub text-muted" data-row="qi">${T.filterLabels.importer}<sup style="color:#ef4444">●</sup></td>
+      <td class="text-muted"><label class="check-lbl"><input type="checkbox" class="form-check-input" id="filter-qie" checked></label></td>
+      <td class="text-muted"><label class="check-lbl"><input type="checkbox" class="form-check-input" id="filter-qi"  checked></label></td>
     </tr>
     <tr>
-      <td class="ftbl-sub text-muted" data-row="qni">non-imp.</td>
-      <td class="text-muted"><input type="checkbox" class="form-check-input" id="filter-qe"  checked></td>
-      <td class="text-muted"><input type="checkbox" class="form-check-input" id="filter-q"   checked></td>
+      <td class="ftbl-sub text-muted" data-row="qni">${T.filterLabels.nonImp}</td>
+      <td class="text-muted"><label class="check-lbl"><input type="checkbox" class="form-check-input" id="filter-qe"  checked></label></td>
+      <td class="text-muted"><label class="check-lbl"><input type="checkbox" class="form-check-input" id="filter-q"   checked></label></td>
     </tr>
     <tr>
-      <td colspan="2" class="ftbl-grp text-muted" data-row="nq">non-qualified</td>
-      <td class="text-muted"><input type="checkbox" class="form-check-input" id="filter-e"   checked></td>
-      <td class="text-muted"><input type="checkbox" class="form-check-input" id="filter-o"></td>
+      <td rowspan="2" class="ftbl-grp text-muted" data-row="nq">${T.filterLabels.nonQual}</td>
+      <td class="ftbl-sub text-muted" data-row="nqf">FIFA</td>
+      <td class="text-muted"><label class="check-lbl"><input type="checkbox" class="form-check-input" id="filter-ef"  checked></label></td>
+      <td class="text-muted"><label class="check-lbl"><input type="checkbox" class="form-check-input" id="filter-of"></label></td>
+    </tr>
+    <tr>
+      <td class="ftbl-sub text-muted" data-row="nqn">non-FIFA<sup>○</sup></td>
+      <td class="text-muted"><label class="check-lbl"><input type="checkbox" class="form-check-input" id="filter-en"  checked></label></td>
+      <td class="text-muted"><label class="check-lbl"><input type="checkbox" class="form-check-input" id="filter-on"></label></td>
     </tr>
   </tbody>
 </table>`;
 
+const _filterCountEl = _filterGrp.querySelector('#filter-count');
 const _fltQIE = _filterGrp.querySelector('#filter-qie');
 const _fltQI  = _filterGrp.querySelector('#filter-qi');
 const _fltQE  = _filterGrp.querySelector('#filter-qe');
 const _fltQ   = _filterGrp.querySelector('#filter-q');
-const _fltE   = _filterGrp.querySelector('#filter-e');
-const _fltO   = _filterGrp.querySelector('#filter-o');
+const _fltEF  = _filterGrp.querySelector('#filter-ef');
+const _fltOF  = _filterGrp.querySelector('#filter-of');
+const _fltEN  = _filterGrp.querySelector('#filter-en');
+const _fltON  = _filterGrp.querySelector('#filter-on');
 
 const _flagCat = id => {
   const qual = !!QUALIFIED_NAMES[id];
@@ -357,20 +377,62 @@ const _flagCat = id => {
   if (!qual &&               exp) return 'e';
   return 'o';
 };
-const _catChecked = cat => ({qie:_fltQIE,qi:_fltQI,qe:_fltQE,q:_fltQ,e:_fltE,o:_fltO})[cat].checked;
+const _catChecked = cat => ({qie:_fltQIE,qi:_fltQI,qe:_fltQE,q:_fltQ})[cat]?.checked ?? true;
 const _applyFlagFilter = () => {
   d3.selectAll('.flag-qualified[data-elo-cat]')
-    .attr('visibility', function() { return _catChecked(this.getAttribute('data-elo-cat')) ? null : 'hidden'; });
+    .attr('visibility', function() {
+      const cat = this.getAttribute('data-elo-cat');
+      if (cat === 'e' || cat === 'o') {
+        const id = +this.getAttribute('data-id');
+        const fifa = _fifaMemberIds.has(id);
+        return (cat === 'e' ? (fifa ? _fltEF : _fltEN) : (fifa ? _fltOF : _fltON)).checked ? null : 'hidden';
+      }
+      return _catChecked(cat) ? null : 'hidden';
+    });
+};
+const _catEloChecked = (id, fifaMember) => {
+  const cat = _flagCat(id);
+  if (cat === 'e') return fifaMember ? _fltEF.checked : _fltEN.checked;
+  if (cat === 'o') return fifaMember ? _fltOF.checked : _fltON.checked;
+  return _catChecked(cat);
 };
 const _filterToggle = chks => { const on = chks.every(c => c.checked); chks.forEach(c => c.checked = !on); _renderElo(); _applyFlagFilter(); };
 _filterGrp.querySelector('[data-row="q"]'   ).addEventListener('click', () => _filterToggle([_fltQIE, _fltQI, _fltQE, _fltQ]));
 _filterGrp.querySelector('[data-row="qi"]'  ).addEventListener('click', () => _filterToggle([_fltQIE, _fltQI]));
 _filterGrp.querySelector('[data-row="qni"]' ).addEventListener('click', () => _filterToggle([_fltQE,  _fltQ]));
-_filterGrp.querySelector('[data-row="nq"]'  ).addEventListener('click', () => _filterToggle([_fltE,   _fltO]));
-_filterGrp.querySelector('[data-col="exp"]' ).addEventListener('click', () => _filterToggle([_fltQIE, _fltQE, _fltE]));
-_filterGrp.querySelector('[data-col="nexp"]').addEventListener('click', () => _filterToggle([_fltQI,  _fltQ,  _fltO]));
-_filterGrp.querySelector('[data-col="all"]').addEventListener('click', () => _filterToggle([_fltQIE, _fltQI, _fltQE, _fltQ, _fltE, _fltO]));
+_filterGrp.querySelector('[data-row="nq"]'  ).addEventListener('click', () => _filterToggle([_fltEF, _fltOF, _fltEN, _fltON]));
+_filterGrp.querySelector('[data-row="nqf"]' ).addEventListener('click', () => _filterToggle([_fltEF, _fltOF]));
+_filterGrp.querySelector('[data-row="nqn"]' ).addEventListener('click', () => _filterToggle([_fltEN, _fltON]));
+_filterGrp.querySelector('[data-col="exp"]' ).addEventListener('click', () => _filterToggle([_fltQIE, _fltQE, _fltEF, _fltEN]));
+_filterGrp.querySelector('[data-col="nexp"]').addEventListener('click', () => _filterToggle([_fltQI,  _fltQ,  _fltOF, _fltON]));
+_filterGrp.querySelector('[data-col="all"]').addEventListener('click', () => _filterToggle([_fltQIE, _fltQI, _fltQE, _fltQ, _fltEF, _fltOF, _fltEN, _fltON]));
 _filterGrp.addEventListener('change', () => { _renderElo(); _applyFlagFilter(); });
+const _sortListEl = _filterGrp.querySelector('.ftbl-sort-list');
+const _sortDirBtn = _sortListEl.querySelector('.sort-dir-btn');
+const _updateSortCol = () => {
+  _sortOrder.forEach(key => { const el = _sortListEl.querySelector(`[data-sort="${key}"]`); if (el) _sortListEl.appendChild(el); });
+  const firstItem = _sortListEl.firstElementChild;
+  if (firstItem && !firstItem.contains(_sortDirBtn)) firstItem.prepend(_sortDirBtn);
+  _sortDirBtn.dataset.dir = _sortDir;
+};
+_updateSortCol();
+_sortListEl?.addEventListener('click', e => {
+  const btn = e.target.closest('.sort-dir-btn');
+  if (btn) {
+    e.stopPropagation();
+    _sortDir = _sortDir === 'desc' ? 'asc' : 'desc';
+    _sortDirBtn.dataset.dir = _sortDir;
+    _renderElo();
+    return;
+  }
+  const item = e.target.closest('.ftbl-sort-item');
+  if (item) {
+    const key = item.dataset.sort;
+    _sortOrder = [key, ..._sortOrder.filter(k => k !== key)];
+    _updateSortCol();
+    _renderElo();
+  }
+});
 const _filterSidebarToggle = document.createElement('button');
 _filterSidebarToggle.className = 'filter-sidebar-toggle';
 _filterSidebarToggle.title = 'Toggle filter';
@@ -384,9 +446,14 @@ _filterSidebarBody.className = 'filter-sidebar-body';
 _filterSidebarBody.appendChild(_filterGrp);
 _filterSidebar.appendChild(_filterSidebarToggle);
 _filterSidebar.appendChild(_filterSidebarBody);
-// Measure natural table height before first collapse (_filterGrp has no fixed height, so scrollHeight = actual table height)
+// Measure natural table dimensions before first collapse
 _filterSidebar.classList.remove('collapsed');
+_filterSidebarBody.style.maxWidth = 'none';
+_filterSidebarBody.style.width = 'max-content';
 document.documentElement.style.setProperty('--filter-sidebar-h', _filterGrp.scrollHeight + 'px');
+document.documentElement.style.setProperty('--filter-sidebar-w', _filterSidebarBody.offsetWidth + 'px');
+_filterSidebarBody.style.maxWidth = '';
+_filterSidebarBody.style.width = '';
 _filterSidebar.classList.add('collapsed');
 // Measure actual header height (offsetHeight forces reflow after CSS var is applied)
 const _pageHeader = document.getElementById('page-header');
@@ -463,16 +530,16 @@ const _buildEloItems = () => {
       expCount: app.byId[id]?.count ?? 0,
       impCount: app.importByNation[id]?.length ?? 0,
     }))
-    .filter(({ id }) => _catChecked(_flagCat(id)))
-    .filter(item => !_eloFifaOnly || item.fifaMember);
-  if (_eloSort === 'exp') raw.sort((a, b) => b.expCount - a.expCount || a.rank - b.rank);
-  else if (_eloSort === 'imp') raw.sort((a, b) => b.impCount - a.impCount || a.rank - b.rank);
-  else if (_eloSort === 'az') raw.sort((a, b) => a.name.localeCompare(b.name));
+    .filter(item => _catEloChecked(item.id, item.fifaMember));
+  const _sortFns = { elo: (a, b) => a.rank - b.rank, exp: (a, b) => b.expCount - a.expCount, imp: (a, b) => b.impCount - a.impCount, dlt: (a, b) => (b.expCount - b.impCount) - (a.expCount - a.impCount), az: (a, b) => a.name.localeCompare(b.name) };
+  raw.sort((a, b) => { for (let i = 0; i < _sortOrder.length; i++) { let d = _sortFns[_sortOrder[i]](a, b); if (i === 0 && _sortDir === 'asc') d = -d; if (d !== 0) return d; } return 0; });
+  const primary = _sortOrder[0];
   return raw.map(item => ({
     ...item,
-    pts: _eloSort === 'exp' ? item.expCount
-       : _eloSort === 'imp' ? item.impCount
-       : _eloSort === 'az'  ? null
+    pts: primary === 'exp' ? item.expCount
+       : primary === 'imp' ? item.impCount
+       : primary === 'dlt' ? item.expCount - item.impCount
+       : primary === 'az'  ? null
        : item.pts,
   }));
 };
@@ -500,8 +567,10 @@ const _zoomToActiveDimFlags = () => {
 
 const _renderElo = () => {
   const items = _buildEloItems();
+  const total = _eloData?.rankings?.filter(r => !r.weirdo).length ?? 0;
   const _nationsEl = document.getElementById('elo-nations');
-  if (_nationsEl) _nationsEl.textContent = T.eloNations(items.length, _eloData?.rankings?.length ?? 0);
+  if (_nationsEl) _nationsEl.textContent = T.eloNations(items.length, total);
+  if (_filterCountEl) _filterCountEl.textContent = total ? (items.length === total ? `${total}` : `${items.length}/${total}`) : '';
   _eloUpdate = renderEloRanking(_eloMain, {
     items,
     onCountryClick: id => { if (dimState.sourceId === id) { clearDim(); } else { activateCountry(id); _zoomToActiveDimFlags(); } },
@@ -528,22 +597,7 @@ if (_eloFilterBtn) {
     _filterSidebarToggle.textContent = collapsed ? '‹' : '›';
   });
 }
-document.querySelectorAll('.elo-sort-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    _eloSort = btn.dataset.sort;
-    document.querySelectorAll('.elo-sort-btn').forEach(b => b.classList.toggle('active', b === btn));
-    _renderElo();
-  });
-});
-const _eloFifaBtn = document.getElementById('elo-fifa-btn');
-if (_eloFifaBtn) {
-  _eloFifaBtn.addEventListener('click', () => {
-    _eloFifaOnly = !_eloFifaOnly;
-    _eloFifaBtn.classList.toggle('active', _eloFifaOnly);
-    _eloFifaBtn.textContent = _eloFifaOnly ? 'FIFA on' : 'FIFA off';
-    _renderElo();
-  });
-}
+
 
 fetch('./wc2026_elo_rank.json').then(r => r.json()).then(d => {
   _eloData = d;
@@ -552,6 +606,8 @@ fetch('./wc2026_elo_rank.json').then(r => r.json()).then(d => {
   app.eloRank = Object.fromEntries(
     d.rankings.flatMap(({id, rank}) => { const n = QUALIFIED_NAMES[id]; return n ? [[n, rank]] : []; })
   );
+  d.rankings.forEach(r => { if (r.fifaMember) _fifaMemberIds.add(r.id); });
+  _applyFlagFilter();
   if (!document.getElementById('tab-elo')?.hidden) _renderElo();
 }).catch(() => {});
 
