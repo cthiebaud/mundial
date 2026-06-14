@@ -93,7 +93,7 @@ svg.on('click', () => { clearDim(); });
 
 const zoom = d3.zoom()
 svg.call(zoom
-  .scaleExtent([1, 12])
+  .scaleExtent([1, 15])
   .on('zoom', e => {
     g.attr('transform', e.transform);
     const s = FLAG / Math.pow(e.transform.k, 1 - FLAG_SIZE_ZOOM_EXP);
@@ -294,7 +294,7 @@ fetch('./chains/wc2026_chain_longest.json').then(r => r.json()).then(d => {
 });
 
 // Elo ranking tab — two-column layout: ranking list (flex:1) + collapsible sidebar
-let _eloUpdate = null;
+let _eloCtrl = null;
 let _eloData   = null;
 let _sortOrder  = ['elo', 'exp', 'imp', 'delta', 'alpha'];
 let _sortDir    = 'desc';
@@ -476,7 +476,7 @@ document.documentElement.style.setProperty('--filter-sidebar-w', _filterSidebarB
 _filterSidebarBody.style.maxWidth = '';
 _filterSidebarBody.style.width = '';
 _filterSidebarToggle.textContent = '›';
-setTimeout(() => {
+const _autoCollapseTimer = setTimeout(() => {
   _filterSidebarBody.style.transition = 'max-width 1s ease';
   _filterSidebar.classList.add('collapsed');
   _filterSidebarToggle.textContent = '‹';
@@ -484,6 +484,7 @@ setTimeout(() => {
     _filterSidebarBody.style.transition = '';
   }, { once: true });
 }, 3000);
+_filterSidebar.addEventListener('click', () => clearTimeout(_autoCollapseTimer), { once: true });
 // Measure actual header height (offsetHeight forces reflow after CSS var is applied)
 const _pageHeader = document.getElementById('page-header');
 if (_pageHeader) document.documentElement.style.setProperty('--page-header-h', _pageHeader.offsetHeight + 'px');
@@ -559,49 +560,72 @@ const _buildEloItems = () => {
       expCount: app.byId[id]?.count ?? 0,
       impCount: app.importByNation[id]?.length ?? 0,
     }))
-    .filter(item => _catEloChecked(item.id, item.fifaMember));
+    ;
   const _sortFns = { elo: (a, b) => a.rank - b.rank, exp: (a, b) => b.expCount - a.expCount, imp: (a, b) => b.impCount - a.impCount, delta: (a, b) => (b.expCount - b.impCount) - (a.expCount - a.impCount), alpha: (a, b) => a.name.localeCompare(b.name) };
-  raw.sort((a, b) => { for (let i = 0; i < _sortOrder.length; i++) { let d = _sortFns[_sortOrder[i]](a, b); if (i === 0 && _sortDir === 'asc') d = -d; if (d !== 0) return d; } return 0; });
-  const primary = _sortOrder[0];
+  raw.sort((a, b) => { for (let i = 0; i < Math.min(_sortOrder.length, 3); i++) { let d = _sortFns[_sortOrder[i]](a, b); if (i === 0 && _sortDir === 'asc') d = -d; if (d !== 0) return d; } return 0; });
+  const primary   = _sortOrder[0];
+  const secondary = _sortOrder[1];
+  const _ptsFor = (key, item) =>
+      key === 'exp'   ? item.expCount
+    : key === 'imp'   ? item.impCount
+    : key === 'delta' ? item.expCount - item.impCount
+    : key === 'elo'   ? item.pts
+    : null;
   return raw.map(item => ({
     ...item,
-    pts: primary === 'exp' ? item.expCount
-       : primary === 'imp' ? item.impCount
-       : primary === 'delta' ? item.expCount - item.impCount
-       : primary === 'alpha'  ? null
-       : item.pts,
+    pts:  primary === 'alpha' ? null : primary === 'elo' ? item.pts : _ptsFor(primary, item),
+    pts2: secondary ? _ptsFor(secondary, item) : null,
   }));
 };
 
 const _zoomToActiveDimFlags = () => {
-  const xs = [], ys = [];
+  let srcX, srcY;
   g.selectAll(`.flag-qualified[data-id="${dimState.sourceId}"]`).each(function() {
     const cx = +this.getAttribute('data-cx'), cy = +this.getAttribute('data-cy');
-    if (isFinite(cx) && isFinite(cy)) { xs.push(cx); ys.push(cy); }
+    if (isFinite(cx) && isFinite(cy)) { srcX = cx; srcY = cy; }
   });
+  if (srcX == null) return;
+  const xs = [srcX], ys = [srcY];
   g.selectAll('.flag-qualified[data-dim-visible]').each(function() {
     const cx = +this.getAttribute('data-cx'), cy = +this.getAttribute('data-cy');
     if (isFinite(cx) && isFinite(cy)) { xs.push(cx); ys.push(cy); }
   });
-  if (!xs.length) return;
+  const hasLinked = xs.length > 1;
   const [vbX, vbY, vbW, vbH] = svg.attr('viewBox').split(' ').map(Number);
-  const x0 = Math.min(...xs), x1 = Math.max(...xs);
-  const y0 = Math.min(...ys), y1 = Math.max(...ys);
-  const pad = 20;
-  const k = Math.max(1, Math.min(12, Math.min(vbW / (x1 - x0 + 2 * pad), vbH / (y1 - y0 + 2 * pad))));
-  const tx = vbX + vbW / 2 - k * (x0 + x1) / 2;
-  const ty = vbY + vbH / 2 - k * (y0 + y1) / 2;
-  svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
+  // Stage 1: zoom to source country at max scale
+  const maxK = 12;
+  const tx1 = vbX + vbW / 2 - maxK * srcX;
+  const ty1 = vbY + vbH / 2 - maxK * srcY;
+  // Stage 2: span all linked countries, or de-zoom if none
+  const _stage2 = () => {
+    if (hasLinked) {
+      const x0 = Math.min(...xs), x1 = Math.max(...xs);
+      const y0 = Math.min(...ys), y1 = Math.max(...ys);
+      const pad = 20;
+      const k  = Math.max(1, Math.min(15, Math.min(vbW / (x1 - x0 + 2 * pad), vbH / (y1 - y0 + 2 * pad))));
+      const tx = vbX + vbW / 2 - k * (x0 + x1) / 2;
+      const ty = vbY + vbH / 2 - k * (y0 + y1) / 2;
+      svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
+    } else {
+      const k2 = 8;
+      svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(vbX + vbW / 2 - k2 * srcX, vbY + vbH / 2 - k2 * srcY).scale(k2));
+    }
+  };
+  svg.transition().duration(750)
+    .call(zoom.transform, d3.zoomIdentity.translate(tx1, ty1).scale(maxK))
+    .on('end', _stage2);
 };
 
 const _renderElo = () => {
-  const items = _buildEloItems();
+  const allItems = _buildEloItems();
   const total = _eloData?.rankings?.filter(r => !r.weirdo).length ?? 0;
+  const visibleItems = allItems.filter(item => _catEloChecked(item.id, item.fifaMember));
   const _nationsEl = document.getElementById('elo-nations');
-  if (_nationsEl) _nationsEl.textContent = T.eloNations(items.length, total);
-  if (_filterCountEl) _filterCountEl.textContent = total ? `${items.length}/${total}` : '';
-  _eloUpdate = renderEloRanking(_eloMain, {
-    items,
+  if (_nationsEl) _nationsEl.textContent = T.eloNations(visibleItems.length, total);
+  if (_filterCountEl) _filterCountEl.textContent = total ? `${visibleItems.length}/${total}` : '';
+  if (_eloCtrl) { _eloCtrl.show(visibleItems); return; }
+  _eloCtrl = renderEloRanking(_eloMain, {
+    items: allItems,
     onCountryClick: id => { if (dimState.sourceId === id) { clearDim(); } else { activateCountry(id); _zoomToActiveDimFlags(); } },
     isClickable: id => enablesDim(id),
     isMuted:     id => !QUALIFIED_NAMES[id],
@@ -609,10 +633,11 @@ const _renderElo = () => {
     source: _eloData?.source,
     date: _eloData?.updated,
   });
+  _eloCtrl.show(visibleItems);
 };
 const _updateEloSelection = () => {
-  if (_eloUpdate && !document.getElementById('tab-elo')?.hidden)
-    _eloUpdate(dimState.sourceId);
+  if (_eloCtrl && !document.getElementById('tab-elo')?.hidden)
+    _eloCtrl.update(dimState.sourceId);
 };
 const _eloSourceLabelEl  = document.getElementById('elo-source-label');
 const _eloUpdatedLabelEl = document.getElementById('elo-updated-label');
