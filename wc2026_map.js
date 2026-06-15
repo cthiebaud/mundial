@@ -395,7 +395,20 @@ const _applyFlagFilter = () => {
         return (cat === 'e' ? (fifa ? _fltEF : _fltEN) : (fifa ? _fltOF : _fltON)).checked ? null : 'hidden';
       }
       return _catChecked(cat) ? null : 'hidden';
+    })
+    .attr('cursor', function() {
+      const hidden = this.getAttribute('visibility') === 'hidden';
+      return !hidden && enablesDim(+this.getAttribute('data-id')) ? 'pointer' : 'default';
     });
+  // Build set of visible flag IDs, then sync country path cursors to match
+  const visibleFlagIds = new Set();
+  d3.selectAll('.flag-qualified[data-id]').each(function() {
+    if (this.getAttribute('visibility') !== 'hidden') visibleFlagIds.add(+this.getAttribute('data-id'));
+  });
+  d3.selectAll('.country[data-id]').style('cursor', function() {
+    const id = +this.getAttribute('data-id');
+    return visibleFlagIds.has(id) && enablesDim(id) ? 'pointer' : 'default';
+  });
   _updateVisibleCountryCount();
 };
 const _updateVisibleCountryCount = () => {
@@ -1439,7 +1452,6 @@ const onCountryClick = (event, id) => {
     return;
   }
   if (enablesDim(id)) { activateCountry(id); return; }
-  zoomToCentroid(id);
 };
 // ── World render ────────────────────────────────────────────────────────────
 const renderWorld = (world, ukNations) => {
@@ -1457,11 +1469,12 @@ g.selectAll('.country')
     .filter(d => +d.id !== 826))
   .join('path')
   .attr('class','country')
+  .attr('data-id', d => +d.id)
   .attr('d', path)
   .attr('fill', d => choroFill(+d.id, app.byId))
   .attr('stroke','#ccc8c0').attr('stroke-width',.3)
   .attr('data-enables-dim', d => enablesDim(+d.id) ? '' : null)
-  .style('cursor', 'pointer')
+  .style('cursor', d => enablesDim(+d.id) ? 'pointer' : 'default')
   .on('mousemove', (event, d) => onCountryMousemove(event, +d.id, d.properties?.name))
   .on('mouseleave', () => { if (!dimState.active) { hideTip(); } })
   .on('click',     (event, d) => onCountryClick(event, +d.id));
@@ -1478,11 +1491,12 @@ g.selectAll('.country-uk')
   .data(ukFeatures)
   .join('path')
   .attr('class','country country-uk')
+  .attr('data-id', d => d._id)
   .attr('d', path)
   .attr('fill', d => choroFill(d._id, app.byId))
   .attr('stroke','#ccc8c0').attr('stroke-width',.3)
   .attr('data-enables-dim', d => enablesDim(d._id) ? '' : null)
-  .style('cursor', 'pointer')
+  .style('cursor', d => enablesDim(d._id) ? 'pointer' : 'default')
   .on('mousemove', (event, d) => onCountryMousemove(event, d._id))
   .on('mouseleave', () => { if (!dimState.active) hideTip(); })
   .on('click',     (event, d) => onCountryClick(event, d._id));
@@ -1545,7 +1559,7 @@ g.selectAll('.flag-qualified')
   })
   .attr('pointer-events', 'all')
   .attr('data-enables-dim', d => enablesDim(+d.id) ? '' : null)
-  .attr('cursor', 'pointer')
+  .attr('cursor', d => enablesDim(+d.id) ? 'pointer' : 'default')
   .on('mousemove', (event, d) => onCountryMousemove(event, +d.id))
   .on('click',     (event, d) => onCountryClick(event, +d.id));
 
@@ -1562,7 +1576,7 @@ STANDALONE_FLAGS.forEach(({ id, lon, lat }) => {
     .attr('stroke', '#fff')
     .attr('stroke-width', 0.5)
     .attr('data-enables-dim', enablesDim(id) ? '' : null)
-    .attr('cursor', 'pointer')
+    .attr('cursor', enablesDim(id) ? 'pointer' : 'default')
     .on('mousemove', (event) => onCountryMousemove(event, id))
     .on('click',     (event) => onCountryClick(event, id));
 });
@@ -1581,7 +1595,7 @@ STANDALONE_FLAGS.forEach(({ id, lon, lat, dLon = 0, dLat = 0 }) => {
     .attr('x', fx - FLAG/2).attr('y', fy - FLAG/2)
     .attr('pointer-events', 'all')
     .attr('data-enables-dim', enablesDim(id) ? '' : null)
-    .attr('cursor', 'pointer')
+    .attr('cursor', enablesDim(id) ? 'pointer' : 'default')
     .on('mousemove', (event) => onCountryMousemove(event, id))
     .on('click',     (event) => onCountryClick(event, id));
 });
@@ -1601,7 +1615,7 @@ ukFeatures
       .attr('x', cx - FLAG/2).attr('y', cy - FLAG/2)
       .attr('pointer-events', 'all')
       .attr('data-enables-dim', enablesDim(f._id) ? '' : null)
-      .attr('cursor', 'pointer')
+      .attr('cursor', enablesDim(f._id) ? 'pointer' : 'default')
       .on('mousemove', (event) => onCountryMousemove(event, f._id))
       .on('click',     (event) => onCountryClick(event, f._id));
   });
@@ -1626,7 +1640,7 @@ worldFeatures
       .attr('x', cx - FLAG/2).attr('y', cy - FLAG/2)
       .attr('pointer-events', 'all')
       .attr('data-enables-dim', enablesDim(id) ? '' : null)
-      .attr('cursor', 'pointer')
+      .attr('cursor', enablesDim(id) ? 'pointer' : 'default')
       .on('mousemove', (event) => onCountryMousemove(event, id))
       .on('click',     (event) => onCountryClick(event, id));
   });
