@@ -129,9 +129,26 @@ The four home nations (England, Scotland, Wales, Northern Ireland) are handled a
 - `wc2026_players.csv` birth countries: all resolved from city lookup — no "United Kingdom" entries
 - Synthetic IDs (no ISO 3166-1 numeric): `8260=England`, `8261=Scotland`, `8262=Wales`, `8263=Northern Ireland`
 - ISO2 flag codes: `gb-eng`, `gb-sct`, `gb-wls`, `gb-nir`
-- Map rendering: world atlas feature 826 (UK) is **skipped**; `uk-nations.geojson` renders the 4 nations as separate polygons
+- Map rendering: world atlas feature 826 (UK) is **skipped** (non-qualified flags filter has explicit `id !== 826` guard); `uk-nations.geojson` renders the 4 nations as separate polygons
+- All 4 UK nations render their flag on the map — the UK nation filter covers all four: `f._id === 8260 || f._id === 8261 || f._id === 8262 || f._id === 8263`
 - Scotland centroid manually overridden to `[-4.2, 56.8]` (island bias in auto-centroid)
 - England and Scotland flags placed **after** the `.flag-qualified` D3 data join (placing before causes D3's exit selection to remove them)
+- Population + capital patched via `pipeline/patch_uk_nations.py` (Wikidata SPARQL for capitals, 2021/22 census populations); stored in `countries.json` under keys `"8260"`–`"8263"` with alpha2 as the lookup key
+
+### Kosovo (id=383)
+Kosovo is absent from the `iso-3166-1` npm package's numeric table and may be absent from `Intl.DisplayNames`. Special handling:
+- Assigned numeric id `383` (widely-used user-assigned value), alpha-2 `xk`
+- World-atlas 110m topojson has a Kosovo geometry with `{properties:{name:'Kosovo'}}` but **no `id` field** → patched at the top of `renderWorld` before any `topojson.feature()` calls:
+  ```js
+  const _topoNameToId = { Kosovo: 383 };
+  world.objects.countries.geometries.forEach(g => {
+    if (!g.id) { const mapped = _topoNameToId[g.properties?.name]; if (mapped) g.id = mapped; }
+  });
+  ```
+- `ISO2` map has `383: 'xk'` so `iso2ForId(383)` returns `'xk'`
+- `i18n.js _OVERRIDE` has `383: { fr:'Kosovo', de:'Kosovo', it:'Kosovo', es:'Kosovo', en:'Kosovo' }` — bypasses all ISO lookups
+- Added to `wc2026_elo_rank.json` rankings with `rank: null, pts: null, fifaMember: true` (not on eloratings.net)
+- Patched via `pipeline/patch_kosovo.py` (Wikidata SPARQL for Pristina translations, World Bank 2022 population)
 
 ### Small island nations (standalone flags)
 Cape Verde (id=132) and Curaçao (id=531) don't appear reliably in the 110m topojson — placed manually via `STANDALONE_FLAGS` array with explicit lon/lat.
@@ -202,6 +219,13 @@ Shown below the map in dim mode. Structure rendered by `playerTableTemplate` via
 ### Elo ranking tab and filter sidebar
 The **Elo ranking** tab (default active) shows all countries as pill badges, rendered by `renderEloRanking` from `wc2026_elo_ranking.js`. Countries are filtered by the sidebar cube (`qualified × importer × exporter`); clicking a badge activates dim mode; clicking the active badge clears it.
 
+**Three-tier pill interaction model:**
+- `enablesDim(id)` → `true`: badge is `elo-item--clickable` (dark, `#888` label). Click activates dim + arc mode.
+- `!enablesDim(id) && !!centroids[id]` → badge is `elo-item--zoomable` (stays `#bbb`, cursor:pointer + hover tint). Click calls `zoomToCentroid(id)` — pans/zooms the map to that country's SVG centroid without activating dim.
+- neither → badge is inert (no cursor change, no interaction).
+
+`zoomToCentroid(id)` reads `centroids[id]` (SVG centroid coordinates populated by `renderWorld`), computes a k=8 zoom transform centered on that country, and applies it with a 600ms transition. All map click handlers also call `zoomToCentroid` for countries where `!enablesDim(id)` (instead of opening dim mode).
+
 **Critical ordering**: `_renderElo()` must be called **after** `buildIndices(rawData)` in the `Promise.all` callback. If called before (e.g. when the Elo JSON loads first), `app.byId` is empty, non-qualified exporters get wrongly bucketed as category `'o'` (filtered out by default), and `enablesDim()` returns false for all items (nothing clickable).
 
 The filter sidebar's natural height is measured before its first collapse (`classList.remove('collapsed') → scrollHeight → classList.add('collapsed')`), stored in `--filter-sidebar-h`, which drives the toggle button's `min-height`. The actual header height (`--page-header-h`) is measured separately via `offsetHeight`.
@@ -209,9 +233,10 @@ The filter sidebar's natural height is measured before its first collapse (`clas
 ### Dim / arc mode
 - Left-click any country on the map or in the Elo list where `enablesDim()` returns true → dims all qualified nation flags except relevant ones; draws curved arcs with √count-scaled width; shows player table below map
 - Clicking the **same** active Elo item again → clears dim
-- Any other map click → clears dim
+- Any other map click → clears dim (or `zoomToCentroid` if the country is zoomable)
 - `dimState.active` flag prevents tooltip from reappearing during dim
 - `dimState.k` tracks current zoom scale so arcs are redrawn at correct size on zoom
+- `_zoomToActiveDimFlags` two-stage animation: stage 1 (source country) maxK=9 / duration=1200ms; stage 2 (linked flags) Math.max(1, Math.min(9, …)) / k2=9 fallback / duration=1500ms
 
 ### Data join ordering in the render callback
 Order matters for SVG z-layering:
@@ -223,6 +248,32 @@ Order matters for SVG z-layering:
 6. `.flag-qualified` world topojson data join
 7. England/Scotland flags (must be **after** step 6)
 8. STANDALONE_FLAGS
+
+### `countries.json` — population + capital lookup
+`countries.json` (project root) is the canonical source for population and multilingual capital city names. Shape:
+```json
+{ "250": { "id": 250, "alpha2": "fr", "alpha3": "fra", "name": "France",
+           "capital": {"en":"Paris","fr":"Paris","de":"Paris","it":"Parigi","es":"París"},
+           "population": 68374591 } }
+```
+Keys are ISO numeric ids (strings). Special entries: `"8260"`–`"8263"` (UK home nations, alpha2 = `gb-eng` etc.) and `"383"` (Kosovo, alpha2 = `xk`). The pipeline reads this file in `build_json.py` to populate `pop` and `capital` in `wc2026_map_data.json` (looked up by lowercase alpha2).
+
+Generated by: `pipeline/fetch_countries.py` (mledoze + World Bank + Wikidata). Post-patched by `pipeline/patch_uk_nations.py` and `pipeline/patch_kosovo.py`.
+
+---
+
+## LinkedIn video — chains/
+
+**`chains/VIDEO_BRIEF.md`** contains the complete production brief for a LinkedIn video built around the longest chain.
+
+Concept (two acts):
+1. **Puzzle act** (fast): flash all 37 player photos with names → question "what do they have in common?"
+2. **Narrative act** (slow): three-panel layout (map | chain snake | player card), one step per player, map zooms to birth country then plays-for country with arc animation.
+
+Files to create (not yet done):
+- `chains/wc2026_chain_video.html` — 1920×1080 animated HTML
+- `pipeline/fetch_chain_photos.py` — Wikidata P18 photo downloader → `chains/player_photos/`
+- `chains/record_chain_video.py` — Playwright recorder → MP4
 
 ---
 
@@ -302,8 +353,9 @@ Requires a local server (same `fetch()` constraint as the map).
 | File | Content |
 |---|---|
 | `wc2026_chain_main.json` | UK → France → … → Croatia (7 hops) |
-| `wc2026_chain_longest.json` | Full longest chain (12 edges, 13 nodes) |
+| `wc2026_chain_longest.json` | Full longest chain (37 links, 38 countries — Nigeria → … → Saudi Arabia) |
 | `wc2026_chain_directed.json` | Directed graph of all chains |
 | `wc2026_chain_italy.json` | Italy variant (Marcus Thuram first link) |
 | `wc2026_chain_kaz.json` | Kazakhstan → … → Algeria (5 hops) |
 | `wc2026_chain_loop.json` | Bosnia ⇄ Croatia mutual cycle |
+| `VIDEO_BRIEF.md` | Handoff brief for the LinkedIn video production (see below) |

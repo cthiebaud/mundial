@@ -51,6 +51,14 @@ All scripts live in `pipeline/`. See `pipeline/README.md` for full instructions.
 | `pipeline/wc2026_birthplaces.py` | Scraper: Wikipedia → `pipeline/wc2026_players.csv` |
 | `pipeline/build_json.py` | Rebuilds `wc2026_map_data.json` from CSV |
 | `pipeline/add_wiki_urls.py` | Enriches JSON with per-language Wikipedia links (`wiki_langs`) |
+| `pipeline/fetch_countries.py` | Builds `countries.json` (pop + capital) from mledoze + World Bank + Wikidata |
+| `pipeline/patch_uk_nations.py` | Adds UK home nations (8260–8263) to `countries.json` |
+| `pipeline/patch_kosovo.py` | Adds Kosovo (383) to `countries.json` and `wc2026_elo_rank.json` |
+| `pipeline/update_elo_rankings.py` | Fetches current Elo ratings from eloratings.net → `wc2026_elo_rank.json` |
+| `pipeline/build_elo_history.py` | Parses eloratings.net graph.tsv → `wc2026_elo_history.json` |
+| `pipeline/add_gdp.py` | World Bank GDP → `wc2026_gdp.json` |
+| `pipeline/add_gdp_pc_ppp.py` | World Bank GDP/capita PPP → `wc2026_gdp_pc_ppp.json` |
+| `pipeline/add_hdi.py` | UNDP HDI → `wc2026_hdi.json` |
 | `pipeline/wc2026_players.csv` | Full squad roster with birth city/country (source of truth) |
 | `pipeline/wc2026_by_birthcountry.csv` | Aggregated ranking by birth country |
 | `pipeline/wc2026_make_ratio_chart.py` | Bar chart of players born in a country but playing for another |
@@ -72,11 +80,12 @@ Infographics visualising multi-hop birth-country → plays-for paths.
 | File | Content |
 |---|---|
 | `wc2026_chain_main.json` | UK → France → … → Croatia (7 hops) |
-| `wc2026_chain_longest.json` | Full longest chain (12 edges, 13 nodes) |
+| `wc2026_chain_longest.json` | Full longest chain (37 links, 38 countries — Nigeria → … → Saudi Arabia) |
 | `wc2026_chain_directed.json` | Directed graph of all chains |
 | `wc2026_chain_italy.json` | Italy variant (Marcus Thuram first link) |
 | `wc2026_chain_kaz.json` | Kazakhstan → … → Algeria (5 hops) |
 | `wc2026_chain_loop.json` | Bosnia ⇄ Croatia mutual cycle |
+| `VIDEO_BRIEF.md` | Production brief for the LinkedIn chain video (to be implemented) |
 
 ---
 
@@ -117,6 +126,14 @@ A collapsible filter panel lives in the fixed header (right edge, CSS grid overl
 | Non-qualified, neither | unchecked |
 
 Clicking any row/column header toggles all its checkboxes at once.
+
+## Map special cases
+
+**UK home nations**: England, Scotland, Wales, and Northern Ireland are treated as independent entities (synthetic IDs 8260–8263, flag codes `gb-eng` / `gb-sct` / `gb-wls` / `gb-nir`). The world atlas feature for "United Kingdom" (id=826) is skipped; `uk-nations.geojson` renders the four nations as separate choropleth polygons.
+
+**Kosovo**: Not in the iso-3166-1 package's numeric table. Assigned id=383, alpha-2=`xk`. The world-atlas 110m topojson has a Kosovo geometry with no `id` field — patched at runtime before any topojson processing. Displayed in the Elo list with `rank: null`.
+
+**Non-qualified countries**: All countries are clickable on the map and in the Elo list. For countries that don't activate dim mode, clicking pans and zooms the map to that country's centroid (`zoomToCentroid`, k=8). In the Elo list these appear as `elo-item--zoomable` pills (cursor:pointer, hover tint, colour stays `#bbb` to preserve the three-tier visual hierarchy).
 
 ## i18n
 
