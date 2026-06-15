@@ -301,71 +301,71 @@ let _sortDir    = 'desc';
 const _fifaMemberIds = new Set();
 const _eloMain    = document.createElement('div');
 _eloMain.className = 'elo-main';
-const _filterSidebar = document.createElement('div');
-_filterSidebar.id = 'filter-sidebar';
-_filterSidebar.classList.add('collapsed');
+const _controlSidebar = document.createElement('div');
+_controlSidebar.id = 'control-sidebar';
+_controlSidebar.classList.add('collapsed');
+document.getElementById('page-header')?.appendChild(_controlSidebar);
 const _eloLayout  = document.createElement('div');
 _eloLayout.className = 'elo-layout';
-document.getElementById('page-header')?.appendChild(_filterSidebar);
 _eloLayout.appendChild(_eloMain);
 document.getElementById('tab-elo')?.appendChild(_eloLayout);
 
 // ── Persistent filter table — isQualified × isImporting × isExporting cube ──
 // Row and column headers are clickable: toggles all checkboxes in that row/column.
 // The same DOM node is re-appended on each render so checked state survives tab switches.
-const _filterGrp = document.createElement('div');
-_filterGrp.innerHTML = `<table class="filter-table table table-sm table-bordered">
+const _controlPanel = document.createElement('div');
+_controlPanel.innerHTML = `<table class="csb-table table table-sm table-bordered">
   <tbody>
     <tr>
-      <td class="ftbl-sort-header text-muted" style="position:relative">${T.sortLabels.action}<span class="ftbl-close-btn btn-close btn-close-sm position-absolute top-0 start-0 m-1" aria-label="Close" style="font-size:0.5rem;"></span></td>
-      <td colspan="2" class="ftbl-col text-muted" data-col="all"><em>${T.filterLabels.action}</em><span id="filter-count" style="float:right"></span></td>
-      <td class="ftbl-col text-muted" data-col="exp">${T.filterLabels.exporter}<sup style="color:#3b82f6">●</sup></td>
-      <td class="ftbl-col text-muted" data-col="nexp">${T.filterLabels.nonExp}</td>
+      <td class="csb-header text-center text-muted" style="position:relative">${T.sortLabels.action}<span class="csb-close btn-close btn-close-sm position-absolute top-0 start-0 m-1" aria-label="Close" style="font-size:0.5rem;"></span></td>
+      <td colspan="2" class="csb-header text-center text-muted" data-col="all"><em>${T.filterLabels.action}</em><!-- span id="csb-count" style="float:right"></span --></td>
+      <td class="csb-col text-muted" data-col="exp">${T.filterLabels.exporter}<sup style="color:#3b82f6">●</sup></td>
+      <td class="csb-col text-muted" data-col="nexp">${T.filterLabels.nonExp}</td>
     </tr>
     <tr>
-      <td rowspan="4" class="ftbl-sort-col p-0 text-muted">
-        <div class="ftbl-sort-list">
-          <button class="sort-dir-btn"></button>
-          <div class="ftbl-sort-item" data-sort="elo">${T.sortLabels.elo}</div>
-          <div class="ftbl-sort-item" data-sort="exp">${T.sortLabels.exp}</div>
-          <div class="ftbl-sort-item" data-sort="imp">${T.sortLabels.imp}</div>
-          <div class="ftbl-sort-item" data-sort="delta">${T.sortLabels.delta}</div>
-          <div class="ftbl-sort-item" data-sort="alpha">${T.sortLabels.alpha}</div>
+      <td rowspan="4" class="csb-sort-col p-0 text-muted">
+        <div class="csb-sort-list d-flex flex-column h-100 position-relative">
+          <button class="csb-sort-dir"></button>
+          <div class="csb-sort-item flex-grow-1 d-flex align-items-center justify-content-center text-nowrap" data-sort="elo">${T.sortLabels.elo}</div>
+          <div class="csb-sort-item flex-grow-1 d-flex align-items-center justify-content-center text-nowrap" data-sort="exp">${T.sortLabels.exp}</div>
+          <div class="csb-sort-item flex-grow-1 d-flex align-items-center justify-content-center text-nowrap" data-sort="imp">${T.sortLabels.imp}</div>
+          <div class="csb-sort-item flex-grow-1 d-flex align-items-center justify-content-center text-nowrap" data-sort="delta">${T.sortLabels.delta}</div>
+          <div class="csb-sort-item flex-grow-1 d-flex align-items-center justify-content-center text-nowrap" data-sort="alpha">${T.sortLabels.alpha}</div>
         </div>
       </td>
-      <td rowspan="2" class="ftbl-grp text-muted" data-row="q">${T.filterLabels.qualified}</td>
-      <td class="ftbl-sub text-muted" data-row="qi">${T.filterLabels.importer}<sup style="color:#ef4444">●</sup></td>
-      <td class="text-muted"><label class="check-lbl"><input type="checkbox" class="form-check-input" id="filter-qie" checked></label></td>
-      <td class="text-muted"><label class="check-lbl"><input type="checkbox" class="form-check-input" id="filter-qi"  checked></label></td>
+      <td rowspan="2" class="csb-group text-muted" data-row="q">${T.filterLabels.qualified}</td>
+      <td class="csb-row text-muted" data-row="qi">${T.filterLabels.importer}<sup style="color:#ef4444">●</sup></td>
+      <td class="text-muted"><label class="csb-check d-block text-center lh-1"><input type="checkbox" class="form-check-input" id="filter-qie" checked></label></td>
+      <td class="text-muted"><label class="csb-check d-block text-center lh-1"><input type="checkbox" class="form-check-input" id="filter-qi"  checked></label></td>
     </tr>
     <tr>
-      <td class="ftbl-sub text-muted" data-row="qni">${T.filterLabels.nonImp}</td>
-      <td class="text-muted"><label class="check-lbl"><input type="checkbox" class="form-check-input" id="filter-qe"  checked></label></td>
-      <td class="text-muted"><label class="check-lbl"><input type="checkbox" class="form-check-input" id="filter-q"   checked></label></td>
+      <td class="csb-row text-muted" data-row="qni">${T.filterLabels.nonImp}</td>
+      <td class="text-muted"><label class="csb-check d-block text-center lh-1"><input type="checkbox" class="form-check-input" id="filter-qe"  checked></label></td>
+      <td class="text-muted"><label class="csb-check d-block text-center lh-1"><input type="checkbox" class="form-check-input" id="filter-q"   checked></label></td>
     </tr>
     <tr>
-      <td rowspan="2" class="ftbl-grp text-muted" data-row="nq">${T.filterLabels.nonQual}</td>
-      <td class="ftbl-sub text-muted" data-row="nqf">FIFA</td>
-      <td class="text-muted"><label class="check-lbl"><input type="checkbox" class="form-check-input" id="filter-ef"  checked></label></td>
-      <td class="text-muted"><label class="check-lbl"><input type="checkbox" class="form-check-input" id="filter-of"></label></td>
+      <td rowspan="2" class="csb-group text-muted" data-row="nq">${T.filterLabels.nonQual}</td>
+      <td class="csb-row text-muted" data-row="nqf">FIFA</td>
+      <td class="text-muted"><label class="csb-check d-block text-center lh-1"><input type="checkbox" class="form-check-input" id="filter-ef"  checked></label></td>
+      <td class="text-muted"><label class="csb-check d-block text-center lh-1"><input type="checkbox" class="form-check-input" id="filter-of"></label></td>
     </tr>
     <tr>
-      <td class="ftbl-sub text-muted" data-row="nqn">non-FIFA<sup>○</sup></td>
-      <td class="text-muted"><label class="check-lbl"><input type="checkbox" class="form-check-input" id="filter-en"  checked></label></td>
-      <td class="text-muted"><label class="check-lbl"><input type="checkbox" class="form-check-input" id="filter-on"></label></td>
+      <td class="csb-row text-muted" data-row="nqn">non-FIFA<sup>○</sup></td>
+      <td class="text-muted"><label class="csb-check d-block text-center lh-1"><input type="checkbox" class="form-check-input" id="filter-en"  checked></label></td>
+      <td class="text-muted"><label class="csb-check d-block text-center lh-1"><input type="checkbox" class="form-check-input" id="filter-on"></label></td>
     </tr>
   </tbody>
 </table>`;
 
-const _filterCountEl = _filterGrp.querySelector('#filter-count');
-const _fltQIE = _filterGrp.querySelector('#filter-qie');
-const _fltQI  = _filterGrp.querySelector('#filter-qi');
-const _fltQE  = _filterGrp.querySelector('#filter-qe');
-const _fltQ   = _filterGrp.querySelector('#filter-q');
-const _fltEF  = _filterGrp.querySelector('#filter-ef');
-const _fltOF  = _filterGrp.querySelector('#filter-of');
-const _fltEN  = _filterGrp.querySelector('#filter-en');
-const _fltON  = _filterGrp.querySelector('#filter-on');
+const _filterCountEl = _controlPanel.querySelector('#csb-count');
+const _fltQIE = _controlPanel.querySelector('#filter-qie');
+const _fltQI  = _controlPanel.querySelector('#filter-qi');
+const _fltQE  = _controlPanel.querySelector('#filter-qe');
+const _fltQ   = _controlPanel.querySelector('#filter-q');
+const _fltEF  = _controlPanel.querySelector('#filter-ef');
+const _fltOF  = _controlPanel.querySelector('#filter-of');
+const _fltEN  = _controlPanel.querySelector('#filter-en');
+const _fltON  = _controlPanel.querySelector('#filter-on');
 
 const _flagCat = id => {
   const qual = !!QUALIFIED_NAMES[id];
@@ -398,25 +398,25 @@ const _catEloChecked = (id, fifaMember) => {
   return _catChecked(cat);
 };
 const _filterToggle = chks => { const on = chks.every(c => c.checked); chks.forEach(c => c.checked = !on); _renderElo(); _applyFlagFilter(); };
-_filterGrp.querySelector('[data-row="q"]'   ).addEventListener('click', () => _filterToggle([_fltQIE, _fltQI, _fltQE, _fltQ]));
-_filterGrp.querySelector('[data-row="qi"]'  ).addEventListener('click', () => _filterToggle([_fltQIE, _fltQI]));
-_filterGrp.querySelector('[data-row="qni"]' ).addEventListener('click', () => _filterToggle([_fltQE,  _fltQ]));
-_filterGrp.querySelector('[data-row="nq"]'  ).addEventListener('click', () => _filterToggle([_fltEF, _fltOF, _fltEN, _fltON]));
-_filterGrp.querySelector('[data-row="nqf"]' ).addEventListener('click', () => _filterToggle([_fltEF, _fltOF]));
-_filterGrp.querySelector('[data-row="nqn"]' ).addEventListener('click', () => _filterToggle([_fltEN, _fltON]));
-_filterGrp.querySelector('[data-col="exp"]' ).addEventListener('click', () => _filterToggle([_fltQIE, _fltQE, _fltEF, _fltEN]));
-_filterGrp.querySelector('[data-col="nexp"]').addEventListener('click', () => _filterToggle([_fltQI,  _fltQ,  _fltOF, _fltON]));
-_filterGrp.querySelector('[data-col="all"]').addEventListener('click', () => _filterToggle([_fltQIE, _fltQI, _fltQE, _fltQ, _fltEF, _fltOF, _fltEN, _fltON]));
-_filterGrp.addEventListener('change', () => { _renderElo(); _applyFlagFilter(); });
-_filterGrp.querySelector('.ftbl-close-btn')?.addEventListener('click', e => {
+_controlPanel.querySelector('[data-row="q"]'   ).addEventListener('click', () => _filterToggle([_fltQIE, _fltQI, _fltQE, _fltQ]));
+_controlPanel.querySelector('[data-row="qi"]'  ).addEventListener('click', () => _filterToggle([_fltQIE, _fltQI]));
+_controlPanel.querySelector('[data-row="qni"]' ).addEventListener('click', () => _filterToggle([_fltQE,  _fltQ]));
+_controlPanel.querySelector('[data-row="nq"]'  ).addEventListener('click', () => _filterToggle([_fltEF, _fltOF, _fltEN, _fltON]));
+_controlPanel.querySelector('[data-row="nqf"]' ).addEventListener('click', () => _filterToggle([_fltEF, _fltOF]));
+_controlPanel.querySelector('[data-row="nqn"]' ).addEventListener('click', () => _filterToggle([_fltEN, _fltON]));
+_controlPanel.querySelector('[data-col="exp"]' ).addEventListener('click', () => _filterToggle([_fltQIE, _fltQE, _fltEF, _fltEN]));
+_controlPanel.querySelector('[data-col="nexp"]').addEventListener('click', () => _filterToggle([_fltQI,  _fltQ,  _fltOF, _fltON]));
+_controlPanel.querySelector('[data-col="all"]').addEventListener('click', () => _filterToggle([_fltQIE, _fltQI, _fltQE, _fltQ, _fltEF, _fltOF, _fltEN, _fltON]));
+_controlPanel.addEventListener('change', () => { _renderElo(); _applyFlagFilter(); });
+_controlPanel.querySelector('.csb-close')?.addEventListener('click', e => {
   e.stopPropagation();
-  _filterSidebar.classList.add('collapsed');
-  _filterSidebarToggle.textContent = '‹';
+  _controlSidebar.classList.add('collapsed');
+  _controlSidebarToggle.textContent = '‹';
 });
-const _sortListEl = _filterGrp.querySelector('.ftbl-sort-list');
-const _sortDirBtn = _sortListEl.querySelector('.sort-dir-btn');
+const _sortListEl = _controlPanel.querySelector('.csb-sort-list');
+const _sortDirBtn = _sortListEl.querySelector('.csb-sort-dir');
 const _updateSortCol = () => {
-  const items = Array.from(_sortListEl.querySelectorAll('.ftbl-sort-item'));
+  const items = Array.from(_sortListEl.querySelectorAll('.csb-sort-item'));
   const before = new Map(items.map(el => [el, el.getBoundingClientRect().top]));
   _sortOrder.forEach(key => { const el = _sortListEl.querySelector(`[data-sort="${key}"]`); if (el) _sortListEl.appendChild(el); });
   _sortDirBtn.dataset.dir = _sortDir;
@@ -433,7 +433,7 @@ const _updateSortCol = () => {
 };
 _updateSortCol();
 _sortListEl?.addEventListener('click', e => {
-  const btn = e.target.closest('.sort-dir-btn');
+  const btn = e.target.closest('.csb-sort-dir');
   if (btn) {
     e.stopPropagation();
     _sortDir = _sortDir === 'desc' ? 'asc' : 'desc';
@@ -441,7 +441,7 @@ _sortListEl?.addEventListener('click', e => {
     _renderElo();
     return;
   }
-  const item = e.target.closest('.ftbl-sort-item');
+  const item = e.target.closest('.csb-sort-item');
   if (item) {
     const key = item.dataset.sort;
     _sortOrder = [key, ..._sortOrder.filter(k => k !== key)];
@@ -449,42 +449,42 @@ _sortListEl?.addEventListener('click', e => {
     _renderElo();
   }
 });
-const _filterSidebarToggle = document.createElement('button');
-_filterSidebarToggle.className = 'filter-sidebar-toggle';
-_filterSidebarToggle.title = 'Toggle filter';
-_filterSidebarToggle.textContent = '‹';
-_filterSidebarToggle.addEventListener('click', () => {
-  const collapsed = _filterSidebar.classList.toggle('collapsed');
-  _filterSidebarToggle.textContent = collapsed ? '‹' : '›';
+const _controlSidebarToggle = document.createElement('button');
+_controlSidebarToggle.className = 'csb-toggle';
+_controlSidebarToggle.title = 'Toggle filter';
+_controlSidebarToggle.textContent = '‹';
+_controlSidebarToggle.addEventListener('click', () => {
+  const collapsed = _controlSidebar.classList.toggle('collapsed');
+  _controlSidebarToggle.textContent = collapsed ? '‹' : '›';
 });
-const _filterSidebarBody = document.createElement('div');
-_filterSidebarBody.className = 'filter-sidebar-body';
-_filterSidebarBody.appendChild(_filterGrp);
-_filterSidebar.appendChild(_filterSidebarToggle);
-_filterSidebar.appendChild(_filterSidebarBody);
+const _controlSidebarBody = document.createElement('div');
+_controlSidebarBody.className = 'csb-body overflow-hidden';
+_controlSidebarBody.appendChild(_controlPanel);
+_controlSidebar.appendChild(_controlSidebarToggle);
+_controlSidebar.appendChild(_controlSidebarBody);
 // Measure natural table dimensions before first collapse
-_filterSidebar.classList.remove('collapsed');
-_filterSidebarBody.style.maxWidth = 'none';
-_filterSidebarBody.style.width = 'max-content';
+_controlSidebar.classList.remove('collapsed');
+_controlSidebarBody.style.maxWidth = 'none';
+_controlSidebarBody.style.width = 'max-content';
 // Fix sort column width: longest item text + symmetric room for the direction button
-const _sortItemEls = Array.from(_sortListEl.querySelectorAll('.ftbl-sort-item'));
+const _sortItemEls = Array.from(_sortListEl.querySelectorAll('.csb-sort-item'));
 const _maxItemW = Math.max(..._sortItemEls.map(el => el.offsetWidth));
 const _btnEffW  = _sortDirBtn.offsetWidth + 3; // 3px gap from edge
 document.documentElement.style.setProperty('--sort-col-w', (_maxItemW + 2 * _btnEffW + 6) + 'px');
-document.documentElement.style.setProperty('--filter-sidebar-h', _filterGrp.scrollHeight + 'px');
-document.documentElement.style.setProperty('--filter-sidebar-w', _filterSidebarBody.offsetWidth + 'px');
-_filterSidebarBody.style.maxWidth = '';
-_filterSidebarBody.style.width = '';
-_filterSidebarToggle.textContent = '›';
+document.documentElement.style.setProperty('--csb-h', _controlPanel.scrollHeight + 'px');
+document.documentElement.style.setProperty('--csb-w', _controlSidebarBody.offsetWidth + 'px');
+_controlSidebarBody.style.maxWidth = '';
+_controlSidebarBody.style.width = '';
+_controlSidebarToggle.textContent = '›';
 const _autoCollapseTimer = setTimeout(() => {
-  _filterSidebarBody.style.transition = 'max-width 1s ease';
-  _filterSidebar.classList.add('collapsed');
-  _filterSidebarToggle.textContent = '‹';
-  _filterSidebarBody.addEventListener('transitionend', () => {
-    _filterSidebarBody.style.transition = '';
+  _controlSidebarBody.style.transition = 'max-width 1s ease';
+  _controlSidebar.classList.add('collapsed');
+  _controlSidebarToggle.textContent = '‹';
+  _controlSidebarBody.addEventListener('transitionend', () => {
+    _controlSidebarBody.style.transition = '';
   }, { once: true });
 }, 3000);
-_filterSidebar.addEventListener('click', () => clearTimeout(_autoCollapseTimer), { once: true });
+_controlSidebar.addEventListener('click', () => clearTimeout(_autoCollapseTimer), { once: true });
 // Measure actual header height (offsetHeight forces reflow after CSS var is applied)
 const _pageHeader = document.getElementById('page-header');
 if (_pageHeader) document.documentElement.style.setProperty('--page-header-h', _pageHeader.offsetHeight + 'px');
@@ -664,8 +664,8 @@ if (_eloUpdatedLabelEl) _eloUpdatedLabelEl.textContent = T.eloUpdated;
 if (_eloFilterBtn) {
   _eloFilterBtn.textContent = T.eloFilter;
   _eloFilterBtn.addEventListener('click', () => {
-    const collapsed = _filterSidebar.classList.toggle('collapsed');
-    _filterSidebarToggle.textContent = collapsed ? '‹' : '›';
+    const collapsed = _controlSidebar.classList.toggle('collapsed');
+    _controlSidebarToggle.textContent = collapsed ? '‹' : '›';
   });
 }
 
