@@ -16,8 +16,9 @@ Usage:
 """
 import json
 import re
+import subprocess
 import sys
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 try:
@@ -32,8 +33,10 @@ ROOT    = Path(__file__).parent.parent
 OUT     = ROOT / 'wc2026_elo_rank.json'
 OUT_TSV = Path(__file__).parent / 'wc2026_elo_rank.tsv'
 
-ELO_URL       = 'https://www.eloratings.net/World.tsv'
-FIFA_WIKI_URL = 'https://en.wikipedia.org/wiki/List_of_FIFA_country_codes'
+ELO_URL           = 'https://www.eloratings.net/World.tsv'
+FIFA_WIKI_URL     = 'https://en.wikipedia.org/wiki/List_of_FIFA_country_codes'
+FIFA_CACHE_PATH   = Path(__file__).parent / 'fifa_members_cache.json'
+FIFA_CACHE_TTL_DAYS = 30
 
 HEADERS = {'User-Agent': 'Mozilla/5.0 (compatible; mundial-bot/1.0)'}
 
@@ -173,7 +176,7 @@ def fetch_fifa_members_iso2():
     if unresolved:
         print(f'  Unresolved (ELO_SPECIAL or sub-national): {unresolved}',
               file=sys.stderr)
-    print(f'  FIFA member ISO2 codes found: {len(members)}')
+    print(f'  FIFA member ISO2 codes found: {len(members)}', flush=True)
     return frozenset(members)
 
 
@@ -254,27 +257,56 @@ def parse(tsv_text, fifa_members_iso2):
     return sorted(rankings, key=lambda x: x['rank'])
 
 
-def main():
-    print('Scraping FIFA member list from Wikipedia…')
+def _load_fifa_cache():
+    """Return cached FIFA iso2 set if fresh, else None."""
+    if not FIFA_CACHE_PATH.exists():
+        return None
     try:
-        fifa_members_iso2 = fetch_fifa_members_iso2()
-    except Exception as e:
-        print(f'Wikipedia scrape failed: {e} — fifaMember flags will default to False',
-              file=sys.stderr)
-        fifa_members_iso2 = frozenset()
+        data = json.loads(FIFA_CACHE_PATH.read_text(encoding='utf-8'))
+        cached_at = datetime.fromisoformat(data['cached_at']).replace(tzinfo=timezone.utc)
+        age_days = (datetime.now(timezone.utc) - cached_at).days
+        if age_days >= FIFA_CACHE_TTL_DAYS:
+            print(f'FIFA cache is {age_days} days old — refreshing.', flush=True)
+            return None
+        return frozenset(data['members'])
+    except Exception:
+        return None
 
-    print('Fetching Elo ratings from eloratings.net…')
+
+def _save_fifa_cache(members):
+    data = {
+        'cached_at': datetime.now(timezone.utc).isoformat(),
+        'members': sorted(members),
+    }
+    FIFA_CACHE_PATH.write_text(json.dumps(data, indent=2), encoding='utf-8')
+
+
+def main():
+    fifa_members_iso2 = _load_fifa_cache()
+    if fifa_members_iso2 is None:
+        print('Scraping FIFA member list from Wikipedia…', flush=True)
+        try:
+            fifa_members_iso2 = fetch_fifa_members_iso2()
+            _save_fifa_cache(fifa_members_iso2)
+        except Exception as e:
+            print(f'Wikipedia scrape failed: {e} — fifaMember flags will default to False',
+                  file=sys.stderr)
+            fifa_members_iso2 = frozenset()
+    else:
+        print(f'FIFA member list: loaded from cache ({len(fifa_members_iso2)} members).', flush=True)
+
+    print('Fetching Elo ratings from eloratings.net…', flush=True)
     try:
         tsv_text = fetch_tsv()
     except Exception as e:
-        print(f'Fetch failed: {e}', file=sys.stderr)
+        print(f'Fetch failed: {e}', file=sys.stderr, flush=True)
         sys.exit(1)
 
     rankings = parse(tsv_text, fifa_members_iso2)
 
     n_fifa   = sum(1 for r in rankings if r['fifaMember'])
     n_weirdo = sum(1 for r in rankings if r['weirdo'])
-    print(f'Parsed {len(rankings)} entries: {n_fifa} FIFA members, {n_weirdo} weirdos.')
+    print(f'Parsed {len(rankings)} entries from eloratings.net: {n_fifa} FIFA members, {n_weirdo} weirdos.', flush=True)
 
     today = date.today().isoformat()
 
@@ -309,14 +341,23 @@ def main():
         if (old.get('rankings') == rankings and
                 old.get('stats') == new_data['stats'] and
                 old.get('fifaAbsences') == new_data['fifaAbsences']):
-            print('Rankings unchanged — no update needed.')
+            print('Rankings unchanged — no update needed.', flush=True)
             return
 
     OUT.write_text(
         json.dumps(new_data, indent=2, ensure_ascii=False) + '\n',
         encoding='utf-8',
     )
-    print(f'Written {OUT.name} ({len(rankings)} entries, {n_fifa} FIFA, {n_weirdo} weirdos).')
+    print(f'Written {OUT.name}.', flush=True)
+
+    subprocess.run(
+        [sys.executable, str(Path(__file__).parent / 'patch_kosovo.py')],
+        check=True,
+    )
+
+    final = json.loads(OUT.read_text(encoding='utf-8'))
+    fr = final['rankings']
+    print(f'Final: {len(fr)} entries, {sum(1 for r in fr if r.get("fifaMember"))} FIFA members, {sum(1 for r in fr if r.get("weirdo"))} weirdos.', flush=True)
 
 
 if __name__ == '__main__':

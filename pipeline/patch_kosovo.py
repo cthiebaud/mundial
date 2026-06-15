@@ -25,47 +25,49 @@ SELECT ?capEn ?capFr ?capDe ?capIt ?capEs WHERE {
 }
 """
 
-print("Querying Wikidata for Pristina translations …", flush=True)
-body = urllib.parse.urlencode({"query": WD_QUERY}).encode()
-req = urllib.request.Request(
-    "https://query.wikidata.org/sparql",
-    data=body,
-    headers={
-        "User-Agent":   "mundial-map/1.0 (cthiebaud)",
-        "Accept":       "application/sparql-results+json",
-        "Content-Type": "application/x-www-form-urlencoded",
-    },
-)
-with urllib.request.urlopen(req, timeout=30) as r:
-    rows = json.loads(r.read())["results"]["bindings"]
-
-capital = {}
-for row in rows:
-    for lang, key in [("en","capEn"),("fr","capFr"),("de","capDe"),("it","capIt"),("es","capEs")]:
-        if key in row:
-            capital[lang] = row[key]["value"]
-# Pristina is spelled the same in all supported languages; fill any gaps
-en = capital.get("en", "Pristina")
-for lang in ("fr", "de", "it", "es"):
-    capital.setdefault(lang, en)
-print(f"  Capital: {capital}", flush=True)
-
-# ── Patch countries.json ──────────────────────────────────────────────────────
+# ── Patch countries.json (skip if Kosovo already present) ────────────────────
 countries_path = ROOT / "countries.json"
 with open(countries_path, encoding="utf-8") as f:
     countries = json.load(f)
 
-countries["383"] = {
-    "id":         383,
-    "alpha2":     "xk",
-    "alpha3":     "xkx",
-    "name":       "Kosovo",
-    "capital":    capital,
-    "population": 1_762_009,   # World Bank 2022
-}
-with open(countries_path, "w", encoding="utf-8") as f:
-    json.dump(countries, f, ensure_ascii=False, indent=2)
-print(f"Patched countries.json → Kosovo (id=383, pop=1.76M, cap={capital.get('en')})")
+if "383" not in countries:
+    print("Querying Wikidata for Pristina translations …", flush=True)
+    body = urllib.parse.urlencode({"query": WD_QUERY}).encode()
+    req = urllib.request.Request(
+        "https://query.wikidata.org/sparql",
+        data=body,
+        headers={
+            "User-Agent":   "mundial-map/1.0 (cthiebaud)",
+            "Accept":       "application/sparql-results+json",
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+    )
+    with urllib.request.urlopen(req, timeout=30) as r:
+        rows = json.loads(r.read())["results"]["bindings"]
+
+    capital = {}
+    for row in rows:
+        for lang, key in [("en","capEn"),("fr","capFr"),("de","capDe"),("it","capIt"),("es","capEs")]:
+            if key in row:
+                capital[lang] = row[key]["value"]
+    en = capital.get("en", "Pristina")
+    for lang in ("fr", "de", "it", "es"):
+        capital.setdefault(lang, en)
+    print(f"  Capital: {capital}", flush=True)
+
+    countries["383"] = {
+        "id":         383,
+        "alpha2":     "xk",
+        "alpha3":     "xkx",
+        "name":       "Kosovo",
+        "capital":    capital,
+        "population": 1_762_009,   # World Bank 2022
+    }
+    with open(countries_path, "w", encoding="utf-8") as f:
+        json.dump(countries, f, ensure_ascii=False, indent=2)
+    print(f"Patched countries.json → Kosovo (id=383, pop=1.76M, cap={capital.get('en')})")
+else:
+    print("countries.json: Kosovo already present — skipped.")
 
 # ── Patch wc2026_elo_rank.json ────────────────────────────────────────────────
 elo_path = ROOT / "wc2026_elo_rank.json"
