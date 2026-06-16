@@ -287,7 +287,7 @@ const _renderChain = () => {
     getSelectedIndex: _chainGetIndex,
     getPlayerWikiUrl: _chainWikiUrl,
     labels:           { ...T.chainLegend, subtitle: T.chainSubtitle },
-    headerContainer:  document.getElementById('chain-panel-header'),
+    headerContainer:  document.getElementById('tab-chain-panel'),
   });
 };
 // On selection change: surgical update only — no SVG rebuild, no flicker.
