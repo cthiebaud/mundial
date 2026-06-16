@@ -402,10 +402,11 @@ const _applyFlagFilter = () => {
 const _updateVisibleCountryCount = () => {
   const el = document.getElementById('visible-country-count');
   if (!el) return;
-  const all = d3.selectAll('.flag-qualified[data-elo-cat]');
-  const total = _eloData?.rankings?.filter(r => !r.weirdo).length ?? all.size();
-  const visible = all.filter(function() { return this.getAttribute('visibility') !== 'hidden'; }).size();
-  el.textContent = visible === total ? `${total}` : `${visible} / ${total}`;
+  const all = document.querySelectorAll('.elo-item');
+  const total = all.length;
+  if (!total) return;
+  const visible = [...all].filter(li => li.style.display !== 'none').length;
+  el.textContent = `${visible} / ${total}`;
 };
 const _catEloChecked = (id, fifaMember) => {
   const cat = _flagCat(id);
@@ -594,7 +595,7 @@ const _buildEloItems = () => {
     : null;
   return raw.map(item => ({
     ...item,
-    pts:  primary === 'alpha' ? null : primary === 'elo' ? item.pts : _ptsFor(primary, item),
+    pts:  primary === 'alpha' ? null : primary === 'elo' ? (item.pts ?? '—') : _ptsFor(primary, item),
     pts2: secondary ? _ptsFor(secondary, item) : null,
   }));
 };
