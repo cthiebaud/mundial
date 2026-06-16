@@ -34,15 +34,15 @@
 
 .csb-toggle {
   width: 16px; min-width: 16px; padding: 8px 0;
-  background: #f0ede8; border: 1px solid #e4e0d8;
+  background: var(--bg-hover); border: 1px solid var(--border);
   border-radius: 0 4px 4px 0;
-  cursor: pointer; font-size: 10px; color: var(--color-muted);
+  cursor: pointer; font-size: 10px; color: var(--text-muted);
   align-self: stretch;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
   min-height: var(--csb-h, 8rem);
 }
-.csb-toggle:hover { background: #e8e4de; color: #333; }
+.csb-toggle:hover { background: var(--bg-hover); color: #333; }
 
 /* ── Body ──────────────────────────────────────────────────────────────── */
 
@@ -71,24 +71,24 @@
 
 .csb-col, .csb-group, .csb-row { cursor: pointer; white-space: nowrap; }
 .csb-col:hover, .csb-group:hover, .csb-row:hover {
-  background: #f0ede8; border-radius: 3px; color: var(--color-muted);
+  background: var(--bg-hover); border-radius: 3px; color: var(--text-muted);
 }
 
 /* ── Sort column ───────────────────────────────────────────────────────── */
 
 .csb-header {
-  border-right: 3px double var(--color-divider) !important;
+  border-right: 3px double var(--border) !important;
   font-style: italic;
 }
 .csb-header[data-col] { cursor: pointer; }
 .csb-sort-col {
   padding: 0 !important;
-  border-right: 3px double var(--color-divider) !important;
+  border-right: 3px double var(--border) !important;
   vertical-align: top;
   width: var(--sort-col-w, 80px); min-width: var(--sort-col-w, 80px);
 }
 .csb-sort-item { cursor: pointer; padding: 0 6px; }
-.csb-sort-item:hover { background: #f0ede8; color: #555; }
+.csb-sort-item:hover { background: var(--bg-hover); color: #555; }
 
 /* ── Sort direction button ─────────────────────────────────────────────── */
 
@@ -102,7 +102,7 @@
 
 /* ── Checkbox ──────────────────────────────────────────────────────────── */
 
-.csb-check { cursor: pointer; color: #bbb; }
+.csb-check { cursor: pointer; color: var(--text-muted); }
 .csb-check::before { content: '□'; }
 .csb-check:has(input:checked)::before { content: '■'; }
 

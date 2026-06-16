@@ -1,15 +1,22 @@
 /* tokens */
 :root {
   --fixed-element-bg: #faf9f6;
-  --color-divider: #e8e4e0;
-  --color-muted: #bbb;
-  --color-dim: #aaa;
   --vert-gutter: 0.75rem;
+  /* structural grays */
+  --bg-hover:      #f0ede8;
+  --border:        #e4e0d8;
+  --border-strong: #c8c4be;
+  --text-muted:    #999;
+  /* Elo name dignity scale */
+  --color-qualified:        #171715;
+  --color-exporter:         #5e5e5d;
+  --color-fifa:             #a3a3a2;
+  --color-lumpenproletariat:#d1d1d0;
 }
 
 /* base */
 body { background: #f5f2ec; color: #1a1a18; }
-.sub { font-size: 12px; color: #888; }
+.sub { font-size: 12px; color: var(--text-muted); }
 .sub em { color: #555; font-style: normal; }
 .flex-col { flex: 1; min-width: 0; }
 .color-exp { color: var(--arc-export-color); }
@@ -25,7 +32,7 @@ body { background: #f5f2ec; color: #1a1a18; }
 
 /* page quote (pq-) */
 .pq-text { font-family: Georgia, 'Times New Roman', serif; font-size: 16px; color: #555; margin: 0 0 3px; line-height: 1.45; }
-.pq-attr { font-size: 10px; color: #999; margin: 0; }
+.pq-attr { font-size: 10px; color: var(--text-muted); margin: 0; }
 .pq-author { font-variant: small-caps; letter-spacing: 0.07em; color: #666; }
 .pq-attr cite { font-style: italic; }
 body { padding-bottom: 48px; } /* fallback; JS ResizeObserver overrides */
@@ -34,11 +41,11 @@ body { padding-bottom: 48px; } /* fallback; JS ResizeObserver overrides */
   bottom: 0; left: 0; right: 0;
   z-index: 100;
   background: var(--fixed-element-bg);
-  border-top: 1px solid #e4e0d8;
+  border-top: 1px solid var(--border);
 }
 #bottomTabContent {
-    padding-left: var(--vert-gutter) !important; 
-    padding-right: var(--vert-gutter) !important; 
+    padding-left: var(--vert-gutter) !important;
+    padding-right: var(--vert-gutter) !important;
 }
 .tab-footer-panel { overflow: hidden; max-height: 200px; transition: max-height 0.5s ease; }
 .tab-footer-panel.collapsed { max-height: 0; }
@@ -46,73 +53,68 @@ body { padding-bottom: 48px; } /* fallback; JS ResizeObserver overrides */
 /* tooltip (tt-) */
 #tooltip {
   position: absolute; pointer-events: none; display: none;
-  background: #f5f5f5; border: 1px solid #e0dcd6;
+  background: #f5f5f5; border: 1px solid var(--border);
   border-radius: 8px; padding: 12px 14px; font-size: 12px;
   color: #1a1a18; max-width: 540px;
   box-shadow: 0 4px 16px rgba(0,0,0,.10);
   z-index: 1000;
 }
 .tt-columns { margin-top: 2px; }
-.tt-vdiv { width: 1px; background: var(--color-divider); flex-shrink: 0; margin: 0 10px; }
+.tt-vdiv { width: 1px; background: var(--border); flex-shrink: 0; margin: 0 10px; }
 .tt-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; justify-content: space-between; }
-.tt-pop { font-size: 10px; color: var(--color-muted); }
-.tt-rank { font-size: 10px; color: var(--color-muted); margin-left: 6px; }
+.tt-pop { font-size: 10px; color: var(--text-muted); }
+.tt-rank { font-size: 10px; color: var(--text-muted); margin-left: 6px; }
 .tt-flag { width: 20px; height: 20px; }
 .tt-count { font-size: 28px; font-weight: 500; line-height: 1; margin: 4px 0 2px; }
 .tt-count-row { margin-bottom: 2px; }
 .tt-count-row .tt-count { margin-bottom: 0; }
 .tt-count-row .tt-sub { margin-bottom: 0; }
-.tt-label { font-size: 11px; color: #999; margin-bottom: 2px; }
-.tt-not-qualified { font-size: 10px; color: var(--color-muted); margin-bottom: 6px; }
-#tooltip.tt-non-qualified { background: #e8e8e8; }
-.tt-sub { font-size: 10px; color: var(--color-muted); margin-bottom: 6px; }
-.tt-nations { font-size: 12px; color: #777; border-bottom: 1px solid #c8c4be; padding-bottom: 6px; }
-.tt-player { font-size: 10px; color: #555; padding: 3px 0; border-top: 1px solid #f0ede8; display: flex; justify-content: space-between; gap: 8px; }
+.tt-label { font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
+.tt-not-qualified { font-size: 10px; color: var(--text-muted); margin-bottom: 6px; }
+#tooltip.tt-non-qualified { background: var(--border); }
+.tt-sub { font-size: 10px; color: var(--text-muted); margin-bottom: 6px; }
+.tt-nations { font-size: 12px; color: #777; border-bottom: 1px solid var(--border-strong); padding-bottom: 6px; }
+.tt-player { font-size: 10px; color: #555; padding: 3px 0; border-top: 1px solid var(--bg-hover); display: flex; justify-content: space-between; gap: 8px; }
 .tt-nations + .tt-players .tt-player:first-child { border-top: none; }
-.tt-nation { color: var(--color-dim); font-size: 10px; }
-.tt-more-label { color: var(--color-muted); font-size: 10px; padding-top: 6px; }
-.tt-players.tt-more::after { content: 'etc.'; display: block; text-align: left; font-style: italic; color: var(--color-muted); font-size: 10px; padding-top: 2px; }
-.tt-divider { border-top: 1px solid var(--color-divider); margin: 8px 0 4px; }
+.tt-nation { color: var(--text-muted); font-size: 10px; }
+.tt-more-label { color: var(--text-muted); font-size: 10px; padding-top: 6px; }
+.tt-players.tt-more::after { content: 'etc.'; display: block; text-align: left; font-style: italic; color: var(--text-muted); font-size: 10px; padding-top: 2px; }
+.tt-divider { border-top: 1px solid var(--border); margin: 8px 0 4px; }
 
 /* player table (pt-) */
 .pt-title { font-size: 16px; font-weight: 500; }
 .pt-country-flag { height: 20px; width: auto; border-radius: 2px; }
-.pt-nation-header { gap: 8px; padding: 10px 4px 4px; border-bottom: 1px solid #f0ede8; cursor: pointer; border-radius: 4px; }
+.pt-nation-header { gap: 8px; padding: 10px 4px 4px; border-bottom: 1px solid var(--bg-hover); cursor: pointer; border-radius: 4px; }
 .pt-nation-header:hover { background: rgba(0,0,0,.04); }
 .pt-nation-header img { height: 14px; width: auto; border-radius: 2px; }
 .pt-nation-name { font-size: 13px; color: #1a1a18; }
-.pt-nation-count { font-size: 11px; color: var(--color-dim); }
+.pt-nation-count { font-size: 11px; color: var(--text-muted); }
 .pt-player-row { padding: 4px 0 4px 28px; border-bottom: 1px solid #f8f5f2; font-size: 12px; color: #444; }
 .pt-player-row:last-child { border-bottom: none; }
-.pt-caps { color: var(--color-dim); font-size: 11px; }
-.pt-wiki { color: inherit; border-bottom: 1px dotted var(--color-muted); }
+.pt-caps { color: var(--text-muted); font-size: 11px; }
+.pt-wiki { color: inherit; border-bottom: 1px dotted var(--text-muted); }
 .pt-wiki:hover { border-bottom-color: #7b2d8b; color: #7b2d8b; }
 
 /* Elo ranking flow (elo-) */
 .elo-header { display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px; }
 .elo-title { font-size: 14px; font-weight: 500; }
-.elo-meta { font-size: 10px; color: var(--color-muted); }
+.elo-meta { font-size: 10px; color: var(--text-muted); }
 .elo-list { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
-.elo-item { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px 3px 5px; border: 1px solid #e4e0d8; border-radius: 20px; background: #fff; }
+.elo-item { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px 3px 5px; border: 1px solid var(--border); border-radius: 20px; background: #fff; }
 .elo-item--clickable { cursor: pointer; }
-.elo-item--clickable:hover { background: #f0ede8; border-color: #ccc9c0; }
-.elo-item--active { background: #d8d4ce !important; border-color: #c8c4be !important; }
-.elo-item--muted .elo-name { color: var(--color-muted); }
-.elo-item--muted.elo-item--clickable .elo-name { color: #888; }
+.elo-item--clickable:hover { background: var(--bg-hover); border-color: var(--border-strong); }
+.elo-item--active { background: var(--border-strong) !important; border-color: var(--border-strong) !important; }
 .elo-item--zoomable { cursor: pointer; }
-.elo-item--zoomable:hover { background: #f0ede8; border-color: #ccc9c0; }
-.elo-rank { font-size: 10px; color: #bbb; font-variant-numeric: tabular-nums; min-width: 14px; text-align: right; flex-shrink: 0; }
+.elo-item--zoomable:hover { background: var(--bg-hover); border-color: var(--border-strong); }
+.elo-rank { font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums; min-width: 14px; text-align: right; flex-shrink: 0; }
 .elo-dot { font-size: 7px; line-height: 1; }
 .elo-name .elo-dot:first-child { margin-left: 3px; }
 .elo-flag { width: 20px; height: 20px; flex-shrink: 0; }
 .elo-layout { display: block; }
 .elo-main { display: block; }
 .elo-name { font-size: 12px; white-space: nowrap; }
-.elo-pts { font-size: 9px; color: #aaa; font-variant-numeric: tabular-nums; flex-shrink: 0; }
-.elo-pts-primary { font-size: 10px; color: #888; }
-.elo-sort-btn { background: none; border: none; padding: 1px 0; cursor: pointer; font-size: 11px; color: #bbb; border-radius: 3px; }
-.elo-sort-btn:hover { color: #555; background: #f0ede8; }
-.elo-sort-btn.active { color: #444; font-weight: 600; }
+.elo-pts { font-size: 9px; color: var(--text-muted); font-variant-numeric: tabular-nums; flex-shrink: 0; }
+.elo-pts-primary { font-size: 10px; color: var(--text-muted); }
 
 /* nav pills */
 #bottomTabList { align-items: stretch; flex-wrap: nowrap; padding-left: var(--vert-gutter) !important; padding-right: var(--vert-gutter) !important; }
@@ -123,11 +125,11 @@ body { padding-bottom: 48px; } /* fallback; JS ResizeObserver overrides */
 #tab-players-btn > span { min-width: 0; overflow: hidden; }
 #tab-players-btn > span > span { min-width: 0; overflow: hidden; }
 .btn-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
-#bottomTabList .nav-link:hover { background-color: #e3e0dc; color: #000; } 
+#bottomTabList .nav-link:hover { background-color: var(--bg-hover); color: #000; }
 #bottomTabList .nav-link.active { background-color: #f9f7f3; color: #000; border: 1px solid #dee2e6; }
 
 /* player table accordion overrides */
-.accordion-flush .accordion-item { background-color: transparent; border-color: var(--color-divider); }
+.accordion-flush .accordion-item { background-color: transparent; border-color: var(--border); }
 .pt-acc-btn { padding: 10px 4px !important; }
 .pt-acc-btn, .pt-acc-btn:not(.collapsed) { background-color: transparent !important; color: inherit !important; box-shadow: none !important; }
 .pt-acc-btn:hover { background-color: rgba(0,0,0,.03) !important; }

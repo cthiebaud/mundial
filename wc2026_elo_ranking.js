@@ -6,7 +6,6 @@ const _CDN = c => `https://cdn.jsdelivr.net/npm/circle-flags@2/flags/${c}.svg`;
 //                imp: true → red  ● superscript (born elsewhere, plays here)
 //   onCountryClick(id)   — called on click; if null, no items are clickable
 //   isClickable(id)      — optional per-item predicate; defaults to all clickable
-//   isMuted(id)          — optional per-item predicate; adds elo-item--muted class
 //   getSelectedId()      — optional; called once at render to set initial highlight
 //   title, source, date  — header strings (currently unused — header commented out)
 //
@@ -17,7 +16,6 @@ export function renderEloRanking(container, opts = {}) {
     onCountryClick = null,
     isClickable  = null,
     isZoomable   = null,
-    isMuted      = null,
     getSelectedId = null,
     title  = 'World Football Elo Ratings',
     source = 'eloratings.net',
@@ -47,17 +45,16 @@ export function renderEloRanking(container, opts = {}) {
   ul.className = 'elo-list';
   const itemById = new Map();
 
-  for (const { id, rank, pts, pts2 = null, iso2, name, exp = false, imp = false, fifaMember = true } of items) {
-    const muted = isMuted != null && isMuted(id);
+  for (const { id, rank, pts, pts2 = null, iso2, name, exp = false, imp = false, fifaMember = true, nameColor = null } of items) {
     const dots = (exp ? '<sup class="elo-dot" style="color:#3b82f6" title="exports players">●</sup>' : '') +
                  (imp ? '<sup class="elo-dot" style="color:#ef4444" title="imports players">●</sup>' : '') +
-                 (!fifaMember ? '<sup class="elo-dot" style="color:#bbb" title="not a FIFA member">○</sup>' : '');
+                 (!fifaMember ? `<sup class="elo-dot" style="color:var(--text-muted)" title="not a FIFA member">○</sup>` : '');
     const li = document.createElement('li');
-    li.className = 'elo-item' + (muted ? ' elo-item--muted' : '');
+    li.className = 'elo-item';
     li.innerHTML =
       // `<span class="elo-rank">${rank}</span>` +
       (iso2 ? `<img class="elo-flag" src="${_CDN(iso2)}" alt="">` : `<span class="elo-flag"></span>`) +
-      `<span class="elo-name">${name}${dots}</span>` +
+      `<span class="elo-name"${nameColor ? ` style="color:${nameColor}"` : ''}>${name}${dots}</span>` +
       (pts != null ? `<span class="elo-pts"><span class="elo-pts-primary">${pts}</span>${pts2 != null ? ` (${pts2})` : ''}</span>` : '');
     if (onCountryClick) li.addEventListener('click', () => {
       if (isClickable == null || isClickable(id) || (isZoomable != null && isZoomable(id))) onCountryClick(id);

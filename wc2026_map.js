@@ -576,6 +576,10 @@ const _buildEloItems = () => {
       imp: (app.importByNation[id]?.length ?? 0) > 0,
       expCount: app.byId[id]?.count ?? 0,
       impCount: app.importByNation[id]?.length ?? 0,
+      nameColor: QUALIFIED_NAMES[id]         ? 'var(--color-qualified)'
+               : (app.byId[id]?.count ?? 0) > 0 ? 'var(--color-exporter)'
+               : fifaMember                  ? 'var(--color-fifa)'
+               :                               'var(--color-lumpenproletariat)',
     }))
     ;
   const _sortFns = { elo: (a, b) => (a.rank ?? 99999) - (b.rank ?? 99999), exp: (a, b) => b.expCount - a.expCount, imp: (a, b) => b.impCount - a.impCount, delta: (a, b) => (b.expCount - b.impCount) - (a.expCount - a.impCount), alpha: (a, b) => a.name.localeCompare(b.name) };
@@ -693,7 +697,6 @@ const _renderElo = () => {
     },
     isClickable:  id => enablesDim(id),
     isZoomable:   id => !enablesDim(id) && !!centroids[id],
-    isMuted:     id => !QUALIFIED_NAMES[id],
     getSelectedId: () => dimState.sourceId,
     source: _eloData?.source,
     date: _eloData?.updated,
