@@ -55,6 +55,8 @@ All dependencies served from a single CDN — **jsDelivr** (`cdn.jsdelivr.net/np
 
 The map uses `fetch()` so it requires a local HTTP server — **will not work from `file://`**.
 
+**A server is already running on port 4040.** Use `http://localhost:4040/` directly — do not start a new one.
+
 ```bash
 python3 -m http.server 8000
 # then open http://localhost:8000/

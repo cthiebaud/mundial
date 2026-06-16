@@ -1,0 +1,55 @@
+<!-- i18n:page_title -->
+# Benutzerhandbuch
+<!-- /i18n:page_title -->
+
+<!-- i18n:intro -->
+Diese Karte visualisiert die Kader der Fußball-Weltmeisterschaft 2026 unter dem Gesichtspunkt des Geburtsortes.
+Jedes Land ist entsprechend der Anzahl der dort geborenen Spieler eingefärbt, die bei dem Turnier
+ein **anderes** Land vertreten, normalisiert pro Million Einwohner.
+<!-- /i18n:intro -->
+
+<!-- i18n:control_sidebar -->
+## Filter- und Sortierbereich
+
+Die Schaltfläche **‹** in der oberen rechten Ecke der Kopfzeile öffnet den Filter- und Sortierbereich,
+der steuert, welche Länder in der Elo-Rangliste unter der Karte erscheinen.
+
+![Filter- und Sortierbereich](screenshots/control_sidebar.png)
+
+*Sortierspalte (links) und Filtermatrix (rechts) — auf einen Zeilen- oder Spaltenkopf klicken, um eine ganze Gruppe umzuschalten.*
+
+### Die Filtermatrix
+
+Zeilen gruppieren Länder nach Qualifikationsstatus; Spalten wählen nach Export-/Importrolle aus.
+Klicken Sie auf den Spaltenkopf `exp.`, um nur exportierende Länder anzuzeigen;
+klicken Sie auf `qualif.`, um alle qualifizierten Nationen auf einmal umzuschalten.
+<!-- /i18n:control_sidebar -->
+
+<!-- i18n:interaction_flow -->
+## Interaktionsmodell
+
+Klicken Sie auf ein beliebiges Land auf der Karte — oder auf ein Badge in der Elo-Liste — um den **Dim-Modus** zu aktivieren:
+nicht verbundene Flaggen verblassen, Bögen zeigen Exportflüsse, und die Spielertabelle erscheint unter der Karte.
+
+```mermaid
+flowchart LR
+    B(Browse) -->|"Land / Elo-Badge anklicken"| D(Dim-Modus)
+    D -->|"dasselbe anklicken"| B
+    D -->|"anderes Land anklicken"| D
+    D -->|Esc| B
+```
+
+*Das erneute Anklicken desselben Elements kehrt immer zu Browse zurück.*
+
+> **Tipp:** Ein zweites Klicken auf das aktive Elo-Badge beendet den Dim-Modus, ohne die Karte zu verschieben.
+<!-- /i18n:interaction_flow -->
+
+<!-- i18n:data_sources -->
+## Datenquellen
+
+| Quelle | Verwendung |
+|---|---|
+| [Wikipedia](https://wikipedia.org) Kaderseiten | Spielernamen, Geburtsländer, Länderspielanzahl |
+| [eloratings.net](https://www.eloratings.net/) | Weltfußball-Elo-Ranglisten |
+| [Weltbank](https://data.worldbank.org/) | Länderbevölkerungen |
+<!-- /i18n:data_sources -->

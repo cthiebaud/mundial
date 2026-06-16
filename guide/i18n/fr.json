@@ -1,0 +1,53 @@
+{
+  "page_title": [
+    "# Guide d'utilisation"
+  ],
+  "intro": [
+    "Cette carte visualise les effectifs de la Coupe du Monde 2026 sous l'angle du lieu de naissance.",
+    "Chaque pays est coloré selon le nombre de joueurs nés sur son sol qui représentent **un autre** pays",
+    "au tournoi, normalisé par million d'habitants."
+  ],
+  "control_sidebar": [
+    "## Panneau de filtre et de tri",
+    "",
+    "Le bouton **‹** dans le coin supérieur droit de l'en-tête ouvre le panneau de filtre et de tri,",
+    "qui contrôle quels pays apparaissent dans la liste des classements Elo sous la carte.",
+    "",
+    "![Panneau de filtre et de tri](screenshots/control_sidebar.png)",
+    "",
+    "*Colonne de tri (gauche) et matrice de filtre (droite) — cliquez sur un en-tête de ligne ou de colonne pour basculer tout un groupe.*",
+    "",
+    "### La matrice de filtre",
+    "",
+    "Les lignes regroupent les pays par statut de qualification ; les colonnes sélectionnent par rôle export/import.",
+    "Cliquez sur l'en-tête de colonne `exp.` pour n'afficher que les pays exportateurs ;",
+    "cliquez sur `qualif.` pour basculer toutes les nations qualifiées d'un coup."
+  ],
+  "interaction_flow": [
+    "## Modèle d'interaction",
+    "",
+    "Cliquez sur n'importe quel pays sur la carte — ou sur n'importe quel badge dans la liste Elo — pour entrer en **mode dim** :",
+    "les drapeaux non liés s'estompent, des arcs montrent les flux d'exportation, et le tableau des joueurs apparaît sous la carte.",
+    "",
+    "```mermaid",
+    "flowchart LR",
+    "    B(Browse) -->|\"clic pays / badge Elo\"| D(Mode dim)",
+    "    D -->|\"clic même élément\"| B",
+    "    D -->|\"clic autre pays\"| D",
+    "    D -->|Échap| B",
+    "```",
+    "",
+    "*Cliquer sur le même élément ramène toujours en mode Browse.*",
+    "",
+    "> **Conseil :** cliquer deux fois sur le badge Elo actif efface le mode dim sans déplacer la carte."
+  ],
+  "data_sources": [
+    "## Sources de données",
+    "",
+    "| Source | Utilisation |",
+    "|---|---|",
+    "| [Wikipedia](https://wikipedia.org) pages des équipes | Noms des joueurs, pays de naissance, nombre de sélections |",
+    "| [eloratings.net](https://www.eloratings.net/) | Classements Elo de football mondial |",
+    "| [Banque mondiale](https://data.worldbank.org/) | Populations des pays |"
+  ]
+}

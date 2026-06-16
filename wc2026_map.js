@@ -716,16 +716,9 @@ const _updateEloSelection = () => {
   if (_eloCtrl && !document.getElementById('tab-elo')?.hidden)
     _eloCtrl.update(dimState.sourceId);
 };
-const _eloSourceLabelEl  = document.getElementById('elo-source-label');
-const _eloUpdatedLabelEl = document.getElementById('elo-updated-label');
-if (_eloSourceLabelEl)  _eloSourceLabelEl.textContent  = T.eloSource;
-if (_eloUpdatedLabelEl) _eloUpdatedLabelEl.textContent = T.eloUpdated;
-
 
 fetch('./wc2026_elo_rank.json').then(r => r.json()).then(d => {
   _eloData = d;
-  const _dateEl = document.getElementById('elo-date');
-  if (_dateEl && d.updated) _dateEl.textContent = d.updated;
   app.eloRank = Object.fromEntries(
     d.rankings.flatMap(({id, rank}) => { const n = QUALIFIED_NAMES[id]; return n ? [[n, rank]] : []; })
   );
