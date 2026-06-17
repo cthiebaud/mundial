@@ -707,7 +707,11 @@ const _renderElo = () => {
   if (!_eloMeta.innerHTML && (_eloData?.source || _eloData?.updated)) {
     const parts = [];
     if (_eloData.source) parts.push(`<a href="https://eloratings.net/" target="_blank" rel="noopener" class="sub">${_eloData.source}</a>`);
-    if (_eloData.updated) parts.push(`updated ${_eloData.updated}`);
+    if (_eloData.updated) {
+      const d = new Date(_eloData.updated + 'T00:00:00');
+      const fmt = isNaN(d) ? _eloData.updated : d.toLocaleDateString(LOCALE, { day: 'numeric', month: 'long', year: 'numeric' });
+      parts.push(`${T.eloUpdated}${fmt}`);
+    }
     _eloMeta.innerHTML = parts.join(' · ');
   }
   if (_eloCtrl) { _eloCtrl.show(visibleItems); return; }
