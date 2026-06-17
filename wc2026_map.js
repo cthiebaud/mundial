@@ -487,23 +487,13 @@ _controlSidebarBody.className = 'csb-body overflow-hidden';
 _controlSidebarBody.appendChild(_controlPanel);
 _controlSidebar.appendChild(_controlSidebarToggle);
 _controlSidebar.appendChild(_controlSidebarBody);
-const _sortColEl = _controlPanel.querySelector('.csb-sort-col');
 // Measure sidebar dimensions — called on load and resize
 const _measureControlSidebar = () => {
   const wasCollapsed = _controlSidebar.classList.contains('collapsed');
   _controlSidebar.classList.remove('collapsed');
   _controlSidebarBody.style.maxWidth = 'none';
   _controlSidebarBody.style.width = 'max-content';
-  const pad = parseInt(getComputedStyle(_controlPanel.querySelector('.csb-table')).getPropertyValue('--sort-extra-pad'));
-  // Step 1: measure basic width without extra sort padding
-  _sortColEl.style.setProperty('padding-left', '0', 'important');
-  _sortColEl.style.setProperty('padding-right', '0', 'important');
-  _controlSidebarBody.getBoundingClientRect();
-  const basicW = _controlSidebarBody.offsetWidth;
-  // Step 2: restore extra padding for sort button clearance
-  _sortColEl.style.setProperty('padding-left', pad + 'px', 'important');
-  _sortColEl.style.setProperty('padding-right', pad + 'px', 'important');
-  document.documentElement.style.setProperty('--csb-w', (basicW + 2 * pad) + 'px');
+  document.documentElement.style.setProperty('--csb-w', _controlSidebarBody.offsetWidth + 'px');
   document.documentElement.style.setProperty('--csb-h', _controlPanel.scrollHeight + 'px');
   _controlSidebarBody.style.maxWidth = '';
   _controlSidebarBody.style.width = '';

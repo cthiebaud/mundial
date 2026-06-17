@@ -32,7 +32,7 @@
 
 /* ── Toggle button ─────────────────────────────────────────────────────── */
 
-.csb-toggle {
+#control-sidebar .csb-toggle {
   width: 16px; min-width: 16px; padding: 8px 0;
   background: var(--bg-hover); border: 1px solid var(--border);
   border-radius: 0 4px 4px 0;
@@ -42,11 +42,11 @@
   flex-shrink: 0;
   min-height: var(--csb-h, 8rem);
 }
-.csb-toggle:hover { background: var(--bg-hover); color: #333; }
+#control-sidebar .csb-toggle:hover { background: var(--bg-hover); color: #333; }
 
 /* ── Body ──────────────────────────────────────────────────────────────── */
 
-.csb-body {
+#control-sidebar .csb-body {
   max-width: var(--csb-w, 300px); height: var(--csb-h, 8rem);
   transition: max-width 0.5s ease;
   background: var(--fixed-element-bg);
@@ -54,56 +54,59 @@
 
 /* ── Table ─────────────────────────────────────────────────────────────── */
 
-.csb-table {
+#control-sidebar .csb-table {
   border-collapse: collapse; font-size: 11px; margin: 0;
+  --sort-extra-pad: 26px;
 }
-.csb-table { --sort-extra-pad: 26px; }
-.csb-table td { padding: 2px 6px !important; }
+#control-sidebar .csb-table td { padding: 2px 6px; }
 @media (max-width: 400px) {
-  .csb-table { --sort-extra-pad: 20px; }
-  .csb-table td { padding: 2px 2px !important; }
+  #control-sidebar .csb-table { --sort-extra-pad: 20px; }
+  #control-sidebar .csb-table td { padding: 2px 2px; }
 }
-.csb-table .form-check-input { display: none; }
+#control-sidebar .csb-table .form-check-input { display: none; }
 
 /* ── Badge (●/○) ───────────────────────────────────────────────────────── */
 
-.csb-badge { font-size: 7px; line-height: 1; }
+#control-sidebar .csb-badge { font-size: 7px; line-height: 1; }
 
 /* ── Column / group / row headers ──────────────────────────────────────── */
 
-.csb-col, .csb-group, .csb-row { cursor: pointer; white-space: nowrap; }
-.csb-col:hover, .csb-group:hover, .csb-row:hover {
+#control-sidebar .csb-col,
+#control-sidebar .csb-group,
+#control-sidebar .csb-row { cursor: pointer; white-space: nowrap; }
+#control-sidebar .csb-col:hover,
+#control-sidebar .csb-group:hover,
+#control-sidebar .csb-row:hover {
   background: var(--bg-hover); border-radius: 3px; color: var(--text-muted);
 }
 
 /* ── Sort column ───────────────────────────────────────────────────────── */
 
-.csb-header {
+#control-sidebar .csb-header {
   font-style: italic;
 }
-.csb-border-right { border-right: 3px double var(--border) !important; }
-.csb-header[data-col] { cursor: pointer; }
-.csb-sort-col {
-  padding: 0;
+#control-sidebar .csb-border-right { border-right: 3px double var(--border); }
+#control-sidebar .csb-header[data-col] { cursor: pointer; }
+#control-sidebar .csb-sort-col {
+  padding: 0 var(--sort-extra-pad);
   vertical-align: top;
   width: 1px;
 }
-.csb-sort-item { cursor: pointer; padding: 0; }
-.csb-sort-item:hover { background: var(--bg-hover); color: #555; }
+#control-sidebar .csb-sort-item { cursor: pointer; padding: 0; }
+#control-sidebar .csb-sort-item:hover { background: var(--bg-hover); color: #555; }
 
 /* ── Sort direction button ─────────────────────────────────────────────── */
 
-.csb-sort-dir {
+#control-sidebar .csb-sort-dir {
   position: absolute; top: 1px; left: calc((17px - var(--sort-extra-pad)) / 2 - 17px); width: 17px; height: 17px;
   background: url('images/sort-vertical-svgrepo-com.svg') no-repeat center / 17px 17px;
   border: none; padding: 0; cursor: pointer; opacity: 0.5;
 }
-.csb-sort-dir[data-dir="asc"] { background-image: url('images/sort-vertical-asc.svg'); }
-.csb-sort-dir:hover { opacity: 1; }
+#control-sidebar .csb-sort-dir[data-dir="asc"] { background-image: url('images/sort-vertical-asc.svg'); }
+#control-sidebar .csb-sort-dir:hover { opacity: 1; }
 
 /* ── Checkbox ──────────────────────────────────────────────────────────── */
 
-.csb-check { cursor: pointer; color: var(--text-muted); }
-.csb-check::before { content: '□'; }
-.csb-check:has(input:checked)::before { content: '■'; }
-
+#control-sidebar .csb-check { cursor: pointer; color: var(--text-muted); }
+#control-sidebar .csb-check::before { content: '□'; }
+#control-sidebar .csb-check:has(input:checked)::before { content: '■'; }
