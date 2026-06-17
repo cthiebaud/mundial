@@ -440,11 +440,16 @@ _controlPanel.querySelector('.csb-close')?.addEventListener('click', e => {
 });
 const _sortListEl = _controlPanel.querySelector('.csb-sort-list');
 const _sortDirBtn = _sortListEl.querySelector('.csb-sort-dir');
+const _alphaEl = _sortListEl.querySelector('[data-sort="alpha"]');
+const _updateAlphaLabel = () => {
+  _alphaEl.textContent = _sortOrder[0] === 'alpha' && _sortDir === 'asc' ? 'Z–A' : 'A–Z';
+};
 const _updateSortCol = () => {
   const items = Array.from(_sortListEl.querySelectorAll('.csb-sort-item'));
   const before = new Map(items.map(el => [el, el.getBoundingClientRect().top]));
   _sortOrder.forEach(key => { const el = _sortListEl.querySelector(`[data-sort="${key}"]`); if (el) _sortListEl.appendChild(el); });
   _sortDirBtn.dataset.dir = _sortDir;
+  _updateAlphaLabel();
   items.forEach(el => {
     const delta = before.get(el) - el.getBoundingClientRect().top;
     if (delta === 0) return;
@@ -463,6 +468,7 @@ _sortListEl?.addEventListener('click', e => {
     e.stopPropagation();
     _sortDir = _sortDir === 'desc' ? 'asc' : 'desc';
     _sortDirBtn.dataset.dir = _sortDir;
+    _updateAlphaLabel();
     _renderElo();
     return;
   }
@@ -1195,7 +1201,13 @@ const applySelection = (id, destIds) => {
   const _playersBtn = document.getElementById('tab-players-btn');
   if (_playersBtn) {
     _playersBtn.className = 'nav-link dim-selected';
-    render(html`<span @click=${() => _switchTab('tab-players')}>${countryPillTemplate(id)}</span><span class="btn-close" style="font-size:0.45rem;cursor:pointer;align-self:flex-start" aria-label="Close" @click=${() => clearDim()}></span>`, _playersBtn);
+    const _closeStyle = 'font-size:0.45rem;align-self:flex-start';
+    render(html`
+      <span class="btn-close" style="visibility:hidden;${_closeStyle}" aria-label=""></span>
+      <span @click=${() => _switchTab('tab-players')}>${countryPillTemplate(id)}</span>
+      <span class="btn-close" style="cursor:pointer;${_closeStyle}" aria-label="Close"
+            @click=${() => clearDim()}></span>
+    `, _playersBtn);
   }
 
   _updateChainSelection();

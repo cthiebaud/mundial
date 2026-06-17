@@ -87,12 +87,13 @@
 }
 #control-sidebar .csb-border-right { border-right: 3px double var(--border); }
 #control-sidebar .csb-header[data-col] { cursor: pointer; }
-#control-sidebar .csb-sort-col {
+#control-sidebar .csb-table td.csb-sort-col {
   padding: 0 var(--sort-extra-pad);
   vertical-align: top;
   width: 1px;
 }
 #control-sidebar .csb-sort-item { cursor: pointer; padding: 0; }
+#control-sidebar .csb-sort-item:first-of-type { text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
 #control-sidebar .csb-sort-item:hover { background: var(--bg-hover); color: #555; }
 
 /* ── Sort direction button ─────────────────────────────────────────────── */
