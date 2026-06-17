@@ -122,7 +122,7 @@ export const T = {
     chainLegend:   { pre: 'Le plus long', bornIn: 'né en', playsFor: 'joue pour', post: 'chemin' },
     chainSubtitle: (p, c) => `${p} joueurs · ${c} pays`,
     eloSource:   'source : ',
-    eloUpdated:  ' · mis à jour ',
+    eloUpdated:  ' · mis à jour le ',
     eloFilter:   'filtre',
     sortLabels: { action: 'tri', elo: 'classement', exp: 'exports', imp: 'imports', delta: 'Δ', alpha: 'A–Z' },
     filterLabels: { action: 'sélection', exporter: 'export.', nonExp: 'non-exp.', qualified: 'qualifié', importer: 'import.', nonImp: 'non-imp.', nonQual: 'non-qual.' },
