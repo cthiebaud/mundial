@@ -414,7 +414,10 @@ const _catEloChecked = (id, fifaMember) => {
   if (cat === 'o') return fifaMember ? _fltOF.checked : _fltON.checked;
   return _catChecked(cat);
 };
-const _isClickable = id => !!centroids[id];
+const _isClickable = id => {
+  const flag = document.querySelector(`.flag-qualified[data-id="${id}"]`);
+  return !!flag && flag.getAttribute('visibility') !== 'hidden';
+};
 const _filterToggle = chks => { const on = chks.every(c => c.checked); chks.forEach(c => c.checked = !on); _renderElo(); _applyFlagFilter(); };
 _controlPanel.querySelector('[data-row="q"]'   ).addEventListener('click', () => _filterToggle([_fltQIE, _fltQI, _fltQE, _fltQ]));
 _controlPanel.querySelector('[data-row="qi"]'  ).addEventListener('click', () => _filterToggle([_fltQIE, _fltQI]));
@@ -728,36 +731,36 @@ fetch('./wc2026_elo_rank.json').then(r => r.json()).then(d => {
   if (!document.getElementById('tab-elo')?.hidden && Object.keys(app.byId).length > 0) _renderElo();
 }).catch(() => {});
 
-const showTab = name => {
-  document.querySelectorAll('#bottomTabList button[data-tab]').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.tab === name);
-  });
-  document.querySelectorAll('#bottomTabContent > [id]').forEach(pane => {
-    pane.hidden = pane.id !== name;
-  });
-  // const eloPanel   = document.getElementById('tab-elo-panel');
-  const chainPanel   = document.getElementById('tab-chain-panel');
-  const playersPanel = document.getElementById('tab-players-panel');
-  const toExpand   = name === 'tab-chain' ? chainPanel : name === 'tab-players' ? playersPanel : null;
-  const toCollapse = [chainPanel, playersPanel].find(p => p && !p.classList.contains('collapsed') && p !== toExpand);
-  if (toCollapse) {
-    toCollapse.classList.add('collapsed');
-    if (toExpand) toCollapse.addEventListener('transitionend', () => toExpand.classList.remove('collapsed'), { once: true });
-  } else {
-    toExpand?.classList.remove('collapsed');
-  }
-  if (name === 'tab-chain' && _chainData) {
-    _renderChain();
-    requestAnimationFrame(() => _chainUpdate?.scrollActive());
-  }
-  if (name === 'tab-elo') {
-    _renderElo();
-    requestAnimationFrame(() => { const el = document.querySelector('#tab-elo .elo-item--active'); if (el && !_isFullyVisible(el)) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
-  }
-  if (name === 'tab-players') _updatePlayersPanel();
-};
 document.querySelectorAll('#bottomTabList button[data-tab]').forEach(btn => {
-  btn.addEventListener('click', () => showTab(btn.dataset.tab));
+  btn.addEventListener('click', () => {
+    const name = btn.dataset.tab;
+    document.querySelectorAll('#bottomTabList button[data-tab]').forEach(b => {
+      b.classList.toggle('active', b.dataset.tab === name);
+    });
+    document.querySelectorAll('#bottomTabContent > [id]').forEach(pane => {
+      pane.hidden = pane.id !== name;
+    });
+    // const eloPanel   = document.getElementById('tab-elo-panel');
+    const chainPanel   = document.getElementById('tab-chain-panel');
+    const playersPanel = document.getElementById('tab-players-panel');
+    const toExpand   = name === 'tab-chain' ? chainPanel : name === 'tab-players' ? playersPanel : null;
+    const toCollapse = [chainPanel, playersPanel].find(p => p && !p.classList.contains('collapsed') && p !== toExpand);
+    if (toCollapse) {
+      toCollapse.classList.add('collapsed');
+      if (toExpand) toCollapse.addEventListener('transitionend', () => toExpand.classList.remove('collapsed'), { once: true });
+    } else {
+      toExpand?.classList.remove('collapsed');
+    }
+    if (name === 'tab-chain' && _chainData) {
+      _renderChain();
+      requestAnimationFrame(() => _chainUpdate?.scrollActive());
+    }
+    if (name === 'tab-elo') {
+      _renderElo();
+      requestAnimationFrame(() => { const el = document.querySelector('#tab-elo .elo-item--active'); if (el && !_isFullyVisible(el)) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+    }
+    if (name === 'tab-players') _updatePlayersPanel();
+  });
 });
 
 let _chainResizeTimer = null;
@@ -869,7 +872,7 @@ const _updatePlayersPanel = () => {
   if (!_playersPanelEl) return;
   const id = dimState.sourceId;
   if (!id) { render(nothing, _playersPanelEl); return; }
-  const fc = ISO2[id];
+  const fc = iso2ForId(id);
   const pop    = app.pop?.[fc];
   const capObj = app.capital?.[fc];
   const capText = capObj?.[_LANG] ?? capObj?.en ?? null;
@@ -963,7 +966,7 @@ const playerTableTemplate = sourceId => {
           <div class="accordion-body px-0 pt-1">
             ${exportGroups.map(({ nation, players: gp }) => {
               const nationId = QUALIFIED_BY_NAME[nation];
-              const nc = ISO2[nationId];
+              const nc = iso2ForId(nationId);
               return html`
                 <div class="pt-nation-header d-flex align-items-center" @click=${() => { activateCountry(nationId, true); _zoomToActiveDimFlags(); }}>
                   ${nc ? html`<img src="${FLAG_CDN_RECT(nc)}">` : nothing}
@@ -1008,7 +1011,7 @@ const playerTableTemplate = sourceId => {
         <div id="acc-imp" class="accordion-collapse collapse">
           <div class="accordion-body px-0 pt-1">
             ${importGroups.map(({ label, birthCountryId, birthCountry, players: gp }) => {
-              const bc = birthCountryId != null ? ISO2[birthCountryId] : (_NULL_CODE[birthCountry] ?? null);
+              const bc = birthCountryId != null ? iso2ForId(birthCountryId) : (_NULL_CODE[birthCountry] ?? null);
               const clickId = birthCountryId ?? _NULL_CENTROID_ID[birthCountry] ?? null;
               return html`
                 <div class="pt-nation-header d-flex align-items-center${clickId != null ? ' pt-nation-clickable' : ''}" @click=${clickId != null ? () => { activateCountry(clickId, true); _zoomToActiveDimFlags(); } : null}>
@@ -1101,7 +1104,7 @@ const applyDim = (sourceId, destIds, country) => {
     }
   }
 
-  const fc = ISO2[sourceId];
+  const fc = iso2ForId(sourceId);
   const countryDisplay = countryName(sourceId, country);
   const badgeW = Math.round(countryDisplay.length * 5.8 + 46);
   const bx = 895 - badgeW;
@@ -1202,7 +1205,7 @@ const applyEmpty = id => {
     }
   }
 
-  const fc = ISO2[id];
+  const fc = iso2ForId(id);
   const countryDisplay = countryName(id, QUALIFIED_NAMES[id] ?? '');
   const _playersBtn = document.getElementById('tab-players-btn');
   if (_playersBtn) {
@@ -1240,7 +1243,6 @@ const applyEmpty = id => {
   _updateChainSelection();
   _updateEloSelection();
   _updatePlayersPanel();
-  showTab('tab-players');
   document.body.classList.add('dim-active');
 };
 
@@ -1280,7 +1282,7 @@ if (rawData.natives) {
   });
 }
 DATA.forEach(d => {
-  d.pop        = rawData.pop[ISO2[d.id]] || null;
+  d.pop        = rawData.pop[iso2ForId(d.id)] || null;
   d.nativeCount = (app.nativeByNation[d.id] ?? []).length;
   d.totalCount  = d.count + d.nativeCount;
   d.ratio       = d.totalCount;
@@ -1291,7 +1293,7 @@ Object.entries(app.nativeByNation).forEach(([nId, players]) => {
   const id = +nId;
   if (app.byId[id]) return;
   const name = QUALIFIED_NAMES[id];
-  const pop  = rawData.pop[ISO2[id]] || null;
+  const pop  = rawData.pop[iso2ForId(id)] || null;
   app.byId[id] = { id, country: name, count: 0, nativeCount: players.length,
                totalCount: players.length, pop, ratio: players.length,
                players: [], top: [], nations: [] };
@@ -1327,7 +1329,7 @@ const showExportTip = (event, id) => {
     const exportRatio = rec.pop && rec.count ? rec.count / rec.pop : null;
     const _r2   = exportRatio !== null ? exportRatio.toFixed(2) : '?';
     const ratio = _r2 === '0.00' ? exportRatio.toPrecision(2) : _r2;
-    const fc    = ISO2[rec.id];
+    const fc    = iso2ForId(rec.id);
 
     const leftCol = html`
       <div class="tt-count-row d-flex justify-content-between align-items-center">
@@ -1357,7 +1359,7 @@ const showExportTip = (event, id) => {
     render(html`
       <div class="tt-name tt-name-inner d-flex align-items-center gap-2">
         <span class="tt-name-inner d-flex align-items-center gap-2">${flagImg(fc)}${!QUALIFIED_NAMES[id] ? html`<span class="d-inline-flex flex-column lh-sm gap-1"><span class="text-muted">${countryName(rec.id, rec.country)}</span><small class="tt-pop fst-italic">${T.notQualified}</small></span>` : countryName(rec.id, rec.country)}</span>
-        <span class="tt-pop-rank d-flex flex-column align-items-end flex-shrink-0 ms-2">${popTag(rec.pop)}${rankTag(rec.country)}${capTag(app.capital[ISO2[rec.id]])}</span>
+        <span class="tt-pop-rank d-flex flex-column align-items-end flex-shrink-0 ms-2">${popTag(rec.pop)}${rankTag(rec.country)}${capTag(app.capital[iso2ForId(rec.id)])}</span>
       </div>
       ${body}
       ${hasMore ? html`<div class="tt-more-label text-end">${leftTruncated && rightTruncated ? T.clickForAllPlural : T.clickForAll}</div>` : nothing}`, tt);
@@ -1375,7 +1377,7 @@ const showImportTip = (event, destId) => {
   const players    = allPlayers.slice(0, 5);
   if (lastTipKey !== key) {
     lastTipKey = key;
-    const destFc = ISO2[destId];
+    const destFc = iso2ForId(destId);
 
     render(html`
       <div class="tt-name tt-name-inner d-flex align-items-center gap-2">
@@ -1402,7 +1404,7 @@ const showImportSourceTip = (event, centroidId) => {
   if (lastTipKey !== key) {
     lastTipKey = key;
     const p0  = allPlayers[0];
-    const bFc = p0.birthCountryId != null ? ISO2[p0.birthCountryId] : (_NULL_CODE[p0.birthCountry] ?? null);
+    const bFc = p0.birthCountryId != null ? iso2ForId(p0.birthCountryId) : (_NULL_CODE[p0.birthCountry] ?? null);
 
     render(html`
       <div class="tt-name tt-name-inner d-flex align-items-center gap-2">
@@ -1432,7 +1434,7 @@ const showCombinedTip = (event, id) => {
   const topImp        = importPlayers.slice(0, 5);
   if (lastTipKey !== key) {
     lastTipKey = key;
-    const fc      = ISO2[id];
+    const fc      = iso2ForId(id);
     const hasBoth = exportPlayers.length > 0 && importPlayers.length > 0;
 
     render(html`
@@ -1483,7 +1485,7 @@ const onCountryMousemove = (event, id, topoName = '') => {
     const hlBadgeW = Math.round(hlName.length * 5.8 + 46);
     const hlBx = 895 - hlBadgeW;
     if (app.byId[id]?.count > 0) showExportTip(event, id);
-    else if (QUALIFIED_NAMES[id]) showQualifiedTip(event, QUALIFIED_NAMES[id], ISO2[id]);
+    else if (QUALIFIED_NAMES[id]) showQualifiedTip(event, QUALIFIED_NAMES[id], iso2ForId(id));
     else showSimpleTip(event, id, topoName);
   } else {
     const inDest = dimState.destIds.has(id), inImport = dimState.importIds.has(id);
@@ -1492,14 +1494,14 @@ const onCountryMousemove = (event, id, topoName = '') => {
     else if (inImport)           showImportSourceTip(event, id);
     else if (id === dimState.sourceId) {
       if (app.byId[id]?.count > 0) showExportTip(event, id);
-      else if (QUALIFIED_NAMES[id]) showQualifiedTip(event, QUALIFIED_NAMES[id], ISO2[id]);
+      else if (QUALIFIED_NAMES[id]) showQualifiedTip(event, QUALIFIED_NAMES[id], iso2ForId(id));
     } else hideTip();
   }
 };
 
 const onCountryClick = (event, id) => {
   event.stopPropagation();
-  if (!centroids[id]) return;
+  if (!_isClickable(id)) return;
   if (dimState.sourceId === id) { clearDim(); return; }
   activateCountry(id);
   if (enablesDim(id)) _zoomToActiveDimFlags();
@@ -1595,7 +1597,7 @@ g.selectAll('.flag-qualified')
   .data(worldFeatures.filter(d => QUALIFIED_NAMES[+d.id] && !STANDALONE_IDS.has(+d.id)))
   .join('image')
   .call(placeFlag)
-  .attr('href', d => FLAG_CDN(ISO2[+d.id]))
+  .attr('href', d => FLAG_CDN(iso2ForId(+d.id)))
   .attr('data-id', d => +d.id)
   .each(function(d) {
     const [cx, cy] = dotCentroid(d);
@@ -1638,7 +1640,7 @@ STANDALONE_FLAGS.forEach(({ id, lon, lat, dLon = 0, dLat = 0 }) => {
   g.append('image')
     .call(placeFlag)
     .classed('offset-flag', true)
-    .attr('href', FLAG_CDN(ISO2[id]))
+    .attr('href', FLAG_CDN(iso2ForId(id)))
     .attr('data-id', id)
     .attr('data-cx', fx).attr('data-cy', fy)
     .attr('data-centroid-cx', cx).attr('data-centroid-cy', cy)
@@ -1660,7 +1662,7 @@ ukFeatures
     centroids[f._id] = [cx, cy];
     g.append('image')
       .call(placeFlag)
-      .attr('href', FLAG_CDN(ISO2[f._id]))
+      .attr('href', FLAG_CDN(iso2ForId(f._id)))
       .attr('data-id', f._id)
       .attr('data-cx', cx).attr('data-cy', cy)
       .attr('x', cx - FLAG/2).attr('y', cy - FLAG/2)
