@@ -61,7 +61,7 @@ class EloRanking extends HTMLElement {
     this.#itemById.get(this.#activeId)?.classList.add('elo-item--active');
   }
 
-  show(visibleItems) {
+  show(visibleItems, onAnimationDone) {
     const before = new Map();
     for (const [id, li] of this.#itemById)
       if (li.style.display !== 'none') before.set(id, li.getBoundingClientRect().top);
@@ -77,18 +77,24 @@ class EloRanking extends HTMLElement {
       data.pts = pts;
       render(pillContent(data), li);
     }
+    let animating = 0;
     for (const { id } of visibleItems) {
       const li = this.#itemById.get(id);
       if (!li || !before.has(id)) continue;
       const delta = before.get(id) - li.getBoundingClientRect().top;
       if (delta === 0) continue;
+      animating++;
       li.style.transition = 'none';
       li.style.transform = `translateY(${delta}px)`;
       li.getBoundingClientRect();
       li.style.transition = 'transform 0.2s ease';
       li.style.transform = '';
-      li.addEventListener('transitionend', () => { li.style.transition = ''; }, { once: true });
+      li.addEventListener('transitionend', () => {
+        li.style.transition = '';
+        if (--animating === 0 && onAnimationDone) onAnimationDone();
+      }, { once: true });
     }
+    if (animating === 0 && onAnimationDone) onAnimationDone();
   }
 }
 

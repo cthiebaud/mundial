@@ -442,7 +442,7 @@ _sortListEl?.addEventListener('click', e => {
     _sortDir = _sortDir === 'desc' ? 'asc' : 'desc';
     _sortDirBtn.dataset.dir = _sortDir;
     _updateAlphaLabel();
-    _renderElo();
+    _renderElo(_scrollToActiveElo);
     return;
   }
   const item = e.target.closest('.csb-sort-item');
@@ -450,7 +450,7 @@ _sortListEl?.addEventListener('click', e => {
     const key = item.dataset.sort;
     _sortOrder = [key, ..._sortOrder.filter(k => k !== key)];
     _updateSortCol();
-    _renderElo();
+    _renderElo(_scrollToActiveElo);
   }
 });
 _controlSidebarToggle.addEventListener('click', () => {
@@ -489,6 +489,10 @@ const _isFullyVisible = el => {
   const padTop = parseFloat(document.documentElement.style.scrollPaddingTop)    || 0;
   const padBot = parseFloat(document.documentElement.style.scrollPaddingBottom) || 0;
   return r.top >= padTop && r.bottom <= window.innerHeight - padBot;
+};
+const _scrollToActiveElo = () => {
+  const el = document.querySelector('#tab-elo .elo-item--active');
+  if (el && !_isFullyVisible(el)) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 };
 
 // padding-top = bottom edge of fixed map container (exact, no formula needed)
@@ -664,9 +668,8 @@ const zoomToCentroid = (id, duration = 2000) => {
   svg.transition().duration(duration).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
 };
 
-const _renderElo = () => {
+const _renderElo = (onAnimationDone) => {
   const allItems = _buildEloItems();
-  const total = _eloData?.rankings?.filter(r => !r.weirdo).length ?? 0;
   const visibleItems = allItems.filter(item => _catEloChecked(item.id, item.fifaMember));
   _eloMeta.hidden = _sortOrder[0] !== 'elo';
   if (!_eloMeta.innerHTML && (_eloData?.source || _eloData?.updated)) {
@@ -679,7 +682,7 @@ const _renderElo = () => {
     }
     _eloMeta.innerHTML = parts.join(' · ');
   }
-  if (_eloMain.hasItems) { _eloMain.show(visibleItems); return; }
+  if (_eloMain.hasItems) { _eloMain.show(visibleItems, onAnimationDone); return; }
   _eloMain.onCountryClick = id => {
     if (dimState.sourceId === id) { clearDim(); return; }
     activateCountry(id);
@@ -688,7 +691,7 @@ const _renderElo = () => {
   };
   _eloMain.isClickable = () => true;
   _eloMain.items = allItems;
-  _eloMain.show(visibleItems);
+  _eloMain.show(visibleItems, onAnimationDone);
   if (dimState.sourceId) _eloMain.update(dimState.sourceId);
 };
 const _updateEloSelection = () => {
@@ -718,7 +721,7 @@ const _switchTab = name => {
   if (name === 'tab-elo') {
     _renderElo();
     _eloMain.update(dimState.sourceId);
-    requestAnimationFrame(() => { const el = document.querySelector('#tab-elo .elo-item--active'); if (el && !_isFullyVisible(el)) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+    _scrollToActiveElo();
   }
 };
 document.querySelectorAll('#bottomTabList button[data-tab]').forEach(btn => {
