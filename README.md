@@ -16,7 +16,7 @@ Interactive D3.js choropleth map of the 2026 FIFA World Cup showing **where play
 | https://mundial.cthiebaud.com/wc2026_elo_ranking.html | Standalone World Football Elo ranking page |
 | https://mundial.cthiebaud.com/wc2026_elo_history.html | Animated Elo rating history (bar chart race) |
 | https://mundial.cthiebaud.com/infographics/wc2026_top_exporters.html | Top birth-country infographic (1080×1920) |
-| https://mundial.cthiebaud.com/infographics/wc2026_top_importers.html | Top importing-nation infographic (1080×1920) |
+| https://mundial.cthiebaud.com/infographics/wc2026_top_importers.html | Top importing-country infographic (1080×1920) |
 | https://mundial.cthiebaud.com/chains/wc2026_chain_parameterized.html | Chain renderer — `?data=wc2026_chain_main.json` (default), `_italy.json`, `_kaz.json`, `_loop.json`, `_longest.json` |
 | https://mundial.cthiebaud.com/chains/wc2026_chain_longest.html | Snake renderer — `?data=wc2026_chain_longest.json` (default), any chain JSON |
 | https://mundial.cthiebaud.com/chains/wc2026_chain_directed.html | Directed-graph renderer — hardcoded to `wc2026_chain_directed.json` |
@@ -29,10 +29,14 @@ Interactive D3.js choropleth map of the 2026 FIFA World Cup showing **where play
 |---|---|
 | `index.html` | Entry point — redirects to the map |
 | `wc2026_map_exported.html` | Main map page (Bootstrap 5) |
-| `wc2026_map.js` | All D3 rendering, zoom, tooltips, filter sidebar, Elo tab, dim/arc logic |
-| `wc2026_map.css` | All custom styles (map, header, legend, tooltips, Elo list, filter table) |
-| `i18n.js` | Language detection, UI strings, `countryName()`, `wikiUrl()` |
-| `wc2026_elo_ranking.js` | Reusable Elo ranking list component (used by map page and standalone page) |
+| `js/wc2026_map.js` | All D3 rendering, zoom, tooltips, filter sidebar, Elo tab, dim/arc logic |
+| `css/wc2026_map.css` | Base styles (map, header, legend, tooltips) |
+| `js/i18n.js` | Language detection, UI strings, `countryName()`, `wikiUrl()` |
+| `js/wc2026_elo_ranking.js` | `<elo-ranking>` Web Component + pill helpers |
+| `js/qualified.js` | `QUALIFIED_NAMES`, `QUALIFIED_BY_NAME`, `buildEloItems` |
+| `css/taxonomy.css` | Canonical pill styling (borders, text colors, dots) |
+| `css/control-sidebar.css` | Filter/sort sidebar styles |
+| `css/map-container.css` | Map container and dim-mode cursor styles |
 | `wc2026_map_data.json` | App data: players by birth country (natives + exported) + population + `wiki_langs` |
 | `wc2026_elo_rank.json` | Current World Football Elo ratings (source: eloratings.net) |
 | `wc2026_elo_history.json` | Monthly Elo rating history for the animated bar chart race |
@@ -112,9 +116,9 @@ The page has three fixed/sticky zones:
 
 Landscape mobile and desktop are unaffected by the portrait-only rules.
 
-## Filter sidebar
+## Control sidebar
 
-A collapsible filter panel lives in the fixed header (right edge, CSS grid overlap). It controls which countries are shown in the Elo ranking list and which flags are visible on the map. The filter cube is `qualified × importer × exporter`:
+A collapsible filter/sort panel (`#control-sidebar`) lives in the fixed header (right edge, CSS grid overlap via `#sidebar-host`). It controls which countries are shown in the Elo ranking list and which flags are visible on the map. The filter cube is `qualified × importer × exporter`:
 
 | Category | Default |
 |---|---|
@@ -146,10 +150,10 @@ Hovering a country triggers one of several tooltip variants (desktop only — to
 | Situation | Tooltip shown |
 |---|---|
 | Players born there, playing for another country (any country) | Export tooltip — single column; non-qualified countries show a *not qualified* badge |
-| Qualified nation, no exports, but imported players | Import-only tooltip |
-| Qualified nation with both exports and imports | Two-column tooltip: left = exports, right = imports |
-| Qualified nation, no exports, no imports | Qualified tooltip with "no export / no import" message |
+| Qualified country, no exports, but imported players | Import-only tooltip |
+| Qualified country with both exports and imports | Two-column tooltip: left = exports, right = imports |
+| Qualified country, no exports, no imports | Qualified tooltip with "no export / no import" message |
 
-In dim mode (after clicking a country on the map or in the Elo list), hovering a destination flag shows that nation's incoming players from the selected source; hovering a birth-country flag shows its players selected by the dim'd nation. Clicking the active country again clears dim mode.
+In dim mode (after clicking a country on the map or in the Elo list), hovering a destination flag shows that country's incoming players from the selected source; hovering a birth-country flag shows its players selected by the dim'd nation. Clicking the active country again clears dim mode.
 
 Player names in the dim-mode player table link to their Wikipedia page in the UI language, with an English fallback.

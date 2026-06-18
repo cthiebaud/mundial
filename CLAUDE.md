@@ -19,11 +19,15 @@ GitHub: **https://github.com/cthiebaud/mundial** (standalone repo)
 | `wc2026_map_exported.html` | Main map page (Bootstrap 5, loads JS + JSON via ES module) |
 
 **OG tags:** Both `index.html` and `wc2026_map_exported.html` carry identical OG meta tags. Always update **both files** together when any OG tag changes (og:image, og:url, og:title, og:description, etc.).
-| `wc2026_map.js` | ES module — D3 rendering, zoom, tooltips (lit-html), filter sidebar, Elo tab, dim/arc logic |
-| `wc2026_map.css` | All custom styles (map, header, legend, tooltips, Elo list, filter table) |
-| `wc2026_elo_ranking.js` | ES module — reusable Elo ranking list component |
+| `js/wc2026_map.js` | ES module — D3 rendering, zoom, tooltips (lit-html), filter sidebar, Elo tab, dim/arc logic |
+| `css/wc2026_map.css` | All custom styles (map, header, legend, tooltips, Elo list, filter table) |
+| `js/wc2026_elo_ranking.js` | ES module — `<elo-ranking>` Web Component + pill helpers |
 | `wc2026_elo_rank.json` | Current World Football Elo ratings (fetched at runtime) |
-| `i18n.js` | ES module — language detection, `T` strings, `countryName()`, `wikiUrl()` |
+| `js/i18n.js` | ES module — language detection, `T` strings, `countryName()`, `wikiUrl()` |
+| `js/qualified.js` | ES module — `QUALIFIED_NAMES`, `QUALIFIED_BY_NAME`, `buildEloItems` |
+| `css/taxonomy.css` | Canonical pill styling (borders, text colors, dots via CSS) |
+| `css/control-sidebar.css` | Filter/sort sidebar styles |
+| `css/map-container.css` | Map container and dim-mode cursor styles |
 | `wc2026_map_data.json` | All data: player exports + natives by birth country + population + `wiki_langs` |
 | `uk-nations.geojson` | 4 UK home nations polygons (Natural Earth 50m) — England, Scotland, Wales, Northern Ireland rendered as separate choropleth features |
 | `wc2026_og_v3.png` | 1200×640 Open Graph preview image for LinkedIn/social |
@@ -108,12 +112,12 @@ Key helpers (module-level, return `TemplateResult` or `nothing`):
 - `ptWikiRow(p)` — renders a player name with optional Wikipedia link in the UI language
 
 Tooltip functions (all module-level, access `app.pop` via the `app` object):
-- `buildImportColHtml(nationId)` → `TemplateResult` (reusable import column)
+- `buildImportColHtml(countryId)` → `TemplateResult` (reusable import column)
 - `showQualifiedTip`, `showExportTip`, `showImportTip`, `showImportSourceTip`, `showCombinedTip` — each calls `render(html\`...\`, tt)`
 
 Player table:
 - `playerTableTemplate(sourceId)` — module-level pure function, returns `TemplateResult`
-- Called in `applyDim` as `render(playerTableTemplate(sourceId), ptEl)` — replaces the old 70-line imperative DOM block
+- Called in `applySelection` via `render(playerTableTemplate(sourceId), ptEl)` — replaces the old 70-line imperative DOM block
 - Import section rendered conditionally via `${importPlayers.length > 0 ? html\`...\` : nothing}` — no `style.display` toggling
 
 "More players" ellipsis:
@@ -131,10 +135,10 @@ The four home nations (England, Scotland, Wales, Northern Ireland) are handled a
 - `wc2026_players.csv` birth countries: all resolved from city lookup — no "United Kingdom" entries
 - Synthetic IDs (no ISO 3166-1 numeric): `8260=England`, `8261=Scotland`, `8262=Wales`, `8263=Northern Ireland`
 - ISO2 flag codes: `gb-eng`, `gb-sct`, `gb-wls`, `gb-nir`
-- Map rendering: world atlas feature 826 (UK) is **skipped** (non-qualified flags filter has explicit `id !== 826` guard); `uk-nations.geojson` renders the 4 nations as separate polygons
+- Map rendering: world atlas feature 826 (UK) is **skipped** (flags are filtered by `_eloItemsById.has(id)` — only countries in the Elo rankings get a flag); `uk-nations.geojson` renders the 4 nations as separate polygons
 - All 4 UK nations render their flag on the map — the UK nation filter covers all four: `f._id === 8260 || f._id === 8261 || f._id === 8262 || f._id === 8263`
 - Scotland centroid manually overridden to `[-4.2, 56.8]` (island bias in auto-centroid)
-- England and Scotland flags placed **after** the `.flag-qualified` D3 data join (placing before causes D3's exit selection to remove them)
+- All flags (qualified + non-qualified) placed in a single `forEach` loop filtered by Elo membership
 - Population + capital patched via `pipeline/patch_uk_nations.py` (Wikidata SPARQL for capitals, 2021/22 census populations); stored in `countries.json` under keys `"8260"`–`"8263"` with alpha2 as the lookup key
 
 ### Kosovo (id=383)
@@ -152,7 +156,7 @@ Kosovo is absent from the `iso-3166-1` npm package's numeric table and may be ab
 - Added to `wc2026_elo_rank.json` rankings with `rank: null, pts: null, fifaMember: true` (not on eloratings.net)
 - Patched via `pipeline/patch_kosovo.py` (Wikidata SPARQL for Pristina translations, World Bank 2022 population)
 
-### Small island nations (standalone flags)
+### Small island countries (standalone flags)
 Cape Verde (id=132) and Curaçao (id=531) don't appear reliably in the 110m topojson — placed manually via `STANDALONE_FLAGS` array with explicit lon/lat.
 
 ### Zoom-stable flags and arcs
@@ -171,27 +175,27 @@ Tooltips are **disabled on mobile** (`/Mobi/i` UA check). On desktop, hovering a
 | Function | Trigger |
 |---|---|
 | `showExportTip` | Any country where `app.byId[id].count > 0` (exports players) — qualified or not |
-| `showQualifiedTip` | Qualified nation with no exports |
+| `showQualifiedTip` | Qualified country with no exports |
 | `showCombinedTip` | Dim mode: country is both a dim destination and an import source |
 | `showImportTip` | Dim mode: hovering a destination flag |
 | `showImportSourceTip` | Dim mode: hovering a birth-country source flag |
 
-**`showExportTip` layout:** Non-qualified birth countries show the country name with a *not qualified* badge (`tt-non-qualified` class on `#tooltip`). Qualified nations with both exports and imports render a two-column layout:
+**`showExportTip` layout:** Non-qualified birth countries show the country name with a *not qualified* badge (`tt-non-qualified` class on `#tooltip`). Qualified countries with both exports and imports render a two-column layout:
 - **Left column**: raw export count + ratio/million + destination nations + top 5 players with `→ destination`
-- **Right column**: raw import count + birth nations + top 5 players sorted by caps with `← birth country`
+- **Right column**: raw import count + birth countries + top 5 players sorted by caps with `← birth country`
 
 Collapses to a single column when the import side is empty.
 
 Every tooltip header shows `[flag] Country name` left-aligned and `pop. xM` right-aligned on the same row. Population uses `Intl.toLocaleString(LOCALE, …)` for locale-aware decimal separators.
 
-`app.importByNation` (property of the module-level `app` object, populated on data load) maps each qualified nation ID to the list of imported players. Self-import is excluded by comparing `countryName()` output for birth country and nation — this catches name-mismatch cases like DR Congo (`id=null`, name="Democratic Republic of the Congo") vs. qualified nation 180 ("DR Congo").
+`app.importByCountry` (property of the module-level `app` object, populated on data load) maps each qualified country ID to the list of imported players. Self-import is excluded by comparing `countryName()` output for birth country and squad country — this catches name-mismatch cases like DR Congo (`id=null`, name="Democratic Republic of the Congo") vs. qualified country 180 ("DR Congo").
 
 ### Wikipedia links in player table
 Players in the dim-mode table link to their Wikipedia page in the UI language when available, with `(en)` fallback link otherwise. `wiki_langs: {en, fr?, de?, it?, es?}` is stored per player in the JSON and populated by `add_wiki_urls.py`.
 
 ### Fixed header + map architecture
 The page uses two fixed elements:
-- **`#page-header`** (`position: fixed; top: 0; z-index: 200`): CSS grid with two overlapping `grid-row:1 grid-column:1` children — `#page-heading-sub` (quote + legend) on the left, `#filter-sidebar` on the right (justified-end). Row height = tallest child.
+- **`#page-header`** (`position: fixed; top: 0; z-index: 200`): CSS grid with two overlapping `grid-row:1 grid-column:1` children — `#page-heading-sub` (quote + legend) on the left, `#sidebar-host / #control-sidebar` on the right (justified-end). Row height = tallest child.
 - **`#map-container`** (`position: fixed !important; top: var(--page-header-h)`): sits immediately below the header. `!important` is required to override Bootstrap's `.position-relative`.
 - **`body.paddingTop`** is set by JS (`_syncPaddingTop`), measuring `map-container.getBoundingClientRect().bottom` — **not** a CSS formula. A `resize` listener keeps it in sync. Do not add a CSS `padding-top` to body; it will conflict.
 - **`--page-header-h`** CSS variable is set once after measuring `_pageHeader.offsetHeight` (forces reflow) so the map's `top` is pixel-accurate.
@@ -214,12 +218,12 @@ On portrait mobile only (landscape and desktop are unaffected):
 Shown below the map in dim mode. Structure rendered by `playerTableTemplate` via lit-html:
 - Header row: `[flag] Country` left + `pop. xM` right
 - Export section (bordered top): count heading + grouped player rows by destination nation
-- Natives section (conditional): players born there playing for that same country (`app.nativeByNation`)
+- Natives section (conditional): players born there playing for that same country (`app.nativeByCountry`)
 - Import section (bordered top, conditional): count heading + grouped player rows by birth country
 - Player names link to Wikipedia in the UI language when `wiki_langs` data is available
 
 ### Elo ranking tab and filter sidebar
-The **Elo ranking** tab (default active) shows all countries as pill badges, rendered by `renderEloRanking` from `wc2026_elo_ranking.js`. Countries are filtered by the sidebar cube (`qualified × importer × exporter`); clicking a badge activates dim mode; clicking the active badge clears it.
+The **Elo ranking** tab (default active) shows all countries as pill badges, rendered by the `<elo-ranking>` Web Component (`js/wc2026_elo_ranking.js`). Countries are filtered by the sidebar cube (`qualified × importer × exporter`); clicking a badge activates dim mode; clicking the active badge clears it.
 
 **Three-tier pill interaction model:**
 - `enablesDim(id)` → `true`: badge is `elo-item--clickable` (dark, `#888` label). Click activates dim + arc mode.
@@ -230,26 +234,26 @@ The **Elo ranking** tab (default active) shows all countries as pill badges, ren
 
 **Critical ordering**: `_renderElo()` must be called **after** `buildIndices(rawData)` in the `Promise.all` callback. If called before (e.g. when the Elo JSON loads first), `app.byId` is empty, non-qualified exporters get wrongly bucketed as category `'o'` (filtered out by default), and `enablesDim()` returns false for all items (nothing clickable).
 
-The filter sidebar's natural height is measured before its first collapse (`classList.remove('collapsed') → scrollHeight → classList.add('collapsed')`), stored in `--filter-sidebar-h`, which drives the toggle button's `min-height`. The actual header height (`--page-header-h`) is measured separately via `offsetHeight`.
+The filter sidebar's natural height is measured before its first collapse (`classList.remove('collapsed') → scrollHeight → classList.add('collapsed')`), stored in `--csb-h`, which drives the toggle button's `min-height`. The actual header height (`--page-header-h`) is measured separately via `offsetHeight`.
 
 ### Dim / arc mode
-- Left-click any country on the map or in the Elo list where `enablesDim()` returns true → dims all qualified nation flags except relevant ones; draws curved arcs with √count-scaled width; shows player table below map
+- Left-click any country on the map or in the Elo list where `enablesDim()` returns true → dims all qualified country flags except relevant ones; draws curved arcs with √count-scaled width; shows player table below map
 - Clicking the **same** active Elo item again → clears dim
 - Any other map click → clears dim (or `zoomToCentroid` if the country is zoomable)
 - `dimState.active` flag prevents tooltip from reappearing during dim
 - `dimState.k` tracks current zoom scale so arcs are redrawn at correct size on zoom
 - `_zoomToActiveDimFlags` two-stage animation: stage 1 (source country) maxK=9 / duration=1200ms; stage 2 (linked flags) Math.max(1, Math.min(9, …)) / k2=9 fallback / duration=1500ms
 
-### Data join ordering in the render callback
+### Render ordering in renderWorld
 Order matters for SVG z-layering:
-1. `arcsGroup` (below all flags)
-2. Leader lines (ocean-clipped)
-3. World choropleth paths (skip 826)
-4. Mesh borders
-5. UK nation paths (from `uk-nations.geojson`)
-6. `.flag-qualified` world topojson data join
-7. England/Scotland flags (must be **after** step 6)
-8. STANDALONE_FLAGS
+1. World choropleth paths (skip 826)
+2. Mesh borders
+3. UK nation paths (from `uk-nations.geojson`)
+4. `arcsGroup` (below all flags)
+5. Leader lines (ocean-clipped)
+6. All flags via unified `forEach` (filtered by `_eloItemsById`)
+7. Standalone dots + flags (Cape Verde, Curaçao)
+8. UK nation flags
 
 ### `countries.json` — population + capital lookup
 `countries.json` (project root) is the canonical source for population and multilingual capital city names. Shape:
@@ -314,7 +318,7 @@ Vertical 1080×1920 cards for Instagram/LinkedIn, rendered as JPGs via Playwrigh
 | File | Purpose |
 |---|---|
 | `wc2026_top_exporters.html` | Top 5 birth countries by raw player count |
-| `wc2026_top_importers.html` | Top importing nations (players born elsewhere) |
+| `wc2026_top_importers.html` | Top importing countries (players born elsewhere) |
 | `wc2026_top_exporters.jpg` | Rendered output |
 | `wc2026_top_importers.jpg` | Rendered output |
 | `3664.jpeg` | Background photo (used by top_exporters) |
