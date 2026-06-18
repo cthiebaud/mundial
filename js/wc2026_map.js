@@ -696,15 +696,7 @@ const _updateEloSelection = () => {
     _eloMain.update(dimState.sourceId);
 };
 
-fetch('./wc2026_elo_rank.json').then(r => r.json()).then(d => {
-  _eloData = d;
-  app.eloRank = Object.fromEntries(
-    d.rankings.flatMap(({id, rank}) => { const n = QUALIFIED_NAMES[id]; return n ? [[n, rank]] : []; })
-  );
-  d.rankings.forEach(r => { if (r.fifaMember) _fifaMemberIds.add(r.id); });
-  _applyFlagFilter();
-  if (!document.getElementById('tab-elo')?.hidden && Object.keys(app.byId).length > 0) _renderElo();
-}).catch(() => {});
+// Elo data loaded in Promise.all below
 
 const _switchTab = name => {
   document.querySelectorAll('#bottomTabList button[data-tab]').forEach(b => {
@@ -1408,6 +1400,7 @@ const showSimpleTip = (event, id, topoName) => {
 };
 
 const onCountryMousemove = (event, id, topoName = '') => {
+  if (!_eloItemsById.has(id) && !QUALIFIED_NAMES[id]) { hideTip(); return; }
   const _flagEl = g.select(`.flag-qualified[data-id="${id}"]`).node();
   if (_flagEl?.getAttribute('visibility') === 'hidden') { hideTip(); return; }
   if (dimState.active && _flagEl && !_flagEl.hasAttribute('data-dim-visible') && id !== dimState.sourceId) { hideTip(); return; }
@@ -1530,28 +1523,29 @@ STANDALONE_FLAGS.forEach(({ lon, lat, dLon = 0, dLat = 0 }) => {
   appendLeaderLine(cx, cy, fx, fy);
 });
 
-g.selectAll('.flag-qualified')
-  .data(worldFeatures.filter(d => QUALIFIED_NAMES[+d.id] && !STANDALONE_IDS.has(+d.id)))
-  .join('image')
-  .call(placeFlag)
-  .attr('href', d => FLAG_CDN(iso2ForId(+d.id)))
-  .attr('data-id', d => +d.id)
-  .each(function(d) {
+// ── All flags from world topojson (qualified + non-qualified, filtered by elo membership) ──
+worldFeatures
+  .filter(d => { const id = +d.id; return id !== 826 && !STANDALONE_IDS.has(id) && _eloItemsById.has(id); })
+  .forEach(d => {
+    const id = +d.id;
     const [cx, cy] = dotCentroid(d);
-    const fp = FLAG_POS_OVERRIDE[+d.id];
+    const fp = FLAG_POS_OVERRIDE[id];
     const [fx, fy] = fp ? projection(fp) : [cx, cy];
-    const sel = d3.select(this)
+    const sel = g.append('image')
+      .call(placeFlag)
+      .attr('href', FLAG_CDN(iso2ForId(id)))
+      .attr('data-id', id)
       .attr('data-cx', fx).attr('data-cy', fy)
-      .attr('x', fx - FLAG/2).attr('y', fy - FLAG/2);
+      .attr('x', fx - FLAG/2).attr('y', fy - FLAG/2)
+      .attr('pointer-events', 'all')
+      .attr('data-enables-dim', enablesDim(id) ? '' : null)
+      .attr('cursor', _isClickable(id) ? 'pointer' : 'default')
+      .on('mousemove', (event) => onCountryMousemove(event, id))
+      .on('click',     (event) => onCountryClick(event, id));
     if (fp) sel.classed('offset-flag', true)
       .attr('data-centroid-cx', cx).attr('data-centroid-cy', cy)
       .attr('data-flag-dx', fx - cx).attr('data-flag-dy', fy - cy);
-  })
-  .attr('pointer-events', 'all')
-  .attr('data-enables-dim', d => enablesDim(+d.id) ? '' : null)
-  .attr('cursor', d => _isClickable(+d.id) ? 'pointer' : 'default')
-  .on('mousemove', (event, d) => onCountryMousemove(event, +d.id))
-  .on('click',     (event, d) => onCountryClick(event, +d.id));
+  });
 
 // Dot markers at true island centroid — choropleth color, zoom-stable, interactive
 STANDALONE_FLAGS.forEach(({ id, lon, lat }) => {
@@ -1610,30 +1604,11 @@ ukFeatures
       .on('click',     (event) => onCountryClick(event, f._id));
   });
 
-// ── Stamp existing qualified flags with elo-filter category ──────────────────
+// ── Stamp all flags with elo-filter category ────────────────────────────────
 g.selectAll('.flag-qualified[data-id]').attr('data-elo-cat', function() {
   return _flagCat(+this.getAttribute('data-id'));
 });
 
-// ── Non-qualified flags (E = exporter, O = other) ────────────────────────────
-worldFeatures
-  .filter(d => { const id = +d.id; return id !== 826 && !QUALIFIED_NAMES[id] && !STANDALONE_IDS.has(id) && iso2ForId(id); })
-  .forEach(d => {
-    const id = +d.id;
-    const [cx, cy] = dotCentroid(d);
-    g.append('image')
-      .call(placeFlag)
-      .attr('href', FLAG_CDN(iso2ForId(id)))
-      .attr('data-id', id)
-      .attr('data-elo-cat', _flagCat(id))
-      .attr('data-cx', cx).attr('data-cy', cy)
-      .attr('x', cx - FLAG/2).attr('y', cy - FLAG/2)
-      .attr('pointer-events', 'all')
-      .attr('data-enables-dim', enablesDim(id) ? '' : null)
-      .attr('cursor', _isClickable(id) ? 'pointer' : 'default')
-      .on('mousemove', (event) => onCountryMousemove(event, id))
-      .on('click',     (event) => onCountryClick(event, id));
-  });
 
 _applyFlagFilter();
 
@@ -1650,11 +1625,18 @@ STANDALONE_FLAGS.forEach(({ id, lon, lat }) => { centroids[id] = projection([lon
 Promise.all([
   fetch('wc2026_map_data.json').then(r => r.json()),
   d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'),
-  fetch('uk-nations.geojson').then(r => r.json())
-]).then(([rawData, world, ukNations]) => {
+  fetch('uk-nations.geojson').then(r => r.json()),
+  fetch('./wc2026_elo_rank.json').then(r => r.json())
+]).then(([rawData, world, ukNations, eloData]) => {
+  _eloData = eloData;
+  app.eloRank = Object.fromEntries(
+    eloData.rankings.flatMap(({id, rank}) => { const n = QUALIFIED_NAMES[id]; return n ? [[n, rank]] : []; })
+  );
+  eloData.rankings.forEach(r => { if (r.fifaMember) _fifaMemberIds.add(r.id); });
   buildIndices(rawData);
-  renderWorld(world, ukNations);
   _renderElo();
+  renderWorld(world, ukNations);
+  _applyFlagFilter();
   _updateVisibleCountryCount();
   // Initial zoom: fit all qualified + exporting flags so Antarctica is off-screen
   const xs = [], ys = [];
