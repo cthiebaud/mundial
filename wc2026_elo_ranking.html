@@ -17,9 +17,9 @@
   <elo-ranking id="list"></elo-ranking>
 </div>
 <script type="module">
-import './wc2026_elo_ranking.js';
-import { QUALIFIED_BY_NAME, buildEloItems } from './qualified.js';
-import { LOCALE, countryName } from './i18n.js';
+import './js/wc2026_elo_ranking.js';
+import { QUALIFIED_BY_NAME, buildEloItems } from './js/qualified.js';
+import { LOCALE, countryName } from './js/i18n.js';
 
 const [eloData, mapData] = await Promise.all([
   fetch('./wc2026_elo_rank.json').then(r => r.json()),

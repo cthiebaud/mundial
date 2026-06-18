@@ -1,5 +1,5 @@
 import { html, render, nothing } from 'https://cdn.jsdelivr.net/npm/lit-html@3/lit-html.js';
-import { renderChain } from './chains/wc2026_chain_render.js';
+import { renderChain } from '../chains/wc2026_chain_render.js';
 import { pillClasses, pillContent } from './wc2026_elo_ranking.js';
 import { QUALIFIED_NAMES, QUALIFIED_BY_NAME, buildEloItems } from './qualified.js';
 import { LOCALE, _LANG, T, countryName, wikiUrl } from './i18n.js';
