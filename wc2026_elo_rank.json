@@ -1,6 +1,6 @@
 {
   "source": "eloratings.net",
-  "updated": "2026-06-17",
+  "updated": "2026-06-18",
   "stats": {
     "total": 244,
     "fifaMembers": 211,
@@ -25,7 +25,7 @@
       "id": 32,
       "iso2": "ar",
       "name": "Argentina",
-      "pts": 2115,
+      "pts": 2128,
       "fifaMember": true,
       "weirdo": false
     },
@@ -43,21 +43,12 @@
       "id": 8260,
       "iso2": "gb-eng",
       "name": "England",
-      "pts": 2024,
+      "pts": 2055,
       "fifaMember": true,
       "weirdo": false
     },
     {
       "rank": 5,
-      "id": 620,
-      "iso2": "pt",
-      "name": "Portugal",
-      "pts": 1989,
-      "fifaMember": true,
-      "weirdo": false
-    },
-    {
-      "rank": 6,
       "id": 170,
       "iso2": "co",
       "name": "Colombia",
@@ -66,11 +57,20 @@
       "weirdo": false
     },
     {
-      "rank": 7,
+      "rank": 6,
       "id": 76,
       "iso2": "br",
       "name": "Brazil",
       "pts": 1978,
+      "fifaMember": true,
+      "weirdo": false
+    },
+    {
+      "rank": 7,
+      "id": 620,
+      "iso2": "pt",
+      "name": "Portugal",
+      "pts": 1967,
       "fifaMember": true,
       "weirdo": false
     },
@@ -103,15 +103,6 @@
     },
     {
       "rank": 11,
-      "id": 191,
-      "iso2": "hr",
-      "name": "Croatia",
-      "pts": 1912,
-      "fifaMember": true,
-      "weirdo": false
-    },
-    {
-      "rank": 12,
       "id": 392,
       "iso2": "jp",
       "name": "Japan",
@@ -120,7 +111,7 @@
       "weirdo": false
     },
     {
-      "rank": 13,
+      "rank": 12,
       "id": 218,
       "iso2": "ec",
       "name": "Ecuador",
@@ -129,7 +120,16 @@
       "weirdo": false
     },
     {
-      "rank": 14,
+      "rank": 13,
+      "id": 191,
+      "iso2": "hr",
+      "name": "Croatia",
+      "pts": 1881,
+      "fifaMember": true,
+      "weirdo": false
+    },
+    {
+      "rank": 13,
       "id": 484,
       "iso2": "mx",
       "name": "Mexico",
@@ -184,6 +184,15 @@
     },
     {
       "rank": 20,
+      "id": 40,
+      "iso2": "at",
+      "name": "Austria",
+      "pts": 1857,
+      "fifaMember": true,
+      "weirdo": false
+    },
+    {
+      "rank": 21,
       "id": 792,
       "iso2": "tr",
       "name": "Türkiye",
@@ -192,7 +201,7 @@
       "weirdo": false
     },
     {
-      "rank": 21,
+      "rank": 22,
       "id": 504,
       "iso2": "ma",
       "name": "Morocco",
@@ -201,7 +210,7 @@
       "weirdo": false
     },
     {
-      "rank": 22,
+      "rank": 23,
       "id": 36,
       "iso2": "au",
       "name": "Australia",
@@ -210,20 +219,11 @@
       "weirdo": false
     },
     {
-      "rank": 22,
+      "rank": 23,
       "id": 686,
       "iso2": "sn",
       "name": "Senegal",
       "pts": 1839,
-      "fifaMember": true,
-      "weirdo": false
-    },
-    {
-      "rank": 24,
-      "id": 40,
-      "iso2": "at",
-      "name": "Austria",
-      "pts": 1830,
       "fifaMember": true,
       "weirdo": false
     },
@@ -274,15 +274,6 @@
     },
     {
       "rank": 30,
-      "id": 12,
-      "iso2": "dz",
-      "name": "Algeria",
-      "pts": 1772,
-      "fifaMember": true,
-      "weirdo": false
-    },
-    {
-      "rank": 30,
       "id": 643,
       "iso2": "ru",
       "name": "Russian Federation",
@@ -291,7 +282,7 @@
       "weirdo": false
     },
     {
-      "rank": 32,
+      "rank": 31,
       "id": 124,
       "iso2": "ca",
       "name": "Canada",
@@ -300,11 +291,20 @@
       "weirdo": false
     },
     {
-      "rank": 32,
+      "rank": 31,
       "id": 566,
       "iso2": "ng",
       "name": "Nigeria",
       "pts": 1767,
+      "fifaMember": true,
+      "weirdo": false
+    },
+    {
+      "rank": 33,
+      "id": 12,
+      "iso2": "dz",
+      "name": "Algeria",
+      "pts": 1759,
       "fifaMember": true,
       "weirdo": false
     },
@@ -463,10 +463,10 @@
     },
     {
       "rank": 52,
-      "id": 400,
-      "iso2": "jo",
-      "name": "Jordan",
-      "pts": 1680,
+      "id": 180,
+      "iso2": "cd",
+      "name": "Congo, The Democratic Republic of the",
+      "pts": 1674,
       "fifaMember": true,
       "weirdo": false
     },
@@ -490,10 +490,10 @@
     },
     {
       "rank": 55,
-      "id": 180,
-      "iso2": "cd",
-      "name": "Congo, The Democratic Republic of the",
-      "pts": 1652,
+      "id": 400,
+      "iso2": "jo",
+      "name": "Jordan",
+      "pts": 1653,
       "fifaMember": true,
       "weirdo": false
     },
