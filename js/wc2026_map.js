@@ -553,6 +553,56 @@ document.querySelectorAll('#bottomTabList button[data-tab]').forEach(btn => {
   btn.addEventListener('click', () => _switchTab(btn.dataset.tab));
 });
 
+// ── Swipe between tabs on mobile ──
+{
+  const _tabContent = document.getElementById('bottomTabContent');
+  const _TAB_IDS = ['tab-elo', 'tab-players', 'tab-chain'];
+  const _availableTabs = () => _TAB_IDS.filter(id => {
+    if (id === 'tab-players') return document.getElementById('tab-players-btn')?.classList.contains('dim-selected');
+    return true;
+  });
+  const _btnRect = id => {
+    const btn = document.getElementById(id + '-btn');
+    if (!btn) return null;
+    const pill = btn.querySelector('.elo-item');
+    return (pill || btn).getBoundingClientRect();
+  };
+  let _swipeX0 = null, _swipeCurIdx = -1, _swipeAvail = [], _swipeOrigin = null;
+  _tabContent.addEventListener('touchstart', e => {
+    _swipeX0 = e.touches[0].clientX;
+    _swipeAvail = _availableTabs();
+    const activeTab = _tabNav.querySelector('.nav-link.active')?.dataset.tab;
+    _swipeCurIdx = _swipeAvail.indexOf(activeTab);
+    _swipeOrigin = _swipeCurIdx >= 0 ? _btnRect(_swipeAvail[_swipeCurIdx]) : null;
+  }, { passive: true });
+  _tabContent.addEventListener('touchmove', e => {
+    if (_swipeX0 == null || _swipeCurIdx < 0 || !_swipeOrigin) return;
+    const dx = e.touches[0].clientX - _swipeX0;
+    const dir = dx < 0 ? 1 : -1;
+    const targetIdx = _swipeCurIdx + dir;
+    if (targetIdx < 0 || targetIdx >= _swipeAvail.length) return;
+    const targetRect = _btnRect(_swipeAvail[targetIdx]);
+    if (!targetRect) return;
+    const navRect = _tabNav.getBoundingClientRect();
+    const t = Math.min(1, Math.abs(dx) / 80);
+    const fromL = _swipeOrigin.left - navRect.left, fromW = _swipeOrigin.width;
+    const toL = targetRect.left - navRect.left, toW = targetRect.width;
+    _tabIndicator.style.transition = 'none';
+    _tabIndicator.style.left = (fromL + (toL - fromL) * t) + 'px';
+    _tabIndicator.style.width = (fromW + (toW - fromW) * t) + 'px';
+  }, { passive: true });
+  _tabContent.addEventListener('touchend', e => {
+    if (_swipeX0 == null) return;
+    const dx = e.changedTouches[0].clientX - _swipeX0;
+    _swipeX0 = null;
+    _tabIndicator.style.transition = '';
+    if (Math.abs(dx) < 50 || _swipeCurIdx < 0) { _positionIndicator(); return; }
+    const next = _swipeCurIdx + (dx < 0 ? 1 : -1);
+    if (next >= 0 && next < _swipeAvail.length) _switchTab(_swipeAvail[next]);
+    else _positionIndicator();
+  }, { passive: true });
+}
+
 let _chainResizeTimer = null;
 window.addEventListener('resize', () => {
   _syncMapHeight();
