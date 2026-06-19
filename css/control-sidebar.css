@@ -95,6 +95,7 @@
 }
 #control-sidebar .csb-sort-item { cursor: pointer; padding: 0; }
 #control-sidebar .csb-sort-item:first-of-type { text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
+#control-sidebar .csb-sort-item:nth-child(n+3 of .csb-sort-item) { color: #bbb; }
 #control-sidebar .csb-sort-item:hover { background: var(--bg-hover); color: #555; }
 
 /* ── Sort direction button ─────────────────────────────────────────────── */
