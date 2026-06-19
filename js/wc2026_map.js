@@ -1011,6 +1011,7 @@ const applySelection = (id, destIds) => {
     _saveAccState(ptEl);
     render(playerTableTemplate(id), ptEl);
     _restoreAccState(ptEl);
+    window.scrollTo({ top: 0 });
   }
 
   // Tab button pill + close
