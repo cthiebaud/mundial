@@ -85,15 +85,49 @@ const _esPrep   = name => (name?.startsWith('Estados Unidos') || name?.startsWit
 // Spanish definite article for use after non-contracting prepositions (por los)
 const _esDefArt = name => (name?.startsWith('Estados Unidos') || name?.startsWith('Países Bajos')) ? 'los '   : '';
 
-const _CID_QUOTE  = 'Aux âmes bien nées, la sélection ne dépend point du lieu de naissance.';
-const _CID_AUTHOR = 'Pierre Corneille';
-
+const _actRef = (act, sc, char) => ({
+  fr: `Acte ${act}, sc. ${sc}${char ? ` (${char})` : ''}`,
+  it: `Atto ${act}, sc. ${sc}${char ? ` (${char})` : ''}`,
+  de: `Akt ${act}, Sz. ${sc}${char ? ` (${char})` : ''}`,
+  es: `Acto ${act}, esc. ${sc}${char ? ` (${char === 'Don Rodrigue' ? 'Don Rodrigo' : char})` : ''}`,
+  en: `Act ${act}, sc. ${sc}${char ? ` (${char})` : ''}`,
+});
+const _QUOTES = [
+  { text: 'Aux âmes bien nées, la sélection ne dépend point du lieu de naissance.',
+    author: 'Pierre Corneille', work: 'Le Cid', ref: _actRef('II', '2', 'Don Rodrigue'), date: '1637' },
+  { text: 'Rien ne sert de naître, il faut être sélectionné.',
+    author: 'Jean de La Fontaine', work: 'Fables', ref: 'Le Lièvre et la Tortue (VI, 10)', date: '1668' },
+  { text: 'La sélection du plus fort est toujours la meilleure.',
+    author: 'Jean de La Fontaine', work: 'Fables', ref: "Le Loup et l'Agneau (I, 10)", date: '1668' },
+  { text: "Un homme qui doute de lui-même est comme un homme qui serait sélectionné par un autre pays.",
+    author: 'Alexandre Dumas fils', work: 'Les Trois Mousquetaires', ref: '', date: '1844' },
+  { text: 'On ne naît pas sélectionné, on le devient.',
+    author: 'Simone de Beauvoir', work: 'Le Deuxième Sexe', ref: 't. II', date: '1949' },
+  { text: "La sélection, c'est le vol.",
+    author: 'Pierre-Joseph Proudhon', work: "Qu'est-ce que la propriété ?", ref: '', date: '1840' },
+  { text: "Longtemps, j'ai été sélectionné de bonne heure.",
+    author: 'Marcel Proust', work: 'Du côté de chez Swann', ref: '', date: '1913' },
+  { text: 'Il faut imaginer le sélectionné heureux.',
+    author: 'Albert Camus', work: 'Le Mythe de Sisyphe', ref: '', date: '1942' },
+  { text: "Il calcio è l'ultima rappresentazione sacra del nostro tempo.",
+    author: 'Pier Paolo Pasolini',
+    work: { fr: 'article paru dans Il Giorno', it: 'articolo pubblicato su Il Giorno', de: 'Artikel erschienen in Il Giorno', es: 'artículo publicado en Il Giorno', en: 'article published in Il Giorno' },
+    ref: { fr: '3 janvier', it: '3 gennaio', de: '3. Januar', es: '3 de enero', en: 'January 3' }, date: '1971' },
+];
+const _Q = { fr: t => `« ${t} »`, it: t => `«${t}»`, de: t => `„${t}“`, es: t => `«${t}»`, en: t => `‘${t}’` };
+const _SEP = { fr: ' — ', it: ' — ', de: ' – ', es: ' — ', en: ' – ' };
+const _fmtQuotes = lang => _QUOTES.map(q => ({
+  text: _Q[lang](q.text), author: q.author,
+  work: typeof q.work === 'object' ? (q.work[lang] ?? q.work.fr) : q.work,
+  ref: typeof q.ref === 'object' ? (q.ref[lang] ?? q.ref.fr) : q.ref,
+  sep: _SEP[lang], date: q.date,
+}));
 // UI label strings
 export const T = {
   fr: {
     pageHeading:    'Lieu de naissance des joueurs du Mondial 2026',
     pageDescription: 'Carte choroplèthe du Mondial 2026 — pays de naissance des joueurs, dont certains jouent pour un autre pays.',
-    pageQuote: { text: `« ${_CID_QUOTE} »`, author: _CID_AUTHOR, work: 'Le Cid', ref: 'Acte II, sc. 2 (Don Rodrigue)', sep: ' — ', date: '1637' },
+    pageQuotes: _fmtQuotes('fr'),
     pageSub:       n => `${n} joueurs au total · source : Wikipedia`,
     mapAriaLabel:  'Carte choroplèthe des pays de naissance des joueurs du Mondial 2026',
 
@@ -131,7 +165,7 @@ export const T = {
   it: {
     pageHeading:    'Luogo di nascita dei giocatori dei Mondiali 2026',
     pageDescription: 'Mappa coropletica dei Mondiali 2026 — paesi di nascita dei giocatori, alcuni dei quali giocano per un altro paese.',
-    pageQuote: { text: `«${_CID_QUOTE}»`, author: _CID_AUTHOR, work: 'Le Cid', ref: 'Atto II, sc. 2 (Don Rodrigue)', sep: ' — ', date: '1637' },
+    pageQuotes: _fmtQuotes('it'),
     pageSub:       n => `${n} giocatori in totale · fonte: Wikipedia`,
     mapAriaLabel:  'Mappa coropletica dei paesi di nascita dei giocatori dei Mondiali 2026',
 
@@ -169,7 +203,7 @@ export const T = {
   de: {
     pageHeading:    'Geburtsort der Spieler der WM 2026',
     pageDescription: 'Choroplethenkarte der WM 2026 — Geburtsländer der Spieler, darunter einige, die für ein anderes Land spielen.',
-    pageQuote: { text: `„${_CID_QUOTE}“`, author: _CID_AUTHOR, work: 'Le Cid', ref: 'Akt II, Sz. 2 (Don Rodrigue)', sep: ' – ', date: '1637' },
+    pageQuotes: _fmtQuotes('de'),
     pageSub:       n => `${n} Spieler insgesamt · Quelle: Wikipedia`,
     mapAriaLabel:  'Choroplethenkarte der Geburtsländer der Spieler der WM 2026',
 
@@ -207,7 +241,7 @@ export const T = {
   es: {
     pageHeading:    'Lugar de nacimiento de los jugadores del Mundial 2026',
     pageDescription: 'Mapa coroplético del Mundial 2026 — países de nacimiento de los jugadores, algunos de los cuales juegan para otro país.',
-    pageQuote: { text: `«${_CID_QUOTE}»`, author: _CID_AUTHOR, work: 'El Cid', ref: 'Acto II, esc. 2 (Don Rodrigo)', sep: ' — ', date: '1637' },
+    pageQuotes: _fmtQuotes('es'),
     pageSub:       n => `${n} jugadores en total · fuente: Wikipedia`,
     mapAriaLabel:  'Mapa coroplético de los países de nacimiento de los jugadores del Mundial 2026',
 
@@ -245,7 +279,7 @@ export const T = {
   en: {
     pageHeading:    'Birthplace of 2026 World Cup Players',
     pageDescription: 'Choropleth map of the 2026 World Cup — birth countries of players, some of whom play for another country.',
-    pageQuote: { text: `‘${_CID_QUOTE}’`, author: _CID_AUTHOR, work: 'Le Cid', ref: 'Act II, sc. 2 (Don Rodrigue)', sep: ' – ', date: '1637' },
+    pageQuotes: _fmtQuotes('en'),
     pageSub:       n => `${n} players total · source: Wikipedia`,
     mapAriaLabel:  'Choropleth map of birth countries of 2026 World Cup players',
 

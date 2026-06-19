@@ -179,9 +179,10 @@ document.querySelector('meta[name="description"]')?.setAttribute('content', T.pa
 ['page-heading-sub'].forEach(id => {
   const el = document.getElementById(id);
   if (!el) return;
-  const q = T.pageQuote;
+  const quotes = T.pageQuotes;
+  const q = quotes[Math.floor(Math.random() * quotes.length)];
   el.querySelector('.pq-text').innerHTML = q.text;
-  el.querySelector('.pq-attr').innerHTML = `<span class="pq-author">${q.author}</span>${q.sep}<cite>${q.work}</cite>, ${q.ref} <time datetime="${q.date}">${q.date}</time>`;
+  el.querySelector('.pq-attr').innerHTML = `<span class="pq-author">${q.author}</span>${q.sep}<cite>${q.work}</cite>${q.ref ? ', ' + q.ref : ''} <time datetime="${q.date}">${q.date}</time>`;
 });
 const _zoomHintEl = document.getElementById('zoom-hint');
 _zoomHintEl.textContent = T.zoomHint;
