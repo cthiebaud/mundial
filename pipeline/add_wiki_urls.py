@@ -38,7 +38,16 @@ for table in soup.find_all("table", class_=re.compile(r"wikitable")):
             if name and title:
                 name_to_title[name] = title
 
-print(f"  {len(name_to_title)} linked names found")
+# Also load coach wiki titles from coaches CSV
+import csv
+COACHES_CSV = Path(__file__).parent / "wc2026_coaches.csv"
+if COACHES_CSV.exists():
+    with open(COACHES_CSV, encoding="utf-8-sig") as f:
+        for row in csv.DictReader(f):
+            if row.get("wiki_title") and row.get("coach"):
+                name_to_title[row["coach"]] = row["wiki_title"]
+
+print(f"  {len(name_to_title)} linked names found (incl. coaches)")
 
 # ── Step 2: load JSON, collect titles used by actual players ──────────────────
 with open(JSON_PATH, encoding="utf-8") as f:

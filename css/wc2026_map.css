@@ -104,6 +104,7 @@ body { padding-bottom: 48px; } /* fallback; JS ResizeObserver overrides */
 .pt-caps { color: var(--text-muted); font-size: 11px; }
 .pt-wiki { color: inherit; border-bottom: 1px dotted var(--text-muted); }
 .pt-wiki:hover { border-bottom-color: #7b2d8b; color: #7b2d8b; }
+.coach-badge { font-size: 9px; font-weight: 600; color: #7b6b3a; background: #f5ecd0; border-radius: 3px; padding: 0 4px; margin-left: 4px; vertical-align: middle; white-space: nowrap; }
 
 /* Elo ranking flow (elo-) */
 .elo-header { display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px; }

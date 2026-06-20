@@ -879,12 +879,14 @@ const _updateSelectionPanel = (onCollapsed) => {
 };
 const rankTag = name => { const r = app.eloRank[name]; return r ? html`<span class="tt-rank fw-normal text-nowrap">Elo #${r}</span>` : nothing; };
 const flagImg = code => code ? html`<img class="tt-flag rounded-circle flex-shrink-0" src="${FLAG_CDN(code)}">` : nothing;
+const coachBadge = p => p.role === 'coach' ? html`<span class="coach-badge">${T.coach}</span>` : nothing;
 const ptWikiRow = p => {
   const url    = wikiUrl(p);
   const wikiEn = p.wiki_langs?.en ?? null;
-  return url    ? html`<a href="${url}" target="_blank" rel="noopener" class="pt-wiki text-decoration-none">${p.name}</a>`
-       : wikiEn ? html`${p.name} (<a href="${wikiEn}" target="_blank" rel="noopener" class="pt-wiki text-decoration-none">en</a>)`
-       : p.name;
+  const badge  = coachBadge(p);
+  return url    ? html`<a href="${url}" target="_blank" rel="noopener" class="pt-wiki text-decoration-none">${p.name}</a>${badge}`
+       : wikiEn ? html`${p.name} (<a href="${wikiEn}" target="_blank" rel="noopener" class="pt-wiki text-decoration-none">en</a>)${badge}`
+       : html`${p.name}${badge}`;
 };
 
 const SQUAD_SIZE = { 40: 25, 124: 25 }; // Austria, Canada — injuries reduced squad to 25
@@ -910,7 +912,7 @@ const buildImportColHtml = countryId => {
     <div class="tt-players ${players.length > 5 ? 'tt-more' : ''}">
       ${top.map(p => html`
         <div class="tt-player">
-          <span>${p.name}</span>
+          <span>${p.name}${coachBadge(p)}</span>
           <span class="tt-country text-nowrap"><span class="color-imp">←</span> ${countryName(p.birthCountryId, p.birthCountry)}</span>
         </div>`)}
     </div>`;
@@ -977,7 +979,7 @@ const playerTableTemplate = sourceId => {
                 ${gp.map(p => html`
                   <div class="pt-player-row d-flex justify-content-between align-items-center">
                     <span>${ptWikiRow(p)}</span>
-                    <span class="pt-caps text-nowrap">${p.caps} ${T.caps}</span>
+                    <span class="pt-caps text-nowrap">${p.role === 'coach' ? T.coach : html`${p.caps} ${T.caps}`}</span>
                   </div>`)}`;
             })}
           </div>
@@ -996,7 +998,7 @@ const playerTableTemplate = sourceId => {
             ${nativePlayers.map(p => html`
               <div class="pt-player-row d-flex justify-content-between align-items-center">
                 <span>${ptWikiRow(p)}</span>
-                <span class="pt-caps text-nowrap">${p.caps} ${T.caps}</span>
+                <span class="pt-caps text-nowrap">${p.role === 'coach' ? T.coach : html`${p.caps} ${T.caps}`}</span>
               </div>`)}
           </div>
         </div>` : nothing}
@@ -1023,7 +1025,7 @@ const playerTableTemplate = sourceId => {
                 ${gp.map(p => html`
                   <div class="pt-player-row d-flex justify-content-between align-items-center">
                     <span>${ptWikiRow(p)}</span>
-                    <span class="pt-caps text-nowrap">${p.caps} ${T.caps}</span>
+                    <span class="pt-caps text-nowrap">${p.role === 'coach' ? T.coach : html`${p.caps} ${T.caps}`}</span>
                   </div>`)}`;
             })}
           </div>
@@ -1243,7 +1245,9 @@ DATA.forEach(rec => {
     if (nId == null) return;
     if (countryName(rec.id, rec.country) === countryName(nId, QUALIFIED_NAMES[nId])) return;
     if (!app.importByCountry[nId]) app.importByCountry[nId] = [];
-    app.importByCountry[nId].push({ name: p.name, birthCountry: rec.country, birthCountryId: rec.id, caps: p.caps, wiki_langs: p.wiki_langs });
+    const imp = { name: p.name, birthCountry: rec.country, birthCountryId: rec.id, caps: p.caps, wiki_langs: p.wiki_langs };
+    if (p.role) imp.role = p.role;
+    app.importByCountry[nId].push(imp);
   });
 });};
 
@@ -1272,7 +1276,7 @@ const showExportTip = (event, id) => {
       <div class="tt-players ${rec.count > rec.top.length ? 'tt-more' : ''}">
         ${rec.top.map(p => html`
           <div class="tt-player">
-            <span>${p.name}</span>
+            <span>${p.name}${coachBadge(p)}</span>
             <span class="tt-country text-nowrap"><span class="color-exp">→</span> ${countryName(QUALIFIED_BY_NAME[p.nation], p.nation)}</span>
           </div>`)}
       </div>`;
@@ -1317,7 +1321,7 @@ const showImportTip = (event, destId) => {
       </div>
       <div class="tt-countries mb-0 fst-italic"><span class="color-exp">←</span> ${countryName(dimState.sourceId, srcRec.country)} (${allPlayers.length})</div>
       <div class="tt-players ${allPlayers.length > 5 ? 'tt-more' : ''}">
-        ${players.map(p => html`<div class="tt-player"><span>${p.name}</span></div>`)}
+        ${players.map(p => html`<div class="tt-player"><span>${p.name}${coachBadge(p)}</span></div>`)}
       </div>
       ${allPlayers.length > 5 ? html`<div class="tt-more-label text-end">${T.clickForAll}</div>` : nothing}`, tt);
   }
@@ -1344,7 +1348,7 @@ const showImportSourceTip = (event, centroidId) => {
       </div>
       <div class="tt-countries mb-0 fst-italic"><span class="color-imp">→</span> ${countryName(dimState.sourceId, QUALIFIED_NAMES[dimState.sourceId])} (${allPlayers.length})</div>
       <div class="tt-players ${allPlayers.length > 5 ? 'tt-more' : ''}">
-        ${players.map(p => html`<div class="tt-player"><span>${p.name}</span></div>`)}
+        ${players.map(p => html`<div class="tt-player"><span>${p.name}${coachBadge(p)}</span></div>`)}
       </div>
       ${allPlayers.length > 5 ? html`<div class="tt-more-label text-end">${T.clickForAll}</div>` : nothing}`, tt);
   }
@@ -1376,13 +1380,13 @@ const showCombinedTip = (event, id) => {
       ${exportPlayers.length > 0 ? html`
         <div class="tt-countries mb-0 fst-italic"><span class="color-imp">→</span> ${countryName(dimState.sourceId, QUALIFIED_NAMES[dimState.sourceId])} (${exportPlayers.length})</div>
         <div class="tt-players ${exportPlayers.length > 5 ? 'tt-more' : ''}">
-          ${topExp.map(p => html`<div class="tt-player"><span>${p.name}</span></div>`)}
+          ${topExp.map(p => html`<div class="tt-player"><span>${p.name}${coachBadge(p)}</span></div>`)}
         </div>` : nothing}
       ${hasBoth ? html`<div class="tt-divider"></div>` : nothing}
       ${importPlayers.length > 0 ? html`
         <div class="tt-countries mb-0 fst-italic"><span class="color-exp">←</span> ${countryName(dimState.sourceId, srcRec.country)} (${importPlayers.length})</div>
         <div class="tt-players ${importPlayers.length > 5 ? 'tt-more' : ''}">
-          ${topImp.map(p => html`<div class="tt-player"><span>${p.name}</span></div>`)}
+          ${topImp.map(p => html`<div class="tt-player"><span>${p.name}${coachBadge(p)}</span></div>`)}
         </div>` : nothing}
       ${exportPlayers.length > 5 || importPlayers.length > 5 ? html`<div class="tt-more-label text-end">${exportPlayers.length > 5 && importPlayers.length > 5 ? T.clickForAllPlural : T.clickForAll}</div>` : nothing}`, tt);
   }

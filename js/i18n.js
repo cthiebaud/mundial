@@ -180,6 +180,7 @@ export const T = {
     pop:           'pop.',
     cap:           'cap.',
     caps:          'sél.',
+    coach:         'sélectionneur',
     players:       n => `joueur${n > 1 ? 's' : ''}`,
     exported:      (n, name) => `joueur${n > 1 ? 's' : ''} né${n > 1 ? 's' : ''} ${name ? _frPrep(name) + ' ' + name : 'ici'}`,
 
@@ -218,6 +219,7 @@ export const T = {
     pop:           'ab.',
     cap:           'cap.',
     caps:          'pres.',
+    coach:         'allenatore',
     players:       n => `giocator${n === 1 ? 'e' : 'i'}`,
     exported:      (n, name) => `giocator${n === 1 ? 'e nato' : 'i nati'}${name ? ' ' + _itPrep(name) + ' ' + name : ' qui'}`,
 
@@ -256,6 +258,7 @@ export const T = {
     pop:           'Einw.',
     cap:           'Hptst.',
     caps:          'Sp.',
+    coach:         'Trainer',
     players:       () => 'Spieler',
     exported:      (n, name) => name ? 'in ' + name + (n === 1 ? ' geborener Spieler' : ' geborene Spieler') : (n === 1 ? 'hier geborener Spieler' : 'hier geborene Spieler'),
 
@@ -294,6 +297,7 @@ export const T = {
     pop:           'pob.',
     cap:           'cap.',
     caps:          'int.',
+    coach:         'entrenador',
     players:       n => `jugador${n === 1 ? '' : 'es'}`,
     exported:      (n, name) => `jugador${n === 1 ? '' : 'es'} nacido${n === 1 ? '' : 's'}${name ? ' ' + _esPrep(name) + ' ' + name : ' aquí'}`,
 
@@ -332,6 +336,7 @@ export const T = {
     pop:           'pop.',
     cap:           'cap.',
     caps:          'caps',
+    coach:         'coach',
     players:       n => `player${n > 1 ? 's' : ''}`,
     exported:      (n, name) => `player${n > 1 ? 's' : ''} born${name ? ' in ' + name : ' here'}`,
 
