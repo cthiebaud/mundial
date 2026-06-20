@@ -4,58 +4,6 @@
 # joueurs nes dans un pays, selectionnes par un autre.
 
 done:
-  - original: "Aux ames bien nees, la valeur n'attend point le nombre des annees."
-    detournement: "Aux ames bien nees, la selection ne depend point du lieu de naissance."
-    author: Pierre Corneille
-    work: Le Cid
-    ref: "Acte II, sc. 2 (Don Rodrigue)"
-    date: 1637
-
-  - original: "Rien ne sert de courir, il faut partir a point."
-    detournement: "Rien ne sert de naitre, il faut etre selectionne."
-    author: Jean de La Fontaine
-    work: Fables
-    ref: "Le Lievre et la Tortue (VI, 10)"
-    date: 1668
-
-  - original: "La raison du plus fort est toujours la meilleure."
-    detournement: "La selection du plus fort est toujours la meilleure."
-    author: Jean de La Fontaine
-    work: Fables
-    ref: "Le Loup et l'Agneau (I, 10)"
-    date: 1668
-
-  - original: "Un homme qui doute de lui-meme est comme un homme qui s'enrolerait dans l'armee ennemie."
-    detournement: "Un homme qui doute de lui-meme est comme un homme qui serait selectionne par un autre pays."
-    author: Alexandre Dumas fils
-    work: Les Trois Mousquetaires
-    date: 1844
-
-  - original: "On ne nait pas femme, on le devient."
-    detournement: "On ne nait pas selectionne, on le devient."
-    author: Simone de Beauvoir
-    work: Le Deuxieme Sexe
-    ref: t. II
-    date: 1949
-
-  - original: "La propriete, c'est le vol."
-    detournement: "La selection, c'est le vol."
-    author: Pierre-Joseph Proudhon
-    work: "Qu'est-ce que la propriete ?"
-    date: 1840
-
-  - original: "Longtemps, je me suis couche de bonne heure."
-    detournement: "Longtemps, j'ai ete selectionne de bonne heure."
-    author: Marcel Proust
-    work: "Du cote de chez Swann"
-    date: 1913
-
-  - original: "Il faut imaginer Sisyphe heureux."
-    detournement: "Il faut imaginer le selectionne heureux."
-    author: Albert Camus
-    work: Le Mythe de Sisyphe
-    date: 1942
-
   - original: "Il calcio e l'ultima rappresentazione sacra del nostro tempo."
     detournement: same (the quote itself fits the theme)
     note: In Italian, not French — kept in original language
@@ -63,97 +11,22 @@ done:
     work: Il Giorno
     date: 1971
 
-  # Poesie medievale & Renaissance
-  - original: "Mais ou sont les neiges d'antan ?"
-    detournement: "Mais ou sont les sélections d'antan ?"
-    author: "Francois Villon"
-    work: "Ballade des dames du temps jadis"
-    date: 1461
-
 pending:
   - original: "En mon pays suis en terre lointaine."
     author: "Francois Villon"
     work: "Ballade du concours de Blois"
     date: ~1458
 
-  - original: "Je meurs de soif aupres de la fontaine."
-    author: "Charles d'Orleans"
-    work: Ballades
-    date: ~1450
-
-  - original: "Heureux qui, comme Ulysse, a fait un beau voyage."
-    author: "Joachim du Bellay"
-    work: Les Regrets
-    date: 1558
-
-  - original: "France, mere des arts, des armes et des lois."
-    author: "Joachim du Bellay"
-    work: Les Regrets
-    date: 1558
-
-  - original: "Fais ce que voudras."
-    author: "Francois Rabelais"
-    work: Gargantua
-    date: 1534
-
   - original: "Parce que c'etait lui, parce que c'etait moi."
     author: "Michel de Montaigne"
     work: Essais
     date: 1580
-
-  - original: "Il faut voyager pour frotter et limer sa cervelle contre celle d'autrui."
-    author: "Michel de Montaigne"
-    work: Essais
-    date: 1580
-
-  - original: "Chacun appelle barbarie ce qui n'est pas de son usage."
-    author: "Michel de Montaigne"
-    work: Essais
-    date: 1580
-
-  # XVIIe siecle
-  - original: "L'hypocrisie est un hommage que le vice rend a la vertu."
-    author: "Francois de La Rochefoucauld"
-    work: Maximes
-    date: 1665
-
-  - original: "Nous avons tous assez de force pour supporter les maux d'autrui."
-    author: "Francois de La Rochefoucauld"
-    work: Maximes
-    date: 1665
 
   - original: "Patience et longueur de temps font plus que force ni que rage."
     author: "Jean de La Fontaine"
     work: Fables
     ref: "Le Lion et le Rat"
     date: 1668
-
-  - original: "Je plie et ne romps pas."
-    author: "Jean de La Fontaine"
-    work: Fables
-    ref: "Le Chene et le Roseau"
-    date: 1668
-
-  - original: "Les gens de qualite savent tout sans avoir jamais rien appris."
-    author: Moliere
-    work: Les Precieuses ridicules
-    date: 1659
-
-  # XVIIIe siecle
-  - original: "Le superflu, chose tres necessaire."
-    author: Voltaire
-    work: Le Mondain
-    date: 1736
-
-  - original: "Le mieux est l'ennemi du bien."
-    author: Voltaire
-    work: "La Begueule"
-    date: 1772
-
-  - original: "Le premier qui, ayant enclos un terrain, s'avisa de dire : Ceci est a moi, fut le vrai fondateur de la societe civile."
-    author: "Jean-Jacques Rousseau"
-    work: "Discours sur l'inegalite"
-    date: 1755
 
   - original: "De l'audace, encore de l'audace, toujours de l'audace !"
     author: "Georges Jacques Danton"

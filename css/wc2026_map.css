@@ -37,7 +37,7 @@ body { background: #f5f2ec; color: var(--color-default); }
 .pq-cur { position: relative; }
 .pq-icons { position: relative; z-index: 0; }
 .pq-dots { display: flex; gap: 5px; margin-top: auto; padding-top: 4px; }
-.pq-dot { width: 5px; height: 5px; border-radius: 50%; background: #ccc; transition: background .25s; }
+.pq-dot { width: 5px; height: 5px; border-radius: 50%; background: #ccc; transition: background .25s; cursor: pointer; }
 .pq-dot.active { background: #888; }
 body { padding-bottom: 48px; } /* fallback; JS ResizeObserver overrides */
 #bottom-panel {

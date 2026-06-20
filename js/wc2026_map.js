@@ -182,8 +182,24 @@ const _pqWrap = document.querySelector('#page-heading-sub .pq-wrap');
 const _pqPrev = _pqWrap.querySelector('.pq-prev');
 const _pqCur  = _pqWrap.querySelector('.pq-cur');
 const _pqDotsEl = document.querySelector('#page-heading-sub .pq-dots');
-_pqDotsEl.innerHTML = _quotes.map((_, i) => `<span class="pq-dot${i === _quoteIdx ? ' active' : ''}"></span>`).join('');
+_pqDotsEl.innerHTML = _quotes.map((_, i) => `<span class="pq-dot${i === _quoteIdx ? ' active' : ''}" data-idx="${i}"></span>`).join('');
 const _pqDots = _pqDotsEl.querySelectorAll('.pq-dot');
+_pqDotsEl.addEventListener('click', e => {
+  const dot = e.target.closest('.pq-dot');
+  if (!dot) return;
+  const idx = Number(dot.dataset.idx);
+  if (idx === _quoteIdx) return;
+  _quoteIdx = idx;
+  _fillPanel(_pqCur, _quoteIdx);
+  _fillPanel(_pqPrev, _prevIdx());
+  _pqDots.forEach((d, i) => d.classList.toggle('active', i === _quoteIdx));
+  if (_pageHeader) {
+    requestAnimationFrame(() => {
+      document.documentElement.style.setProperty('--page-header-h', _pageHeader.offsetHeight + 'px');
+      _syncPaddingTop();
+    });
+  }
+});
 const _fmtAttr = q => `<span class="pq-author">${q.author}</span>${q.sep}<cite>${q.work}</cite>${q.ref ? ', ' + q.ref : ''} <time datetime="${q.date}">${q.date}</time>`;
 const _fillPanel = (panel, idx) => {
   const q = _quotes[idx];
@@ -253,6 +269,29 @@ _fillPanel(_pqPrev, _prevIdx());
     }, 220);
   });
   hdr.addEventListener('touchcancel', () => { x0 = null; dragging = false; clearDrag(); });
+}
+{
+  let _lpTimer = null, _lpActive = false;
+  const _lpShow = () => {
+    const q = _quotes[_quoteIdx];
+    if (!q.original) return;
+    _lpActive = true;
+    _pqCur.querySelector('.pq-text').innerHTML = q.original;
+  };
+  const _lpHide = () => {
+    if (!_lpActive) return;
+    _lpActive = false;
+    _pqCur.querySelector('.pq-text').innerHTML = _quotes[_quoteIdx].text;
+  };
+  const _lpCancel = () => { clearTimeout(_lpTimer); _lpTimer = null; };
+  const phs = document.getElementById('page-heading-sub');
+  phs.addEventListener('touchstart', () => {
+    _lpCancel();
+    _lpTimer = setTimeout(_lpShow, 500);
+  }, { passive: true });
+  phs.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('touchend', () => { _lpCancel(); _lpHide(); });
+  document.addEventListener('touchcancel', () => { _lpCancel(); _lpHide(); });
 }
 const _zoomHintEl = document.getElementById('zoom-hint');
 _zoomHintEl.textContent = T.zoomHint;
