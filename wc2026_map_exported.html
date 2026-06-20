@@ -32,7 +32,20 @@
 <link rel="stylesheet" href="css/taxonomy.css">
 </head>
 <body>
-<header id="page-header" class="container-xxl px-0">
+<nav id="auth-bar" class="navbar navbar-light bg-white border-bottom py-0 px-2" style="position:fixed;top:0;left:0;right:0;z-index:1050;height:32px">
+  <div class="container-xxl d-flex align-items-center justify-content-between px-1">
+    <a id="admin-link" href="#" target="_blank" class="text-muted small text-decoration-none d-none">Admin</a>
+    <span></span>
+    <div class="d-flex align-items-center gap-2">
+      <button id="auth-signed-out" class="btn btn-link btn-sm text-muted p-0" style="font-size:11px;text-decoration:none">sign in</button>
+      <div id="auth-signed-in" class="d-none d-flex align-items-center gap-1">
+        <img id="auth-pic" class="rounded-circle" width="22" height="22" style="cursor:default" alt="" referrerpolicy="no-referrer">
+        <button id="auth-logout" class="btn btn-link btn-sm text-muted p-0" style="font-size:11px;text-decoration:none">sign out</button>
+      </div>
+    </div>
+  </div>
+</nav>
+<header id="page-header" class="container-xxl px-0" style="margin-top:32px">
   <div id="page-heading-sub" class="mx-3">
   <div>
     <div class="pq-wrap">
@@ -119,5 +132,64 @@
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
 <script type="module" src="js/wc2026_map.js"></script>
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
+<script>
+(async function() {
+  const authBar = document.getElementById('auth-bar');
+  authBar.style.display = 'none';
+  document.querySelector('#page-header').style.marginTop = '0';
+
+  let BACKEND = '';
+  try {
+    const cfg = await fetch('./backend_config.json').then(r => r.json());
+    BACKEND = cfg.backend_url;
+    if (!BACKEND) return;
+    await fetch(BACKEND + '/api/auth/me', {credentials: 'include', signal: AbortSignal.timeout(3000)});
+  } catch { return; }
+
+  authBar.style.display = '';
+  document.querySelector('#page-header').style.marginTop = '32px';
+
+  function showUser(user, isAdmin) {
+    document.getElementById('auth-signed-out').classList.add('d-none');
+    document.getElementById('auth-signed-in').classList.remove('d-none');
+    document.getElementById('auth-pic').src = user.picture;
+    document.getElementById('auth-pic').title = user.name;
+    const adminLink = document.getElementById('admin-link');
+    if (isAdmin) { adminLink.classList.remove('d-none'); adminLink.href = BACKEND + '/admin'; }
+  }
+
+  // Restore from localStorage
+  const stored = localStorage.getItem('mundial_user');
+  if (stored) {
+    try {
+      const data = JSON.parse(stored);
+      const user = data.user ?? data;
+      const admin = data.admin ?? false;
+      showUser(user, admin);
+    } catch {}
+  }
+
+  // Sign in via popup on the backend origin
+  document.getElementById('auth-signed-out').addEventListener('click', () => {
+    window.open(BACKEND + '/login', 'mundial_login', 'width=420,height=500,left=200,top=200');
+  });
+
+  // Receive auth result from popup
+  window.addEventListener('message', e => {
+    if (e.data?.type === 'mundial_auth' && e.data.user) {
+      localStorage.setItem('mundial_user', JSON.stringify(e.data));
+      showUser(e.data.user, e.data.admin);
+    }
+  });
+
+  document.getElementById('auth-logout').addEventListener('click', async () => {
+    await fetch(BACKEND + '/api/auth/logout', {method: 'POST', credentials: 'include'}).catch(() => {});
+    localStorage.removeItem('mundial_user');
+    document.getElementById('auth-signed-in').classList.add('d-none');
+    document.getElementById('auth-signed-out').classList.remove('d-none');
+    document.getElementById('admin-link').classList.add('d-none');
+  });
+})();
+</script>
 </body>
 </html>
