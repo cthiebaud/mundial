@@ -182,7 +182,7 @@ const _pqWrap = document.querySelector('#page-heading-sub .pq-wrap');
 const _pqPrev = _pqWrap.querySelector('.pq-prev');
 const _pqCur  = _pqWrap.querySelector('.pq-cur');
 const _pqDotsEl = document.querySelector('#page-heading-sub .pq-dots');
-_pqDotsEl.innerHTML = _quotes.map((_, i) => `<span class="pq-dot${i === _quoteIdx ? ' active' : ''}" data-idx="${i}"></span>`).join('');
+_pqDotsEl.innerHTML = _quotes.map((_, i) => `<span class="pq-dot${i === _quoteIdx ? ' active' : ''}" data-idx="${i}">‹</span>`).join('');
 const _pqDots = _pqDotsEl.querySelectorAll('.pq-dot');
 _pqDotsEl.addEventListener('click', e => {
   const dot = e.target.closest('.pq-dot');
@@ -292,6 +292,12 @@ _fillPanel(_pqPrev, _prevIdx());
   phs.addEventListener('contextmenu', e => e.preventDefault());
   document.addEventListener('touchend', () => { _lpCancel(); _lpHide(); });
   document.addEventListener('touchcancel', () => { _lpCancel(); _lpHide(); });
+  phs.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    _lpCancel();
+    _lpTimer = setTimeout(_lpShow, 500);
+  });
+  document.addEventListener('mouseup', () => { _lpCancel(); _lpHide(); });
 }
 const _zoomHintEl = document.getElementById('zoom-hint');
 _zoomHintEl.textContent = T.zoomHint;
