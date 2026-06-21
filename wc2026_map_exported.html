@@ -140,8 +140,12 @@
 
   let BACKEND = '';
   try {
-    const cfg = await fetch('./backend_config.json').then(r => r.json());
-    BACKEND = cfg.backend_url;
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+      BACKEND = 'http://localhost:5002';
+    } else {
+      const cfg = await fetch('./backend_config.json').then(r => r.json());
+      BACKEND = cfg.backend_url;
+    }
     if (!BACKEND) return;
     await fetch(BACKEND + '/api/auth/me', {credentials: 'include', signal: AbortSignal.timeout(3000)});
   } catch { return; }
@@ -174,21 +178,63 @@
     window.open(BACKEND + '/login', 'mundial_login', 'width=420,height=500,left=200,top=200');
   });
 
-  // Receive auth result from popup
+  // Receive auth result or kick from popup/WebSocket
   window.addEventListener('message', e => {
     if (e.data?.type === 'mundial_auth' && e.data.user) {
       localStorage.setItem('mundial_user', JSON.stringify(e.data));
+      localStorage.setItem('mundial_sid', e.data.sid ?? '');
       showUser(e.data.user, e.data.admin);
+    }
+    if (e.data?.type === 'mundial_kicked') {
+      localStorage.removeItem('mundial_user');
+      document.getElementById('auth-signed-in').classList.add('d-none');
+      document.getElementById('auth-signed-out').classList.remove('d-none');
+      document.getElementById('admin-link').classList.add('d-none');
     }
   });
 
   document.getElementById('auth-logout').addEventListener('click', async () => {
-    await fetch(BACKEND + '/api/auth/logout', {method: 'POST', credentials: 'include'}).catch(() => {});
+    const sid = localStorage.getItem('mundial_sid');
+    const stored = localStorage.getItem('mundial_user');
+    const email = stored ? (JSON.parse(stored).user ?? JSON.parse(stored)).email : null;
+    await fetch(BACKEND + '/api/auth/logout', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      credentials: 'include',
+      body: JSON.stringify({sid, email})
+    }).catch(() => {});
     localStorage.removeItem('mundial_user');
     document.getElementById('auth-signed-in').classList.add('d-none');
     document.getElementById('auth-signed-out').classList.remove('d-none');
     document.getElementById('admin-link').classList.add('d-none');
   });
+
+  function signOut() {
+    localStorage.removeItem('mundial_user');
+    localStorage.removeItem('mundial_sid');
+    document.getElementById('auth-signed-in').classList.add('d-none');
+    document.getElementById('auth-signed-out').classList.remove('d-none');
+    document.getElementById('admin-link').classList.add('d-none');
+  }
+
+  // Listen for force-logout via WebSocket
+  const sioScript = document.createElement('script');
+  sioScript.src = 'https://cdn.jsdelivr.net/npm/socket.io-client@4/dist/socket.io.min.js';
+  sioScript.onload = () => {
+    const sock = io(BACKEND, {transports: ['websocket']});
+    sock.on('user_kicked', ({email, sid: kickedSid}) => {
+      const mySid = localStorage.getItem('mundial_sid');
+      const stored = localStorage.getItem('mundial_user');
+      if (!stored) return;
+      try {
+        const data = JSON.parse(stored);
+        const cur = (data.user ?? data).email;
+        if (kickedSid && mySid === kickedSid) signOut();
+        else if (!kickedSid && cur === email) signOut();
+      } catch {}
+    });
+  };
+  document.head.appendChild(sioScript);
 })();
 </script>
 </body>

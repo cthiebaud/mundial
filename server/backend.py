@@ -31,7 +31,7 @@ WebSocket events (admin):
     server → client: 'user_logout' {user}
 """
 
-import os, time, sys, json
+import os, time, sys, json, uuid, re
 from pathlib import Path
 from flask import Flask, jsonify, request, session, send_file
 from flask_socketio import SocketIO
@@ -53,6 +53,23 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 SERVER_DIR = Path(__file__).parent
 USERS_FILE = SERVER_DIR / "users.json"
+ONLINE_SESSIONS = {}  # session_id → {email, user, device, time}
+
+def _parse_device(ua):
+    ua = ua or ""
+    browser = "Unknown"
+    if "Edg/" in ua: browser = "Edge"
+    elif "Chrome/" in ua: browser = "Chrome"
+    elif "Safari/" in ua and "Chrome" not in ua: browser = "Safari"
+    elif "Firefox/" in ua: browser = "Firefox"
+    os_name = "Unknown"
+    if "Macintosh" in ua: os_name = "macOS"
+    elif "Windows" in ua: os_name = "Windows"
+    elif "iPhone" in ua: os_name = "iPhone"
+    elif "iPad" in ua: os_name = "iPad"
+    elif "Android" in ua: os_name = "Android"
+    elif "Linux" in ua: os_name = "Linux"
+    return f"{browser} / {os_name}"
 
 def _load_users():
     if USERS_FILE.exists():
@@ -78,6 +95,17 @@ def cached_get(path, params):
     data = r.json().get("response", [])
     CACHE[key] = {"data": data, "t": now}
     return data
+
+@app.before_request
+def handle_preflight():
+    if request.method == "OPTIONS":
+        response = app.make_default_options_response()
+        origin = request.headers.get("Origin", "*")
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+        return response
 
 @app.after_request
 def cors(response):
@@ -128,9 +156,15 @@ def auth_google():
     users[user["email"]] = user
     _save_users(users)
 
-    socketio.emit("user_login", user)
+    sid = str(uuid.uuid4())[:8]
+    device = _parse_device(request.headers.get("User-Agent"))
+    ONLINE_SESSIONS[sid] = {
+        "email": user["email"], "user": user, "device": device,
+        "time": user["last_login"], "sid": sid,
+    }
+    socketio.emit("user_login", {**user, "device": device, "sid": sid})
 
-    return jsonify({"user": user, "admin": user["email"] in ADMIN_EMAILS})
+    return jsonify({"user": user, "admin": user["email"] in ADMIN_EMAILS, "sid": sid})
 
 @app.route("/api/auth/me")
 def auth_me():
@@ -142,6 +176,18 @@ def auth_me():
 @app.route("/api/auth/logout", methods=["POST"])
 def auth_logout():
     user = session.pop("user", None)
+    data = request.json or {}
+    sid = data.get("sid")
+    email = data.get("email")
+    if sid and sid in ONLINE_SESSIONS:
+        entry = ONLINE_SESSIONS.pop(sid)
+        user = entry["user"]
+    elif email:
+        for k, v in list(ONLINE_SESSIONS.items()):
+            if v["email"] == email:
+                ONLINE_SESSIONS.pop(k)
+                user = v["user"]
+                break
     if user:
         socketio.emit("user_logout", user)
     return jsonify({"ok": True})
@@ -162,6 +208,32 @@ def admin_users():
     if not user or user["email"] not in ADMIN_EMAILS:
         return jsonify({"error": "forbidden"}), 403
     return jsonify(_load_users())
+
+@app.route("/api/admin/online")
+def admin_online():
+    user = session.get("user")
+    if not user or user["email"] not in ADMIN_EMAILS:
+        return jsonify({"error": "forbidden"}), 403
+    return jsonify(list(ONLINE_SESSIONS.values()))
+
+@app.route("/api/admin/kick", methods=["POST"])
+def admin_kick():
+    user = session.get("user")
+    if not user or user["email"] not in ADMIN_EMAILS:
+        return jsonify({"error": "forbidden"}), 403
+    sid = request.json.get("sid")
+    email = request.json.get("email")
+    if sid and sid in ONLINE_SESSIONS:
+        entry = ONLINE_SESSIONS.pop(sid)
+        socketio.emit("user_kicked", {"email": entry["email"], "sid": sid})
+    elif email:
+        for k, v in list(ONLINE_SESSIONS.items()):
+            if v["email"] == email:
+                ONLINE_SESSIONS.pop(k)
+        socketio.emit("user_kicked", {"email": email})
+    else:
+        return jsonify({"error": "missing sid or email"}), 400
+    return jsonify({"ok": True})
 
 if __name__ == "__main__":
     print(f"Proxy → {API_BASE}")

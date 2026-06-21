@@ -47,7 +47,7 @@ body { background: #f5f2ec; }
       <div id="activity-log" class="mb-3"></div>
       <table class="table table-sm table-hover">
         <thead>
-          <tr><th>Picture</th><th>Name</th><th>Email</th><th>Last login</th></tr>
+          <tr><th></th><th>Picture</th><th>Name</th><th>Email</th><th>Last login</th><th></th></tr>
         </thead>
         <tbody id="users-tbody"></tbody>
       </table>
@@ -100,25 +100,67 @@ function showUser(user, isAdmin) {
   }
 }
 
+let onlineSessions = [];
+
 async function loadUsers() {
-  const r = await fetch(`${BACKEND}/api/admin/users`, {credentials: 'include'});
-  if (!r.ok) return;
-  const users = await r.json();
+  const [usersR, onlineR] = await Promise.all([
+    fetch(`${BACKEND}/api/admin/users`, {credentials: 'include'}),
+    fetch(`${BACKEND}/api/admin/online`, {credentials: 'include'})
+  ]);
+  if (!usersR.ok) return;
+  const users = await usersR.json();
+  onlineSessions = onlineR.ok ? await onlineR.json() : [];
   renderUsers(users);
 }
 
 function renderUsers(users) {
   const tbody = document.getElementById('users-tbody');
+  const onlineEmails = new Set(onlineSessions.map(s => s.email));
+  const sessionsByEmail = {};
+  onlineSessions.forEach(s => {
+    if (!sessionsByEmail[s.email]) sessionsByEmail[s.email] = [];
+    sessionsByEmail[s.email].push(s);
+  });
+
   tbody.innerHTML = Object.values(users)
-    .sort((a, b) => (b.last_login ?? '').localeCompare(a.last_login ?? ''))
-    .map(u => `
-    <tr id="user-row-${CSS.escape(u.email)}">
-      <td><img src="${u.picture}" class="rounded-circle" width="28" height="28" alt=""></td>
+    .sort((a, b) => {
+      const aOn = onlineEmails.has(a.email) ? 1 : 0;
+      const bOn = onlineEmails.has(b.email) ? 1 : 0;
+      if (bOn !== aOn) return bOn - aOn;
+      return (b.last_login ?? '').localeCompare(a.last_login ?? '');
+    })
+    .flatMap(u => {
+      const sessions = sessionsByEmail[u.email] ?? [];
+      if (sessions.length === 0) {
+        return [`
+    <tr style="opacity:0.35">
+      <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ccc"></span></td>
+      <td><img src="${u.picture}" class="rounded-circle" width="28" height="28" alt="" referrerpolicy="no-referrer"></td>
       <td>${u.name}</td>
       <td>${u.email}</td>
       <td class="text-muted small">${u.last_login ?? '—'}</td>
-    </tr>
-  `).join('');
+      <td></td>
+    </tr>`];
+      }
+      return sessions.map((s, i) => `
+    <tr>
+      <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#198754"></span></td>
+      <td>${i === 0 ? `<img src="${u.picture}" class="rounded-circle" width="28" height="28" alt="" referrerpolicy="no-referrer">` : ''}</td>
+      <td>${i === 0 ? u.name : ''}</td>
+      <td><span class="text-muted small">${s.device}</span></td>
+      <td class="text-muted small">${s.time}</td>
+      <td><button class="btn btn-outline-danger btn-sm py-0 px-1" style="font-size:10px" onclick="kickSession('${s.sid}')">kick</button></td>
+    </tr>`);
+    }).join('');
+}
+
+async function kickSession(sid) {
+  await fetch(BACKEND + '/api/admin/kick', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    credentials: 'include',
+    body: JSON.stringify({sid})
+  });
 }
 
 function addActivity(type, user) {
@@ -154,11 +196,29 @@ function connectWebSocket() {
 
   socket.on('user_login', user => {
     addActivity('login', user);
+    onlineEmails.add(user.email);
     loadUsers();
   });
 
   socket.on('user_logout', user => {
     addActivity('logout', user);
+    onlineEmails.delete(user.email);
+    loadUsers();
+  });
+
+  socket.on('user_kicked', ({email}) => {
+    addActivity('logout', {name: email, picture: ''});
+    onlineEmails.delete(email);
+    loadUsers();
+    const myEmail = document.getElementById('user-email')?.textContent;
+    if (myEmail === email) {
+      fetch(BACKEND + '/api/auth/logout', {method: 'POST', credentials: 'include'}).catch(() => {});
+      document.getElementById('signed-in').classList.add('d-none');
+      document.getElementById('admin-section').classList.add('d-none');
+      document.getElementById('not-admin').classList.add('d-none');
+      document.getElementById('signed-out').classList.remove('d-none');
+      socket.disconnect();
+    }
   });
 }
 

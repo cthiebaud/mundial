@@ -56,7 +56,7 @@ async function onGoogleSignIn(response) {
     showUser(data.user);
     // If opened as popup, notify parent and close
     if (window.opener) {
-      window.opener.postMessage({type: 'mundial_auth', user: data.user, admin: data.admin}, '*');
+      window.opener.postMessage({type: 'mundial_auth', user: data.user, admin: data.admin, sid: data.sid}, '*');
       setTimeout(() => window.close(), 500);
     }
   }
@@ -85,6 +85,21 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
 });
 
 checkSession();
+
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/socket.io-client@4/dist/socket.io.min.js"></script>
+<script>
+const _sock = io(document.location.origin, {transports: ['websocket']});
+_sock.on('user_kicked', ({email}) => {
+  const cur = document.getElementById('user-email')?.textContent;
+  if (cur === email) {
+    fetch(document.location.origin + '/api/auth/logout', {method: 'POST', credentials: 'include'}).catch(() => {});
+    document.getElementById('signed-in').classList.add('d-none');
+    document.getElementById('signed-out').classList.remove('d-none');
+    if (window.opener) window.opener.postMessage({type: 'mundial_kicked', email}, '*');
+  }
+});
 </script>
 </body>
 </html>
