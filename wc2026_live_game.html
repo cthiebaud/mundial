@@ -241,18 +241,41 @@ sioScript.src = 'https://cdn.jsdelivr.net/npm/socket.io-client@4/dist/socket.io.
 sioScript.onload = () => {
   const sock = io(PROXY, {transports: ['websocket']});
 
+  const setPollStatus = (active) => {
+    if (active) {
+      badge.textContent = 'live';
+      badge.className = 'badge bg-success ms-auto';
+    } else {
+      badge.textContent = 'not active';
+      badge.className = 'badge bg-warning text-dark ms-auto';
+      document.getElementById('loading').classList.add('d-none');
+      document.getElementById('no-match').classList.remove('d-none');
+      document.getElementById('no-match').textContent = 'Live tracking is not active.';
+      document.getElementById('matches').innerHTML = '';
+    }
+  };
+
   sock.on('connect', async () => {
-    badge.textContent = 'live';
-    badge.className = 'badge bg-success ms-auto';
     try {
-      const fixtures = await fetch(`${PROXY}/api/live`, {headers: _h}).then(r => r.json());
-      renderFixtures(fixtures);
-    } catch {}
+      const [{active}, fixtures] = await Promise.all([
+        fetch(`${PROXY}/api/poll/active`, {headers: _h}).then(r => r.json()),
+        fetch(`${PROXY}/api/live`, {headers: _h}).then(r => r.json()),
+      ]);
+      setPollStatus(active);
+      if (active) renderFixtures(fixtures);
+    } catch {
+      badge.textContent = 'error';
+      badge.className = 'badge bg-danger ms-auto';
+    }
   });
 
   sock.on('disconnect', () => {
     badge.textContent = 'disconnected';
     badge.className = 'badge bg-danger ms-auto';
+  });
+
+  sock.on('poll_status', ({active}) => {
+    setPollStatus(active);
   });
 
   sock.on('live_update', (fixtures) => {
