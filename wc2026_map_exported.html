@@ -32,20 +32,9 @@
 <link rel="stylesheet" href="css/taxonomy.css">
 </head>
 <body>
-<nav id="auth-bar" class="navbar navbar-light bg-white border-bottom py-0 px-2" style="position:fixed;top:0;left:0;right:0;z-index:1050;height:32px">
-  <div class="container-xxl d-flex align-items-center px-1">
-    <a id="live-game-link" href="wc2026_live_game.html" class="text-muted small text-decoration-none">Live game</a>
-    <div class="d-flex align-items-center gap-2 ms-auto">
-      <a id="admin-link" href="#" target="_blank" class="text-muted small text-decoration-none d-none">Admin</a>
-      <button id="auth-signed-out" class="btn btn-link btn-sm text-muted p-0" style="font-size:11px;text-decoration:none">sign in</button>
-      <div id="auth-signed-in" class="d-none d-flex align-items-center gap-1">
-        <img id="auth-pic" class="rounded-circle" width="22" height="22" style="cursor:default" alt="" referrerpolicy="no-referrer">
-        <button id="auth-logout" class="btn btn-link btn-sm text-muted p-0" style="font-size:11px;text-decoration:none">sign out</button>
-      </div>
-    </div>
-  </div>
-</nav>
-<header id="page-header" class="container-xxl px-0" style="margin-top:32px">
+<script src="js/auth-bar.js"></script>
+<mundial-auth-bar id="auth-bar"></mundial-auth-bar>
+<header id="page-header" class="container-xxl px-0" style="margin-top:0">
   <div id="page-heading-sub" class="mx-3">
   <div>
     <div class="pq-wrap">
@@ -132,110 +121,5 @@
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
 <script type="module" src="js/wc2026_map.js"></script>
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
-<script>
-(async function() {
-  const authBar = document.getElementById('auth-bar');
-  authBar.style.display = 'none';
-  document.querySelector('#page-header').style.marginTop = '0';
-
-  let BACKEND = '';
-  try {
-    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-      BACKEND = 'http://localhost:5002';
-    } else {
-      const cfg = await fetch('./backend_config.json').then(r => r.json());
-      BACKEND = cfg.backend_url;
-    }
-    if (!BACKEND) return;
-    await fetch(BACKEND + '/api/auth/me', {credentials: 'include', signal: AbortSignal.timeout(3000), headers: {'ngrok-skip-browser-warning': '1'}});
-  } catch { return; }
-
-  authBar.style.display = '';
-  document.querySelector('#page-header').style.marginTop = '32px';
-
-  function showUser(user, isAdmin) {
-    document.getElementById('auth-signed-out').classList.add('d-none');
-    document.getElementById('auth-signed-in').classList.remove('d-none');
-    document.getElementById('auth-pic').src = user.picture;
-    document.getElementById('auth-pic').title = user.name;
-    const adminLink = document.getElementById('admin-link');
-    if (isAdmin) { adminLink.classList.remove('d-none'); adminLink.href = BACKEND + '/admin'; }
-  }
-
-  // Restore from localStorage
-  const stored = localStorage.getItem('mundial_user');
-  if (stored) {
-    try {
-      const data = JSON.parse(stored);
-      const user = data.user ?? data;
-      const admin = data.admin ?? false;
-      showUser(user, admin);
-    } catch {}
-  }
-
-  // Sign in via popup on the backend origin
-  document.getElementById('auth-signed-out').addEventListener('click', () => {
-    window.open(BACKEND + '/login', 'mundial_login', 'width=420,height=500,left=200,top=200');
-  });
-
-  // Receive auth result or kick from popup/WebSocket
-  window.addEventListener('message', e => {
-    if (e.data?.type === 'mundial_auth' && e.data.user) {
-      localStorage.setItem('mundial_user', JSON.stringify(e.data));
-      localStorage.setItem('mundial_sid', e.data.sid ?? '');
-      showUser(e.data.user, e.data.admin);
-    }
-    if (e.data?.type === 'mundial_kicked') {
-      localStorage.removeItem('mundial_user');
-      document.getElementById('auth-signed-in').classList.add('d-none');
-      document.getElementById('auth-signed-out').classList.remove('d-none');
-      document.getElementById('admin-link').classList.add('d-none');
-    }
-  });
-
-  document.getElementById('auth-logout').addEventListener('click', async () => {
-    const sid = localStorage.getItem('mundial_sid');
-    const stored = localStorage.getItem('mundial_user');
-    const email = stored ? (JSON.parse(stored).user ?? JSON.parse(stored)).email : null;
-    await fetch(BACKEND + '/api/auth/logout', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      credentials: 'include',
-      body: JSON.stringify({sid, email})
-    }).catch(() => {});
-    localStorage.removeItem('mundial_user');
-    document.getElementById('auth-signed-in').classList.add('d-none');
-    document.getElementById('auth-signed-out').classList.remove('d-none');
-    document.getElementById('admin-link').classList.add('d-none');
-  });
-
-  function signOut() {
-    localStorage.removeItem('mundial_user');
-    localStorage.removeItem('mundial_sid');
-    document.getElementById('auth-signed-in').classList.add('d-none');
-    document.getElementById('auth-signed-out').classList.remove('d-none');
-    document.getElementById('admin-link').classList.add('d-none');
-  }
-
-  // Listen for force-logout via WebSocket
-  const sioScript = document.createElement('script');
-  sioScript.src = 'https://cdn.jsdelivr.net/npm/socket.io-client@4/dist/socket.io.min.js';
-  sioScript.onload = () => {
-    const sock = io(BACKEND, {transports: ['websocket']});
-    sock.on('user_kicked', ({email, sid: kickedSid}) => {
-      const mySid = localStorage.getItem('mundial_sid');
-      const stored = localStorage.getItem('mundial_user');
-      if (!stored) return;
-      try {
-        const data = JSON.parse(stored);
-        const cur = (data.user ?? data).email;
-        if (kickedSid && mySid === kickedSid) signOut();
-        else if (!kickedSid && cur === email) signOut();
-      } catch {}
-    });
-  };
-  document.head.appendChild(sioScript);
-})();
-</script>
 </body>
 </html>
