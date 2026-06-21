@@ -101,6 +101,7 @@ function showUser(user, isAdmin) {
 }
 
 let onlineSessions = [];
+let allUsers = {};
 
 async function loadUsers() {
   const [usersR, onlineR] = await Promise.all([
@@ -108,12 +109,12 @@ async function loadUsers() {
     fetch(`${BACKEND}/api/admin/online`, {credentials: 'include'})
   ]);
   if (!usersR.ok) return;
-  const users = await usersR.json();
+  allUsers = await usersR.json();
   onlineSessions = onlineR.ok ? await onlineR.json() : [];
-  renderUsers(users);
+  renderUsers();
 }
 
-function renderUsers(users) {
+function renderUsers() {
   const tbody = document.getElementById('users-tbody');
   const onlineEmails = new Set(onlineSessions.map(s => s.email));
   const sessionsByEmail = {};
@@ -122,7 +123,7 @@ function renderUsers(users) {
     sessionsByEmail[s.email].push(s);
   });
 
-  tbody.innerHTML = Object.values(users)
+  tbody.innerHTML = Object.values(allUsers)
     .sort((a, b) => {
       const aOn = onlineEmails.has(a.email) ? 1 : 0;
       const bOn = onlineEmails.has(b.email) ? 1 : 0;
@@ -196,20 +197,25 @@ function connectWebSocket() {
 
   socket.on('user_login', user => {
     addActivity('login', user);
-    onlineEmails.add(user.email);
-    loadUsers();
+    allUsers[user.email] = {email: user.email, name: user.name, picture: user.picture, last_login: user.last_login};
+    onlineSessions.push({email: user.email, device: user.device, time: user.last_login, sid: user.sid});
+    renderUsers();
   });
 
   socket.on('user_logout', user => {
     addActivity('logout', user);
-    onlineEmails.delete(user.email);
-    loadUsers();
+    onlineSessions = onlineSessions.filter(s => s.email !== user.email);
+    renderUsers();
   });
 
-  socket.on('user_kicked', ({email}) => {
-    addActivity('logout', {name: email, picture: ''});
-    onlineEmails.delete(email);
-    loadUsers();
+  socket.on('user_kicked', ({email, sid}) => {
+    addActivity('logout', {name: email, picture: allUsers[email]?.picture ?? ''});
+    if (sid) {
+      onlineSessions = onlineSessions.filter(s => s.sid !== sid);
+    } else {
+      onlineSessions = onlineSessions.filter(s => s.email !== email);
+    }
+    renderUsers();
     const myEmail = document.getElementById('user-email')?.textContent;
     if (myEmail === email) {
       fetch(BACKEND + '/api/auth/logout', {method: 'POST', credentials: 'include'}).catch(() => {});

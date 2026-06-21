@@ -2,19 +2,30 @@
 # start.sh — Start ngrok + backend, auto-publish the ngrok URL to GitHub Pages.
 #
 # Usage:
-#   export API_FOOTBALL_KEY="your-key"
 #   ./server/start.sh
 #
-# For mock mode:
-#   export API_FOOTBALL_KEY="mock"
-#   export API_FOOTBALL_URL="http://localhost:5003"
-#   ./server/start.sh
+# The API key is read from server/.env (API_FOOTBALL_KEY=...).
+# For mock mode, set API_FOOTBALL_KEY=mock in server/.env.
 
 set -e
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 NGROK_PORT=5002
+NGROK_INSPECTOR_PORT=4041
 CONFIG_FILE="backend_config.json"
+
+# Load API key from .env
+ENV_FILE="$REPO_ROOT/server/.env"
+if [ -f "$ENV_FILE" ]; then
+    set -a
+    source "$ENV_FILE"
+    set +a
+fi
+
+if [ -z "$API_FOOTBALL_KEY" ]; then
+    echo "ERROR: API_FOOTBALL_KEY not set. Add it to server/.env"
+    exit 1
+fi
 
 # Start backend in background
 echo "Starting backend on port $NGROK_PORT..."
@@ -29,7 +40,7 @@ NGROK_PID=$!
 sleep 3
 
 # Get the public URL from ngrok's local API
-NGROK_URL=$(curl -s http://localhost:4040/api/tunnels 2>/dev/null | python3 -c "
+NGROK_URL=$(curl -s http://localhost:$NGROK_INSPECTOR_PORT/api/tunnels 2>/dev/null | python3 -c "
 import json, sys
 try:
     data = json.load(sys.stdin)
@@ -41,7 +52,7 @@ except: pass
 ")
 
 if [ -z "$NGROK_URL" ]; then
-    echo "ERROR: Could not get ngrok URL. Is port 4040 available for ngrok inspector?"
+    echo "ERROR: Could not get ngrok URL. Is port $NGROK_INSPECTOR_PORT available for ngrok inspector?"
     kill $BACKEND_PID $NGROK_PID 2>/dev/null
     exit 1
 fi
