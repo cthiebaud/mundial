@@ -22,6 +22,13 @@ body { background: #f5f2ec; }
 .evt-card-red { color: #dc3545; }
 .evt-subst { color: #0d6efd; }
 .evt-var { color: #6f42c1; }
+.stat-row { font-size: 12px; padding: 2px 0; }
+.stat-label { text-align: center; color: #888; flex: 0 0 auto; width: 110px; }
+.stat-val { font-weight: 600; min-width: 2.5em; }
+.stat-bar-wrap { flex: 1; height: 6px; background: #eee; border-radius: 3px; }
+.stat-bar { height: 100%; border-radius: 3px; }
+.stat-bar-home { background: #0d6efd; }
+.stat-bar-away { background: #dc3545; }
 </style>
 </head>
 <body>
@@ -203,6 +210,32 @@ const renderEvent = (evt) => {
   </div>`;
 };
 
+const renderStats = (statistics) => {
+  if (!statistics || statistics.length < 2) return '';
+  const homeStat = {};
+  const awayStat = {};
+  for (const s of statistics[0].statistics) homeStat[s.type] = s.value;
+  for (const s of statistics[1].statistics) awayStat[s.type] = s.value;
+  const types = statistics[0].statistics.map(s => s.type);
+
+  return types.map(type => {
+    const hRaw = homeStat[type];
+    const aRaw = awayStat[type];
+    const hVal = parseFloat(hRaw) || 0;
+    const aVal = parseFloat(aRaw) || 0;
+    const total = hVal + aVal || 1;
+    const hPct = (hVal / total * 100).toFixed(0);
+    const aPct = (aVal / total * 100).toFixed(0);
+    return `<div class="stat-row d-flex align-items-center gap-2">
+      <span class="stat-val text-end">${hRaw ?? 0}</span>
+      <div class="stat-bar-wrap"><div class="stat-bar stat-bar-home" style="width:${hPct}%;margin-left:auto"></div></div>
+      <span class="stat-label">${type}</span>
+      <div class="stat-bar-wrap"><div class="stat-bar stat-bar-away" style="width:${aPct}%"></div></div>
+      <span class="stat-val">${aRaw ?? 0}</span>
+    </div>`;
+  }).join('');
+};
+
 const renderMatch = (fix, lineups) => {
   const home = fix.teams.home;
   const away = fix.teams.away;
@@ -210,6 +243,7 @@ const renderMatch = (fix, lineups) => {
   const status = fix.fixture.status;
   const venue = fix.fixture.venue;
   const events = fix.events ?? [];
+  const statistics = fix.statistics ?? [];
 
   const homeISO = flagCode(home.name);
   const awayISO = flagCode(away.name);
@@ -232,6 +266,11 @@ const renderMatch = (fix, lineups) => {
         </div>
         ${events.length > 0 ? `<div class="card-body py-2 px-3">${events.map(renderEvent).join('')}</div>` : ''}
       </div>`;
+
+  const statsHtml = renderStats(statistics);
+  if (statsHtml) {
+    html += `<div class="card mt-2"><div class="card-body py-2 px-3">${statsHtml}</div></div>`;
+  }
 
   if (lineups.length === 2) {
     html += `
