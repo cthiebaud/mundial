@@ -265,7 +265,7 @@ const renderMatch = (fix, lineups) => {
           </div>
           <div class="text-center text-muted small">
             ${status.long}${status.elapsed ? ' · ' + status.elapsed + '\'' : ''}
-            ${venue?.name ? ' · ' + venue.name : ''}
+            ${venue?.city ? ' · ' + venue.city : ''}
           </div>
         </div>
         ${events.length > 0 ? `<div class="card-body py-2 px-3">${events.map(renderEvent).join('')}</div>` : ''}
