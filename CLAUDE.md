@@ -27,16 +27,23 @@ The backend repo lives at `../mundial-server` (sibling directory). See its own `
 | `wc2026_map_exported.html` | Main map page (Bootstrap 5, loads JS + JSON via ES module) |
 
 **OG tags:** Both `index.html` and `wc2026_map_exported.html` carry identical OG meta tags. Always update **both files** together when any OG tag changes (og:image, og:url, og:title, og:description, etc.).
+| `wc2026_france_departments.html` | France departments choropleth page |
+| `wc2026_live_game.html` | Live game tracking page (Socket.IO, backend-dependent) |
+| `wc2026_elo_ranking.html` | Standalone Elo ranking page |
+| `guide.html` | User guide page |
 | `js/wc2026_map.js` | ES module — D3 rendering, zoom, tooltips (lit-html), filter sidebar, Elo tab, dim/arc logic |
-| `css/wc2026_map.css` | All custom styles (map, header, legend, tooltips, Elo list, filter table) |
+| `js/auth-bar.js` | ES module — `<mundial-auth-bar>` Web Component: navbar, auth, offline modal, WebSocket reconnection (lit-html + unsafeHTML) |
 | `js/wc2026_elo_ranking.js` | ES module — `<elo-ranking>` Web Component + pill helpers |
-| `wc2026_elo_rank.json` | Current World Football Elo ratings (fetched at runtime) |
-| `js/i18n.js` | ES module — language detection, `T` strings, `countryName()`, `wikiUrl()` |
+| `js/control_sidebar.js` | ES module — filter/sort sidebar logic (imported by `wc2026_map.js`) |
+| `js/i18n.js` | ES module — language detection, `T` strings (map + auth-bar + live-game), `countryName()`, `regionName()`, `wikiUrl()` |
 | `js/qualified.js` | ES module — `QUALIFIED_NAMES`, `QUALIFIED_BY_NAME`, `buildEloItems` |
+| `css/wc2026_map.css` | All custom styles (map, header, legend, tooltips, Elo list, filter table) |
 | `css/taxonomy.css` | Canonical pill styling (borders, text colors, dots via CSS) |
 | `css/control-sidebar.css` | Filter/sort sidebar styles |
 | `css/map-container.css` | Map container and dim-mode cursor styles |
 | `wc2026_map_data.json` | All data: player exports + natives by birth country + population + `wiki_langs` |
+| `wc2026_elo_rank.json` | Current World Football Elo ratings (fetched at runtime) |
+| `countries.json` | Population + multilingual capital names by ISO numeric id |
 | `uk-nations.geojson` | 4 UK home nations polygons (Natural Earth 50m) — England, Scotland, Wales, Northern Ireland rendered as separate choropleth features |
 | `wc2026_og_v3.png` | 1200×640 Open Graph preview image for LinkedIn/social |
 | `chains/` | Export chain infographics — see section below |
@@ -56,8 +63,9 @@ All dependencies served from a single CDN — **jsDelivr** (`cdn.jsdelivr.net/np
 | `bootstrap` | 5.3.3 | Responsive layout utilities — **planned: replace with custom Bootstrap build, no hand-written CSS** |
 | `circle-flags` | 2 | Circular flag SVGs (map flags, tooltip headers) |
 | `flag-icons` | 7 | 4×3 rectangular flag SVGs (player lists, player table) — handles subdivision codes (`gb-eng` etc.) |
-| `lit-html` | 3 | HTML templating for all tooltips and the player table |
+| `lit-html` | 3 | HTML templating — **all** dynamic HTML must use lit-html (`html` + `render`), never `innerHTML` with string concatenation |
 | `iso-3166-1` | 2 | ISO 3166-1 lookups used by `i18n.js` → `countryName()` (ESM, loaded via jsDelivr) |
+| `socket.io-client` | 4 | WebSocket client — loaded dynamically by `auth-bar.js` for real-time auth events and by `wc2026_live_game.html` for live match updates |
 | `world-atlas` | 2 | 110m TopoJSON world map fetched at runtime by `wc2026_map.js` |
 
 `wc2026_map.js` is loaded as `<script type="module">` so it can use the `import` statement at the top.
@@ -113,7 +121,9 @@ with sync_playwright() as p:
 
 ## lit-html architecture
 
-All tooltip rendering and the player table use **lit-html** tagged templates. The pattern is: compute all data variables first (aligned), then a single `render(html\`...\`, container)` call — no string concatenation, no `innerHTML` assignment.
+**All dynamic HTML generation must use lit-html** — `html` tagged templates + `render()` call. Never use `innerHTML` with string concatenation or template literals. This applies everywhere: tooltips, player table, auth bar, modals, any component that produces HTML from data. For raw HTML/SVG strings that cannot be expressed as lit-html templates (e.g. inline SVG icon constants), use the `unsafeHTML` directive from `lit-html/directives/unsafe-html.js`.
+
+The pattern is: compute all data variables first (aligned), then a single `render(html\`...\`, container)` call. **Never use `textContent = ''` or `innerHTML = ''` on a container managed by lit-html** — it destroys lit-html's internal marker nodes and the next `render()` will crash. To swap a container's content entirely, replace the element with `cloneNode(false)` and render into the fresh clone.
 
 Key helpers (module-level, return `TemplateResult` or `nothing`):
 - `popTag(pop)` — renders `<span class="tt-pop">pop. xM</span>` with locale-aware decimal separator, or `nothing`
@@ -174,7 +184,7 @@ All `.flag-qualified` images store `data-cx`/`data-cy` (SVG centroid coordinates
 ### i18n
 UI language follows the browser locale (`navigator.languages[0]`). Supported: `fr`, `de`, `it`, `es`, `en` (fallback). Country names are resolved by `countryName()` in `i18n.js` using `Intl.DisplayNames` (backed by the `iso-3166-1` npm package for alpha-2 lookups). A small `_OVERRIDE` map handles non-standard cases (UK home nations use subdivision codes `gb-eng` etc., historical states with no ISO code). `T` is the already-resolved label object for the active language — it is not a nested object keyed by language; the internal `_LANG` variable selects the entry at module load time. Static page elements (`<title>`, `<h1>`, etc.) are patched from JS at load time.
 
-i18n is now extracted into **`i18n.js`** (ES module imported by `wc2026_map.js`). It exports `LOCALE`, `T`, `countryName`, and `wikiUrl`. Wikipedia links are provided for `en`, `fr`, `de`, `it`, `es`; all other browser locales fall back to the English Wikipedia URL without an `(en)` suffix.
+i18n is extracted into **`i18n.js`** (ES module imported by `wc2026_map.js`, `auth-bar.js`, and `wc2026_live_game.html`). It exports `LOCALE`, `_LANG`, `T`, `countryName`, `regionName`, and `wikiUrl`. `T` contains all UI strings: map labels, tooltips, navbar titles (`navHome`, `navLive`, `navSignIn`, etc.), offline modal text (`offlineTitle`, `offlineBody`, etc.), and live-game strings (`liveTitle`, `liveRetrying`, `liveNoBackend`, etc.). Wikipedia links are provided for `en`, `fr`, `de`, `it`, `es`; all other browser locales fall back to the English Wikipedia URL without an `(en)` suffix.
 
 **Gotcha — non-breaking spaces in i18n strings:** French typography uses non-breaking spaces in several places — `\xa0` (regular non-breaking space) before `": Wikipedia"` in `pageSub`, and ` ` (narrow no-break space) at the start of `pageHeadingSub` strings. The Edit tool matches bytes literally and will silently fail if the search string uses a regular space instead. **Always use a Python script** (`open(...).read()` / `str.replace()` / `open(...).write()`) when editing i18n strings in `i18n.js`, and verify suspicious characters with `python3 -c "print(repr(line))"` first.
 
@@ -230,6 +240,20 @@ Shown below the map in dim mode. Structure rendered by `playerTableTemplate` via
 - Natives section (conditional): players born there playing for that same country (`app.nativeByCountry`)
 - Import section (bordered top, conditional): count heading + grouped player rows by birth country
 - Player names link to Wikipedia in the UI language when `wiki_langs` data is available
+
+### Auth bar (`<mundial-auth-bar>`)
+`js/auth-bar.js` defines a custom element loaded as `<script type="module">` on every page. It renders a fixed 32px navbar with navigation icons (home, france, live game) and an auth section (sign-in/sign-out/admin). All HTML generation uses lit-html `render()` + `html` templates; SVG icons use the `unsafeHTML` directive.
+
+**Backend connection flow:**
+1. On load, the auth section is hidden (`visibility: hidden`), navigation is visible immediately
+2. `_init()` resolves the backend URL and does a health check (`/api/auth/me`)
+3. On success: renders the auth section with sign-in/sign-out callbacks, restores session from localStorage
+4. On failure: shows offline state (warning + WhatsApp icons, beige background), starts a 30s retry loop
+5. When backend comes back: `_restoreAuthSection()` swaps a fresh container via `cloneNode(false)` and re-renders with callbacks
+
+**WebSocket lifecycle:** After successful init, loads `socket.io-client@4` dynamically. On disconnect, waits 5s then switches to offline mode. On reconnect, restores auth section and refreshes user session.
+
+**Sibling offset:** `_offsetSibling()` sets `top: 32px` (fixed/sticky siblings) or `marginTop: 32px` (static siblings) on the next element to account for the fixed navbar.
 
 ### Elo ranking tab and filter sidebar
 The **Elo ranking** tab (default active) shows all countries as pill badges, rendered by the `<elo-ranking>` Web Component (`js/wc2026_elo_ranking.js`). Countries are filtered by the sidebar cube (`qualified × importer × exporter`); clicking a badge activates dim mode; clicking the active badge clears it.

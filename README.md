@@ -17,6 +17,9 @@ Interactive D3.js choropleth map of the 2026 FIFA World Cup showing **where play
 | https://mundial.cthiebaud.com/wc2026_elo_history.html | Animated Elo rating history (bar chart race) |
 | https://mundial.cthiebaud.com/infographics/wc2026_top_exporters.html | Top birth-country infographic (1080×1920) |
 | https://mundial.cthiebaud.com/infographics/wc2026_top_importers.html | Top importing-country infographic (1080×1920) |
+| https://mundial.cthiebaud.com/wc2026_france_departments.html | France departments choropleth |
+| https://mundial.cthiebaud.com/wc2026_live_game.html | Live game tracking (requires backend) |
+| https://mundial.cthiebaud.com/guide.html | User guide |
 | https://mundial.cthiebaud.com/chains/wc2026_chain_longest.html | Chain snake renderer — `?data=subgraphs/longest_both.json` (default), any chain JSON |
 
 ---
@@ -28,10 +31,13 @@ Interactive D3.js choropleth map of the 2026 FIFA World Cup showing **where play
 | `index.html` | Entry point — redirects to the map |
 | `wc2026_map_exported.html` | Main map page (Bootstrap 5) |
 | `js/wc2026_map.js` | All D3 rendering, zoom, tooltips, filter sidebar, Elo tab, dim/arc logic |
+| `js/auth-bar.js` | `<mundial-auth-bar>` Web Component — navbar, auth, offline modal, WebSocket |
+| `js/control_sidebar.js` | Filter/sort sidebar logic (imported by `wc2026_map.js`) |
 | `css/wc2026_map.css` | Base styles (map, header, legend, tooltips) |
-| `js/i18n.js` | Language detection, UI strings, `countryName()`, `wikiUrl()` |
+| `js/i18n.js` | Language detection, all UI strings (map + auth-bar + live-game), `countryName()`, `wikiUrl()` |
 | `js/wc2026_elo_ranking.js` | `<elo-ranking>` Web Component + pill helpers |
 | `js/qualified.js` | `QUALIFIED_NAMES`, `QUALIFIED_BY_NAME`, `buildEloItems` |
+| `countries.json` | Population + multilingual capital names by ISO numeric id |
 | `css/taxonomy.css` | Canonical pill styling (borders, text colors, dots) |
 | `css/control-sidebar.css` | Filter/sort sidebar styles |
 | `css/map-container.css` | Map container and dim-mode cursor styles |

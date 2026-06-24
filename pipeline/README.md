@@ -33,6 +33,7 @@ pip install openpyxl
 | `patch_uk_nations.py` | `countries.json` (in-place) | Adds UK home nations (ids 8260–8263) |
 | `patch_kosovo.py` | `countries.json`, `wc2026_elo_rank.json` (in-place) | Adds Kosovo (id 383) |
 | `update_elo_rankings.py` | `wc2026_elo_rank.json` | Fetches current Elo ratings from eloratings.net |
+| `elo_diff_summary.py` | _(stdout)_ | Compares old vs new Elo JSON, prints a git commit message with ranking/points changes |
 | `build_elo_history.py` | `wc2026_elo_history.json` | Parses eloratings.net graph.tsv for animated bar chart race |
 | `add_gdp.py` | `wc2026_gdp.json` | World Bank GDP (current USD billions) |
 | `add_gdp_pc_ppp.py` | `wc2026_gdp_pc_ppp.json` | World Bank GDP per capita PPP |
@@ -288,6 +289,7 @@ Outputs `wc2026_export_ratio.png` in the project root. Requires `matplotlib`.
 |------|-------------|
 | `wc2026_players.csv` | Full squad roster — **source of truth** for squad data |
 | `wc2026_by_birthcountry.csv` | Aggregated ranking by birth country |
+| `uk_regional_gdp.csv` | ONS regional GDP/GDHI data for UK home nations (used by `add_uk_regional_gdp.py`) |
 
 The generated files (`wc2026_map_data.json`, `countries.json`, `wc2026_elo_rank.json`,
 `wc2026_gdp.json`, etc.) live in the project root because they are served directly

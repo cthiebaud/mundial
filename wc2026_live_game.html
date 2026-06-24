@@ -35,15 +35,15 @@ body { background: #f5f2ec; }
 </style>
 </head>
 <body>
-<script src="js/auth-bar.js"></script>
+<script type="module" src="js/auth-bar.js"></script>
 <mundial-auth-bar></mundial-auth-bar>
 
 <div id="main-content" class="container-xxl py-4">
   <div class="d-flex align-items-start gap-2 mb-3">
     <a href="https://dashboard.api-football.com/" target="_blank" rel="noopener" class="btn btn-light btn-sm text-muted text-decoration-none fs-6 lh-1 px-2 py-1">API</a>
     <div>
-      <h1 class="fs-5 fw-bold mb-0">Live Game</h1>
-      <p class="text-muted small mb-0">World Cup 2026</p>
+      <h1 id="live-title" class="fs-5 fw-bold mb-0">Live Game</h1>
+      <p id="live-subtitle" class="text-muted small mb-0">World Cup 2026</p>
     </div>
     <span id="ws-status" class="badge bg-secondary ms-auto">connecting…</span>
   </div>
@@ -55,6 +55,13 @@ body { background: #f5f2ec; }
 </div>
 
 <script type="module">
+import { T } from './js/i18n.js';
+
+document.getElementById('live-title').textContent = T.liveTitle;
+document.getElementById('live-subtitle').textContent = T.liveSubtitle;
+document.getElementById('ws-status').textContent = T.liveBadgeConnecting;
+document.getElementById('no-match').textContent = T.liveNoMatch;
+document.getElementById('loading').textContent = T.liveConnecting;
 
 let PROXY;
 if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
@@ -64,9 +71,45 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     const cfg = await fetch('./backend_config.json').then(r => r.json());
     PROXY = cfg.backend_url;
   } catch {
-    document.getElementById('loading').textContent = 'Backend not configured.';
+    document.getElementById('loading').textContent = T.liveNotRunning;
     throw new Error('no backend');
   }
+}
+
+const _backendCheck = () => fetch(PROXY + '/api/auth/me', {
+  credentials: 'include',
+  signal: AbortSignal.timeout(3000),
+  headers: {'ngrok-skip-browser-warning': '1'}
+});
+
+try {
+  await _backendCheck();
+} catch {
+  const loadingEl = document.getElementById('loading');
+  const badgeEl = document.getElementById('ws-status');
+  badgeEl.textContent = T.liveNoBackend;
+  badgeEl.className = 'badge bg-warning text-dark ms-auto';
+  await new Promise(resolve => {
+    const retry = async () => {
+      let sec = 30;
+      loadingEl.innerHTML = T.liveNotRunning + ' ' + T.liveRetrying(sec);
+      await new Promise(r => {
+        const id = setInterval(() => {
+          sec--;
+          loadingEl.innerHTML = T.liveNotRunning + ' ' + T.liveRetrying(sec);
+          if (sec <= 0) { clearInterval(id); r(); }
+        }, 1000);
+      });
+      loadingEl.textContent = T.liveConnecting;
+      try {
+        await _backendCheck();
+        resolve();
+      } catch {
+        retry();
+      }
+    };
+    retry();
+  });
 }
 
 // Build name → birth_country lookup from our data with fuzzy matching
