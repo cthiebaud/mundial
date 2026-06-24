@@ -29,6 +29,16 @@ body { background: #f5f2ec; }
 .stat-bar { height: 100%; border-radius: 3px; }
 .stat-bar-home { background: #0d6efd; }
 .stat-bar-away { background: #dc3545; }
+.grp-table { font-size: 12px; margin-bottom: 0; }
+.grp-table th { font-weight: 600; color: #888; padding: 2px 6px !important; white-space: nowrap; }
+.grp-table td { padding: 3px 6px !important; white-space: nowrap; }
+.grp-table .grp-team { text-align: left; min-width: 100px; }
+.grp-table .grp-num { text-align: center; min-width: 24px; }
+.grp-table .grp-pts { font-weight: 700; }
+.grp-qualify { background: rgba(25, 135, 84, 0.06); }
+.grp-maybe { background: rgba(255, 193, 7, 0.08); }
+.grp-playing { font-weight: 600; }
+.grp-title { font-size: 13px; font-weight: 600; color: #555; margin-bottom: 4px; }
 .fix-pill { cursor: pointer; border: 1px solid #dee2e6; border-radius: 20px; padding: 4px 12px; font-size: 12px; background: #fff; transition: all .15s; white-space: nowrap; }
 .fix-pill:hover { border-color: #999; }
 .fix-pill.active { background: #1C274C; color: #fff; border-color: #1C274C; }
@@ -49,6 +59,7 @@ body { background: #f5f2ec; }
   </div>
 
   <div id="fix-selector" class="d-flex gap-2 mb-3 d-none"></div>
+  <div id="group-standings" class="mb-3"></div>
   <div id="no-match" class="alert alert-secondary d-none">No World Cup match currently live.</div>
   <div id="matches"></div>
   <div id="loading" class="text-muted small">Connecting to backend…</div>
@@ -336,6 +347,116 @@ const fetchLineups = async (fixtureId) => {
 
 let allFixtures = [];
 let selectedFixId = null;
+let baseStandings = null;
+
+const LIVE_STATUSES = new Set(['1H','2H','HT','ET','BT','P','LIVE','INT']);
+
+const buildTeamToGroup = () => {
+  const map = new Map();
+  if (!baseStandings) return map;
+  for (const group of baseStandings) {
+    const groupName = group[0]?.group;
+    if (!groupName) continue;
+    const m = groupName.match(/Group\s+([A-L])$/);
+    if (!m) continue;
+    for (const t of group) map.set(t.team.id, m[1]);
+  }
+  return map;
+};
+
+const computeLiveStandings = (fixtures) => {
+  if (!baseStandings) return [];
+  const teamToGroup = buildTeamToGroup();
+
+  const liveGroups = new Set();
+  const liveTeamIds = new Set();
+  for (const fix of fixtures) {
+    if (!LIVE_STATUSES.has(fix.fixture.status.short)) continue;
+    const g = teamToGroup.get(fix.teams.home.id) ?? teamToGroup.get(fix.teams.away.id);
+    if (g) {
+      liveGroups.add(g);
+      liveTeamIds.add(fix.teams.home.id);
+      liveTeamIds.add(fix.teams.away.id);
+    }
+  }
+  if (liveGroups.size === 0) return [];
+
+  const results = [];
+  for (const group of baseStandings) {
+    const groupName = group[0]?.group;
+    const m = groupName?.match(/Group\s+([A-L])$/);
+    const letter = m ? m[1] : null;
+    if (!letter || !liveGroups.has(letter)) continue;
+
+    const teams = group.map(t => ({
+      id: t.team.id, name: t.team.name, logo: t.team.logo,
+      played: t.all.played, win: t.all.win, draw: t.all.draw, lose: t.all.lose,
+      gf: t.all.goals.for, ga: t.all.goals.against,
+      pts: t.points, gd: t.goalsDiff,
+      playing: liveTeamIds.has(t.team.id),
+    }));
+
+    for (const fix of fixtures) {
+      if (!LIVE_STATUSES.has(fix.fixture.status.short)) continue;
+      const fGroup = teamToGroup.get(fix.teams.home.id);
+      if (fGroup !== letter) continue;
+      const hId = fix.teams.home.id, aId = fix.teams.away.id;
+      const hGoals = fix.goals.home ?? 0, aGoals = fix.goals.away ?? 0;
+      const home = teams.find(t => t.id === hId);
+      const away = teams.find(t => t.id === aId);
+      if (!home || !away) continue;
+      home.played++; away.played++;
+      home.gf += hGoals; home.ga += aGoals;
+      away.gf += aGoals; away.ga += hGoals;
+      if (hGoals > aGoals) { home.win++; home.pts += 3; away.lose++; }
+      else if (hGoals < aGoals) { away.win++; away.pts += 3; home.lose++; }
+      else { home.draw++; home.pts += 1; away.draw++; away.pts += 1; }
+      home.gd = home.gf - home.ga;
+      away.gd = away.gf - away.ga;
+    }
+
+    teams.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf);
+    results.push({ letter, teams });
+  }
+  return results;
+};
+
+const renderStandings = (fixtures) => {
+  const el = document.getElementById('group-standings');
+  const groups = computeLiveStandings(fixtures);
+  if (groups.length === 0) { el.innerHTML = ''; return; }
+
+  el.innerHTML = groups.map(({ letter, teams }) => `
+    <div class="card mb-2">
+      <div class="card-body py-2 px-3">
+        <div class="grp-title">${T.liveGroup(letter)}</div>
+        <table class="table grp-table">
+          <thead><tr>
+            <th></th><th class="grp-team"></th>
+            <th class="grp-num">${T.liveP}</th><th class="grp-num">${T.liveW}</th>
+            <th class="grp-num">${T.liveD}</th><th class="grp-num">${T.liveL}</th>
+            <th class="grp-num">${T.liveGF}</th><th class="grp-num">${T.liveGA}</th>
+            <th class="grp-num">${T.liveGD}</th><th class="grp-num grp-pts">${T.livePts}</th>
+          </tr></thead>
+          <tbody>${teams.map((t, i) => {
+            const cls = i < 2 ? 'grp-qualify' : i === 2 ? 'grp-maybe' : '';
+            const playing = t.playing ? 'grp-playing' : '';
+            const iso = flagCode(t.name);
+            return `<tr class="${cls} ${playing}">
+              <td><span class="fi fi-${iso}" style="font-size:14px"></span></td>
+              <td class="grp-team">${t.name}</td>
+              <td class="grp-num">${t.played}</td><td class="grp-num">${t.win}</td>
+              <td class="grp-num">${t.draw}</td><td class="grp-num">${t.lose}</td>
+              <td class="grp-num">${t.gf}</td><td class="grp-num">${t.ga}</td>
+              <td class="grp-num">${t.gd > 0 ? '+' + t.gd : t.gd}</td>
+              <td class="grp-num grp-pts">${t.pts}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>
+    </div>
+  `).join('');
+};
 
 const renderSelectedFixture = async () => {
   const matchesEl = document.getElementById('matches');
@@ -392,6 +513,7 @@ const renderFixtures = async (fixtures) => {
   }
 
   renderSelector();
+  renderStandings(fixtures);
   await renderSelectedFixture();
 };
 
@@ -421,6 +543,11 @@ const _fetchLiveData = async () => {
     badgeEl.className = 'badge bg-danger ms-auto';
   }
 };
+
+try {
+  const groups = await fetch(`${PROXY}/api/standings`, {headers: _h}).then(r => r.json());
+  baseStandings = groups;
+} catch (e) { console.warn('Failed to fetch standings:', e); }
 
 await _fetchLiveData();
 
