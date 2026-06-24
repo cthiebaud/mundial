@@ -75,7 +75,7 @@ body { background: #f5f2ec; }
 <script type="module">
 import { T } from './js/i18n.js';
 
-document.getElementById('live-title').textContent = T.liveTitle;
+document.getElementById('live-title').textContent = T.liveTitle(0);
 document.getElementById('live-subtitle').textContent = T.liveSubtitle;
 document.getElementById('ws-status').textContent = T.liveBadgeConnecting;
 document.getElementById('no-match').textContent = T.liveNoMatch;
@@ -607,6 +607,7 @@ const renderSelector = () => {
 
 const renderFixtures = async (fixtures) => {
   document.getElementById('loading').classList.add('d-none');
+  document.getElementById('live-title').textContent = T.liveTitle(fixtures.length);
   allFixtures = fixtures;
 
   if (fixtures.length === 0) {
