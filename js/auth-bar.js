@@ -53,10 +53,14 @@ class MundialAuthBar extends HTMLElement {
       this._refs[el.dataset.ref] = el;
     });
 
-    const next = this.nextElementSibling;
-    if (next) next.style.marginTop = '32px';
-
     this._el('auth-section').style.visibility = 'hidden';
+
+    const applyOffset = () => this._offsetSibling();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', applyOffset);
+    } else {
+      applyOffset();
+    }
 
     this._init();
   }
@@ -71,7 +75,57 @@ class MundialAuthBar extends HTMLElement {
     section.style.visibility = '';
     const WA_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#25D366" style="width:18px;height:18px;vertical-align:-3px;display:inline-block"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
     const WARN_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" style="width:22px;height:22px;vertical-align:-3px;display:inline-block"><path d="M3 10.4167C3 7.21907 3 5.62028 3.37752 5.08241C3.75503 4.54454 5.25832 4.02996 8.26491 3.00079L8.83772 2.80472C10.405 2.26824 11.1886 2 12 2C12.8114 2 13.595 2.26824 15.1623 2.80472L15.7351 3.00079C18.7417 4.02996 20.245 4.54454 20.6225 5.08241C21 5.62028 21 7.21907 21 10.4167C21 10.8996 21 11.4234 21 11.9914C21 17.6294 16.761 20.3655 14.1014 21.5273C13.38 21.8424 13.0193 22 12 22C10.9807 22 10.62 21.8424 9.89856 21.5273C7.23896 20.3655 3 17.6294 3 11.9914C3 11.4234 3 10.8996 3 10.4167Z" stroke="#f59e0b" stroke-width="1.5"/><path d="M12 8V12" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="15" r="1" fill="#f59e0b"/></svg>`;
-    section.innerHTML = `<button data-ref="warn-btn" class="btn btn-link btn-sm p-0 d-flex align-items-center" title="${reason}" style="line-height:0">${WARN_ICON}</button><a href="https://wa.me/393755042951" target="_blank" rel="noopener" title="Ask Christophe Thiebaud to start it" class="d-flex align-items-center" style="text-decoration:none">${WA_ICON}</a>`;
+    const loc = (navigator.languages?.[0] ?? navigator.language ?? 'en').toLowerCase().slice(0, 2);
+    const lang = ['fr','de','it','es'].includes(loc) ? loc : 'en';
+    const t = {
+      en: {
+        warnTip: reason,
+        waTip: 'Ask Christophe Thiebaud to start it',
+        title: 'Backend unavailable',
+        happened: 'What happened:',
+        body: 'Some features require a backend server that is not always running. The map, data, and navigation work fine without it. Only authentication and live game updates are affected.',
+        contact: 'Need it started?',
+        contactBody: 'Contact Christophe Thiebaud on WhatsApp and ask him to start the server:',
+      },
+      fr: {
+        warnTip: reason,
+        waTip: 'Demander à Christophe Thiebaud de le démarrer',
+        title: 'Serveur indisponible',
+        happened: 'Que s’est-il passé ?',
+        body: 'Certaines fonctionnalités nécessitent un serveur qui ne tourne pas en permanence. La carte, les données et la navigation fonctionnent sans lui. Seuls l’authentification et le suivi en direct sont affectés.',
+        contact: 'Besoin de le démarrer ?',
+        contactBody: 'Contactez Christophe Thiebaud sur WhatsApp pour lui demander de démarrer le serveur :',
+      },
+      de: {
+        warnTip: reason,
+        waTip: 'Christophe Thiebaud bitten, ihn zu starten',
+        title: 'Backend nicht erreichbar',
+        happened: 'Was ist passiert:',
+        body: 'Einige Funktionen benötigen einen Backend-Server, der nicht immer läuft. Karte, Daten und Navigation funktionieren ohne ihn. Nur Anmeldung und Live-Spielaktualisierungen sind betroffen.',
+        contact: 'Soll er gestartet werden?',
+        contactBody: 'Kontaktieren Sie Christophe Thiebaud auf WhatsApp und bitten Sie ihn, den Server zu starten:',
+      },
+      it: {
+        warnTip: reason,
+        waTip: 'Chiedi a Christophe Thiebaud di avviarlo',
+        title: 'Backend non disponibile',
+        happened: 'Cosa è successo:',
+        body: 'Alcune funzionalità richiedono un server che non è sempre attivo. La mappa, i dati e la navigazione funzionano senza. Solo l’autenticazione e gli aggiornamenti in diretta sono interessati.',
+        contact: 'Serve avviarlo?',
+        contactBody: 'Contatta Christophe Thiebaud su WhatsApp per chiedergli di avviare il server:',
+      },
+      es: {
+        warnTip: reason,
+        waTip: 'Pedir a Christophe Thiebaud que lo inicie',
+        title: 'Backend no disponible',
+        happened: '¿Qué pasó?',
+        body: 'Algunas funciones requieren un servidor que no siempre está activo. El mapa, los datos y la navegación funcionan sin él. Solo la autenticación y las actualizaciones en directo se ven afectadas.',
+        contact: '¿Necesitas que se inicie?',
+        contactBody: 'Contacta a Christophe Thiebaud por WhatsApp para pedirle que inicie el servidor:',
+      },
+    }[lang];
+
+    section.innerHTML = `<button data-ref="warn-btn" class="btn btn-link btn-sm p-0 d-flex align-items-center" title="${t.warnTip}" style="line-height:0">${WARN_ICON}</button><a href="https://wa.me/393755042951" target="_blank" rel="noopener" title="${t.waTip}" class="d-flex align-items-center" style="text-decoration:none">${WA_ICON}</a>`;
 
     const modalId = 'mundial-offline-modal';
     if (!document.getElementById(modalId)) {
@@ -83,13 +137,13 @@ class MundialAuthBar extends HTMLElement {
 <div class="modal-dialog modal-dialog-centered">
   <div class="modal-content">
     <div class="modal-header py-2">
-      <h6 class="modal-title d-flex align-items-center gap-2">${WARN_ICON} Backend unavailable</h6>
+      <h6 class="modal-title d-flex align-items-center gap-2">${WARN_ICON} ${t.title}</h6>
       <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body" style="font-size:14px">
-      <p><strong>What happened:</strong> ${reason}</p>
-      <p>Some features require a backend server that is not always running. The map, data, and navigation work fine without it. Only authentication and live game updates are affected.</p>
-      <p class="mb-0"><strong>Need it started?</strong> Contact Christophe Thiebaud on WhatsApp and ask him to start the server:<br>
+      <p><strong>${t.happened}</strong> ${reason}</p>
+      <p>${t.body}</p>
+      <p class="mb-0"><strong>${t.contact}</strong> ${t.contactBody}<br>
         <a href="https://wa.me/393755042951" target="_blank" rel="noopener" class="d-inline-flex align-items-center gap-1 mt-1" style="color:#25D366">${WA_ICON} +39 375 504 2951</a>
       </p>
     </div>
@@ -101,6 +155,15 @@ class MundialAuthBar extends HTMLElement {
     section.querySelector('[data-ref="warn-btn"]').addEventListener('click', () => {
       new bootstrap.Modal(document.getElementById(modalId)).show();
     });
+  }
+
+  _offsetSibling() {
+    const next = this.nextElementSibling;
+    if (next) {
+      const pos = getComputedStyle(next).position;
+      if (pos === 'fixed' || pos === 'sticky') next.style.top = '32px';
+      else next.style.marginTop = '32px';
+    }
   }
 
   async _init() {

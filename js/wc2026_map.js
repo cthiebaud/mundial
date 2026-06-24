@@ -195,7 +195,7 @@ _pqDotsEl.addEventListener('click', e => {
   _pqDots.forEach((d, i) => d.classList.toggle('active', i === _quoteIdx));
   if (_pageHeader) {
     requestAnimationFrame(() => {
-      document.documentElement.style.setProperty('--page-header-h', _pageHeader.offsetHeight + 'px');
+      document.documentElement.style.setProperty('--page-header-h', _pageHeader.getBoundingClientRect().bottom + 'px');
       _syncPaddingTop();
     });
   }
@@ -262,7 +262,7 @@ _fillPanel(_pqPrev, _prevIdx());
       clearDrag();
       if (_pageHeader) {
         requestAnimationFrame(() => {
-          document.documentElement.style.setProperty('--page-header-h', _pageHeader.offsetHeight + 'px');
+          document.documentElement.style.setProperty('--page-header-h', _pageHeader.getBoundingClientRect().bottom + 'px');
           _syncPaddingTop();
         });
       }
@@ -443,7 +443,7 @@ const _eloMain = document.querySelector('#tab-elo elo-ranking');
 const _eloMeta = document.getElementById('elo-meta');
 // Measure actual header height (offsetHeight forces reflow after CSS var is applied)
 const _pageHeader = document.getElementById('page-header');
-if (_pageHeader) document.documentElement.style.setProperty('--page-header-h', _pageHeader.offsetHeight + 'px');
+if (_pageHeader) document.documentElement.style.setProperty('--page-header-h', _pageHeader.getBoundingClientRect().bottom + 'px');
 const _isFullyVisible = el => {
   if (!el) return false;
   const r = el.getBoundingClientRect();
