@@ -41,6 +41,11 @@ body { background: #f5f2ec; }
 .grp-maybe { background: rgba(255, 193, 7, 0.08); }
 .grp-playing { background: rgba(13, 110, 253, 0.04); }
 .grp-title { font-size: 13px; font-weight: 600; color: #555; margin-bottom: 4px; }
+.grp-result { font-size: 12px; padding: 4px 0; border-top: 1px solid #eee; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.grp-result-home { text-align: right; flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+.grp-result-away { text-align: left; flex: 1; display: flex; align-items: center; gap: 4px; }
+.grp-result-score { font-weight: 700; background: #555; color: #fff; border-radius: 3px; padding: 1px 5px; min-width: 1.3em; text-align: center; flex-shrink: 0; }
+.grp-results-title { font-size: 11px; color: #999; cursor: pointer; }
 .fix-pill { cursor: pointer; border: 1px solid #dee2e6; border-radius: 20px; padding: 4px 12px; font-size: 12px; background: #fff; transition: all .15s; white-space: nowrap; }
 .fix-pill:hover { border-color: #999; }
 .fix-pill.active { background: #1C274C; color: #fff; border-color: #1C274C; }
@@ -333,13 +338,22 @@ const renderMatch = (fix, lineups) => {
             ${venue?.city ? ' · ' + venue.city : ''}
           </div>
         </div>
-        ${events.length > 0 ? `<div class="card-body py-2 px-3">${events.map(renderEvent).join('')}</div>` : ''}
       </div>`;
 
   const statsHtml = renderStats(statistics);
   const fid = fix.fixture.id;
 
   html += `<div class="accordion mt-2" id="acc-${fid}">`;
+
+  if (events.length > 0) {
+    html += `
+      <div class="accordion-item">
+        <h2 class="accordion-header"><button class="accordion-button collapsed py-2 small" type="button" data-bs-toggle="collapse" data-bs-target="#acc-events-${fid}">${T.liveEvents ?? 'Events'}</button></h2>
+        <div id="acc-events-${fid}" class="accordion-collapse collapse" data-bs-parent="#acc-${fid}">
+          <div class="accordion-body py-2 px-3">${events.map(renderEvent).join('')}</div>
+        </div>
+      </div>`;
+  }
 
   if (statsHtml) {
     html += `
@@ -387,6 +401,7 @@ const fetchLineups = async (fixtureId) => {
 let allFixtures = [];
 let selectedFixId = null;
 let baseStandings = null;
+let groupResults = [];
 
 const LIVE_STATUSES = new Set(['1H','2H','HT','ET','BT','P','LIVE','INT']);
 
@@ -499,13 +514,32 @@ const explainRanking = (teams) => {
   return lines.join('<br>');
 };
 
+const renderGroupResults = (letter, teamToGroup) => {
+  const matches = groupResults.filter(f => {
+    const g = teamToGroup.get(f.teams.home.id) ?? teamToGroup.get(f.teams.away.id);
+    return g === letter;
+  });
+  if (matches.length === 0) return '';
+  matches.sort((a, b) => a.fixture.timestamp - b.fixture.timestamp);
+  return matches.map(f => {
+    const h = f.teams.home, a = f.teams.away;
+    return `<div class="grp-result">
+      <span class="grp-result-home">${h.name} <span class="fi fi-${flagCode(h.name)}" style="font-size:12px"></span></span>
+      <span class="grp-result-score">${f.goals.home}</span><span class="grp-result-score">${f.goals.away}</span>
+      <span class="grp-result-away"><span class="fi fi-${flagCode(a.name)}" style="font-size:12px"></span> ${a.name}</span>
+    </div>`;
+  }).join('');
+};
+
 const renderStandings = (fixtures) => {
   const el = document.getElementById('group-standings');
   const groups = computeLiveStandings(fixtures);
   if (groups.length === 0) { el.innerHTML = ''; return; }
+  const teamToGroup = buildTeamToGroup();
 
   el.innerHTML = groups.map(({ letter, teams }) => {
     const explanation = explainRanking(teams);
+    const resultsHtml = renderGroupResults(letter, teamToGroup);
     return `
     <div class="card mb-2">
       <div class="card-body py-2 px-3">
@@ -545,6 +579,7 @@ const renderStandings = (fixtures) => {
             </tr>`;
           }).join('')}</tbody>
         </table>
+        ${resultsHtml ? `<details class="mt-1"><summary class="grp-results-title">${T.liveResults ?? 'results'}</summary>${resultsHtml}</details>` : ''}
       </div>
     </div>
   `;}).join('');
@@ -554,7 +589,7 @@ const _accordionState = {};
 
 const _saveAccordionState = () => {
   document.querySelectorAll('#matches .accordion-collapse').forEach(el => {
-    const m = el.id.match(/^acc-(stats|lineups)-/);
+    const m = el.id.match(/^acc-(events|stats|lineups)-/);
     if (m) _accordionState[m[1]] = el.classList.contains('show');
   });
 };
@@ -657,9 +692,13 @@ const _fetchLiveData = async () => {
 };
 
 try {
-  const groups = await fetch(`${PROXY}/api/standings`, {headers: _h}).then(r => r.json());
+  const [groups, results] = await Promise.all([
+    fetch(`${PROXY}/api/standings`, {headers: _h}).then(r => r.json()),
+    fetch(`${PROXY}/api/group-results`, {headers: _h}).then(r => r.json()),
+  ]);
   baseStandings = groups;
-} catch (e) { console.warn('Failed to fetch standings:', e); }
+  groupResults = results;
+} catch (e) { console.warn('Failed to fetch standings/results:', e); }
 
 await _fetchLiveData();
 

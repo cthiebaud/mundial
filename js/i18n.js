@@ -211,6 +211,8 @@ export const T = {
     liveStatLabel: (type) => ({'Ball Possession':'Possession','Total Shots':'Tirs','Shots on Goal':'Tirs cadrés','Shots off Goal':'Tirs non cadrés','Blocked Shots':'Tirs bloqués','Shots insidebox':'Tirs dans la surface','Shots outsidebox':'Tirs hors surface','Fouls':'Fautes','Corner Kicks':'Corners','Offsides':'Hors-jeu','Yellow Cards':'Cartons jaunes','Red Cards':'Cartons rouges','Goalkeeper Saves':'Arrêts','Total passes':'Passes','Passes accurate':'Passes réussies','Passes %':'Passes %','expected_goals':'Buts attendus (xG)'}[type] ?? type),
     liveGroup: g => `Groupe ${g}`, liveP: 'J', liveW: 'V', liveD: 'N', liveL: 'D', liveGF: 'BP', liveGA: 'BC', liveGD: 'DB', livePts: 'Pts',
     liveStats: 'Statistiques', liveLineups: 'Compositions',
+    liveResults: 'résultats',
+    liveEvents: 'Événements',
   },
   it: {
     pageHeading:    'Luogo di nascita dei giocatori dei Mondiali 2026',
@@ -266,6 +268,8 @@ export const T = {
     liveStatLabel: (type) => ({'Ball Possession':'Possesso palla','Total Shots':'Tiri totali','Shots on Goal':'Tiri in porta','Shots off Goal':'Tiri fuori','Blocked Shots':'Tiri bloccati','Shots insidebox':'Tiri in area','Shots outsidebox':'Tiri fuori area','Fouls':'Falli','Corner Kicks':'Calci d\'angolo','Offsides':'Fuorigioco','Yellow Cards':'Cartellini gialli','Red Cards':'Cartellini rossi','Goalkeeper Saves':'Parate','Total passes':'Passaggi','Passes accurate':'Passaggi riusciti','Passes %':'Passaggi %','expected_goals':'Gol attesi (xG)'}[type] ?? type),
     liveGroup: g => `Girone ${g}`, liveP: 'G', liveW: 'V', liveD: 'P', liveL: 'S', liveGF: 'GF', liveGA: 'GS', liveGD: 'DR', livePts: 'Pti',
     liveStats: 'Statistiche', liveLineups: 'Formazioni',
+    liveResults: 'risultati',
+    liveEvents: 'Eventi',
   },
   de: {
     pageHeading:    'Geburtsort der Spieler der WM 2026',
@@ -321,6 +325,8 @@ export const T = {
     liveStatLabel: (type) => ({'Ball Possession':'Ballbesitz','Total Shots':'Torschüsse','Shots on Goal':'Schüsse aufs Tor','Shots off Goal':'Schüsse daneben','Blocked Shots':'Geblockte Schüsse','Shots insidebox':'Schüsse im Strafraum','Shots outsidebox':'Schüsse außerhalb','Fouls':'Fouls','Corner Kicks':'Ecken','Offsides':'Abseits','Yellow Cards':'Gelbe Karten','Red Cards':'Rote Karten','Goalkeeper Saves':'Torwartparaden','Total passes':'Pässe','Passes accurate':'Pässe erfolgreich','Passes %':'Pässe %','expected_goals':'Erwartete Tore (xG)'}[type] ?? type),
     liveGroup: g => `Gruppe ${g}`, liveP: 'Sp', liveW: 'S', liveD: 'U', liveL: 'N', liveGF: 'T', liveGA: 'GT', liveGD: 'TD', livePts: 'Pkt',
     liveStats: 'Statistiken', liveLineups: 'Aufstellungen',
+    liveResults: 'Ergebnisse',
+    liveEvents: 'Ereignisse',
   },
   es: {
     pageHeading:    'Lugar de nacimiento de los jugadores del Mundial 2026',
@@ -376,6 +382,8 @@ export const T = {
     liveStatLabel: (type) => ({'Ball Possession':'Posesión','Total Shots':'Tiros totales','Shots on Goal':'Tiros a puerta','Shots off Goal':'Tiros fuera','Blocked Shots':'Tiros bloqueados','Shots insidebox':'Tiros dentro del área','Shots outsidebox':'Tiros fuera del área','Fouls':'Faltas','Corner Kicks':'Córners','Offsides':'Fueras de juego','Yellow Cards':'Tarjetas amarillas','Red Cards':'Tarjetas rojas','Goalkeeper Saves':'Paradas','Total passes':'Pases','Passes accurate':'Pases precisos','Passes %':'Pases %','expected_goals':'Goles esperados (xG)'}[type] ?? type),
     liveGroup: g => `Grupo ${g}`, liveP: 'PJ', liveW: 'G', liveD: 'E', liveL: 'P', liveGF: 'GF', liveGA: 'GC', liveGD: 'DG', livePts: 'Pts',
     liveStats: 'Estadísticas', liveLineups: 'Alineaciones',
+    liveResults: 'resultados',
+    liveEvents: 'Eventos',
   },
   en: {
     pageHeading:    'Birthplace of 2026 World Cup Players',
@@ -431,5 +439,7 @@ export const T = {
     liveStatLabel: (type) => ({'Ball Possession':'Possession','Shots insidebox':'Shots inside box','Shots outsidebox':'Shots outside box','Total passes':'Total Passes','Passes accurate':'Accurate Passes','expected_goals':'Expected Goals (xG)'}[type] ?? type),
     liveGroup: g => `Group ${g}`, liveP: 'P', liveW: 'W', liveD: 'D', liveL: 'L', liveGF: 'GF', liveGA: 'GA', liveGD: 'GD', livePts: 'Pts',
     liveStats: 'Statistics', liveLineups: 'Lineups',
+    liveResults: 'results',
+    liveEvents: 'Events',
   },
 }[_LANG];
