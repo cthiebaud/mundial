@@ -44,7 +44,7 @@ The backend repo lives at `../mundial-server` and the build repo at `../mundial-
 | `css/control-sidebar.css` | Filter/sort sidebar styles |
 | `css/map-container.css` | Map container and dim-mode cursor styles |
 | `data/` | Git submodule → `mundial-data` repo. Contains all pipeline-generated data: `wc2026_map_data.json`, `wc2026_elo_rank.json`, `wc2026_elo_history.json`, `countries.json`, `uk-nations.geojson`, `wc2026_gdp.json`, `wc2026_gdp_pc_ppp.json`, `wc2026_hdi.json` |
-| `wc2026_og_v3.png` | 1200×640 Open Graph preview image for LinkedIn/social |
+| `wc2026_og_v4.png` | 2400×1260 Open Graph preview image for LinkedIn/social (2x resolution, France tooltip) |
 | `chains/` | Export chain infographics — see section below |
 | `pages/` | Standalone analysis pages (correlation scatter plot, Elo history bar chart race) |
 | `backend_config.json` | ngrok URL for production backend — auto-updated by `mundial-server/start.sh` |
@@ -110,11 +110,25 @@ All frontend `fetch()` calls reference `data/` paths (e.g. `fetch('data/wc2026_m
 from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
     browser = p.chromium.launch()
-    page = browser.new_page(viewport={"width": 1200, "height": 630})
+    page = browser.new_page(viewport={"width": 1200, "height": 630}, device_scale_factor=2)
     page.goto("https://mundial.cthiebaud.com/wc2026_map_exported.html",
               wait_until="networkidle", timeout=30000)
     page.wait_for_timeout(4000)
-    page.screenshot(path="wc2026_og_v3.png")
+    page.evaluate('''() => {
+        const path = document.querySelector('path[data-id="250"]');
+        if (path) {
+            const rect = path.getBoundingClientRect();
+            const evt = new MouseEvent('mouseover', {
+                bubbles: true, clientX: rect.x + 20, clientY: rect.y + 10
+            });
+            path.dispatchEvent(evt);
+            path.dispatchEvent(new MouseEvent('mousemove', {
+                bubbles: true, clientX: rect.x + 20, clientY: rect.y + 10
+            }));
+        }
+    }''')
+    page.wait_for_timeout(1500)
+    page.screenshot(path="wc2026_og_v4.png")
     browser.close()
 ```
 
