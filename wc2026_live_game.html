@@ -719,9 +719,9 @@ const renderFixtures = async (fixtures) => {
 };
 
 let _pollActive = false;
-const setPollStatus = (active, fixtures = []) => {
-  _pollActive = active;
-  if (active) {
+const setPollStatus = (tracking, fixtures = []) => {
+  _pollActive = tracking;
+  if (tracking) {
     const text = fixtures.length > 0 ? `${T.liveLive} · ${T.liveMatches(fixtures.length)}` : T.liveLive;
     setBadge(text, 'bg-success', 'radio-minimalistic-svgrepo-com.svg');
     document.getElementById('matches').style.opacity = '';
@@ -734,11 +734,11 @@ const setPollStatus = (active, fixtures = []) => {
 
 const _fetchLiveData = async () => {
   try {
-    const [{active, fixtures: trackedIds}, liveData] = await Promise.all([
+    const [{tracking, fixtures: trackedIds}, liveData] = await Promise.all([
       fetch(`${PROXY}/api/poll/active`, {headers: _h}).then(r => r.json()),
       fetch(`${PROXY}/api/live`, {headers: _h}).then(r => r.json()),
     ]);
-    setPollStatus(active, trackedIds);
+    setPollStatus(tracking, trackedIds);
     renderFixtures(liveData);
     loadingEl.classList.add('d-none');
   } catch {
@@ -760,8 +760,8 @@ await _fetchLiveData();
 
 authBar.addEventListener('auth-bar-online', () => _fetchLiveData());
 
-sock.on('poll_status', ({active, fixtures: trackedIds}) => {
-  setPollStatus(active, trackedIds ?? []);
+sock.on('poll_status', ({tracking, fixtures: trackedIds}) => {
+  setPollStatus(tracking, trackedIds ?? []);
 });
 
 sock.on('live_update', (fixtures) => {
