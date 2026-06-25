@@ -139,7 +139,7 @@ authBar.addEventListener('auth-bar-offline', (e) => {
     setBadge(T.liveNoBackend, 'bg-warning text-dark', 'plug-circle-svgrepo-com.svg');
   }
   loadingSpinner.classList.add('d-none');
-  loadingText.textContent = T.liveNotRunning;
+  loadingText.textContent = T.offlineBodyConn;
   loadingEl.classList.remove('d-none');
   retryBtn.classList.remove('d-none');
   document.getElementById('no-match').classList.add('d-none');
