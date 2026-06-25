@@ -725,6 +725,7 @@ const setPollStatus = (active, fixtures = []) => {
   } else {
     setBadge(T.liveLastKnown, 'bg-warning text-dark', '<span style="white-space:nowrap">🙈🙉🙊</span>');
     document.getElementById('matches').style.opacity = '0.5';
+    document.getElementById('no-match').classList.add('d-none');
   }
 };
 
