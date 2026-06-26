@@ -31,6 +31,12 @@ After cloning, initialise the data submodule:
 git submodule update --init
 ```
 
+**Tip:** Configure git to automatically update submodules on pull:
+```bash
+git config submodule.recurse true
+```
+This eliminates the need to manually run `git submodule update` after each pull.
+
 ## Tech stack
 
 All dependencies from jsDelivr CDN — no build step:

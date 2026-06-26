@@ -82,25 +82,31 @@ python3 -m http.server 8000
 # then open http://localhost:8000/
 ```
 
+### Submodule workflow
+
+After pulling, configure git to auto-update submodules:
+```bash
+git config submodule.recurse true
+```
+
+This eliminates manual `git submodule update` calls after each pull. The data submodule is automatically updated when new Elo rankings are published by the pipeline.
+
 ---
 
 ## Data pipeline
 
 The data pipeline lives in the **[born-in-plays-for/mundial-build](https://github.com/born-in-plays-for/mundial-build)** repo (`../mundial-build` sibling directory). Pipeline scripts output JSON/CSV files to the `data/` submodule (the `mundial-data` repo), which is shared between `mundial` and `mundial-build`. See `mundial-build/pipeline/README.md` for full documentation.
 
-### Data submodule workflow
+### Automated data updates
 
-```bash
-# After running the pipeline in mundial-build:
-cd ../mundial-build/data
-git add -A && git commit -m "update data" && git push
+**No manual steps required.** The workflow is fully automated:
 
-# Then in mundial, pull the latest data:
-cd data
-git pull origin main
-cd ..
-git add data && git commit -m "update data submodule" && git push
-```
+1. **Daily**: Elo rankings are updated in `mundial-build` → published to `mundial-data` (see `mundial-build/README.md` for schedule details)
+2. **Automatic dispatch**: `update-data-submodule` workflow is triggered (via repository_dispatch from mundial-build)
+3. **Submodule updated**: Workflow fetches latest `mundial-data` and commits the pointer update
+4. **Auto-deploy**: Workflow triggers GitHub Pages deployment via repository_dispatch
+5. **Site live**: Pages redeploys with new data within minutes
+6. **Local pull**: Developers simply `git pull` — submodules auto-update if `submodule.recurse = true`
 
 All frontend `fetch()` calls reference `data/` paths (e.g. `fetch('data/wc2026_map_data.json')`). Pages in `pages/` use `../data/` since they are one level deeper.
 
@@ -316,9 +322,13 @@ Order matters for SVG z-layering:
 
 The live game page is a self-contained HTML file using plain ES module script (no lit-html — dynamic HTML uses template literals and `innerHTML`). It consumes the auth bar's Socket.IO connection via `auth-bar-online` / `auth-bar-offline` events.
 
+**Admin panel access**
+
+An admin-only settings icon appears in the header (right side, next to the WebSocket status) when the signed-in user has `admin: true`. It links to the backend `/admin` page (fixtures & discovery controls). The user's profile picture (in the navbar) links to `/admin-auth` (users & sessions).
+
 **Badge / poll status**
 
-Three states, driven by `discovering` only — the server's auto-track on/off is an internal detail never sent to clients:
+Three states, driven by `discovering` only. The server's auto-track on/off is an internal detail never sent to clients.
 
 | State | Condition | Badge |
 |---|---|---|
@@ -326,7 +336,7 @@ Three states, driven by `discovering` only — the server's auto-track on/off is
 | Listening | `discovering && knownFixtures === 0` | blue "à l'écoute" |
 | Deaf & mute | `!discovering` | yellow warning |
 
-`poll_status` shape: `{ discovering, fixtures, wc_only }` — note `tracking` is intentionally absent from the broadcast.
+`poll_status` socket event shape: `{ discovering, fixtures, wc_only }` — `tracking` field was removed in backend refactor (June 2026). Frontend no longer reads or destructures it.
 
 **Untracked fixtures**
 
