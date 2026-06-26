@@ -577,8 +577,11 @@ const renderGroupResults = (letter, teamToGroup) => {
     return g === letter;
   });
   if (matches.length === 0) return '';
-  matches.sort((a, b) => a.fixture.timestamp - b.fixture.timestamp);
-  return matches.map(f => {
+  const FINISHED = new Set(['FT', 'AET', 'PEN']);
+  const finished = matches.filter(f => FINISHED.has(f.fixture.status.short));
+  if (finished.length === 0) return '';
+  finished.sort((a, b) => a.fixture.timestamp - b.fixture.timestamp);
+  return finished.map(f => {
     const h = f.teams.home, a = f.teams.away;
     return `<div class="grp-result">
       <span class="grp-result-home">${localName(h.name)} <span class="fi fi-${flagCode(h.name)}" style="font-size:12px"></span></span>
@@ -725,7 +728,7 @@ const renderFixtures = async (fixtures) => {
 let _pollActive = false;
 const _fixtureCount = (fixtures) => Array.isArray(fixtures) ? fixtures.length : Object.keys(fixtures ?? {}).length;
 const setPollStatus = (discovering, tracking, fixtures = {}) => {
-  const active = discovering || tracking;
+  const active = discovering;
   _pollActive = active;
   if (active && _fixtureCount(fixtures) > 0) {
     setBadge(T.liveLive, 'bg-success', 'radio-minimalistic-svgrepo-com.svg');
