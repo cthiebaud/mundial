@@ -363,7 +363,7 @@ Keys are country names (matching `p.nation` in export records). These players ha
 - Events and stats accordion items are always rendered for tracked fixtures, even when the API hasn't sent data yet — they just appear empty. Only untracked fixtures hide these sections.
 - Untracked fixtures are visually dimmed (50% opacity in match view, dashed border on selector pill).
 - `renderGroupResults` only renders finished matches (`FT`, `AET`, `PEN`) — future and live fixtures are excluded to avoid showing placeholder scores.
-- `poll_status` socket event shape: `{ discovering, fixtures: {} }` where `fixtures` is an object keyed by fixture id (not an array). `tracking` is absent — it is an internal server detail.
+- `poll_status` socket event shape: `{ discovering, fixtures: {} }` where `fixtures` is an object keyed by fixture id (not an array). `tracking` is intentionally absent — see `../mundial-server/CLAUDE.md` for the rationale.
 
 ### `data/countries.json` — population + capital lookup
 `data/countries.json` (in the `mundial-data` submodule) is the canonical source for population and multilingual capital city names. Shape:
@@ -412,7 +412,7 @@ git add <files> && git commit -m "..." && git push
 
 The live site is served from the `born-in-plays-for/mundial` repo at **https://mundial.cthiebaud.com/** via GitHub Pages.
 
-The backend (`born-in-plays-for/mundial-server`) runs locally and is exposed via ngrok. It is **not** deployed to GitHub Pages — changes to that repo do not trigger a Pages deploy.
+The backend (`born-in-plays-for/mundial-server`) runs locally and is exposed via ngrok. It is **not** deployed to GitHub Pages. See `../mundial-server/CLAUDE.md` and `../mundial-server/README.md` for backend setup, endpoints, and design decisions.
 
 `backend_config.json` is the only file in this repo that the backend touches — `mundial-server/start.sh` updates it with the ngrok URL and pushes.
 
