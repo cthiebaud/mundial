@@ -14,9 +14,9 @@ nel torneo.
 The header area shows a rotating carousel of 15 famous literary quotes —
 from Villon (1461) to Simone de Beauvoir (1949) — each playfully reworded
 to swap the original key phrase for a football selection term.
-The original line appears in smaller text below so you can spot what changed.
 
 Navigate between quotes using the dot indicators, or swipe left / right on touch screens.
+Long-press (or hold the mouse button) on a quote to reveal the original line; release to go back.
 <!-- /i18n:quotes -->
 
 <!-- i18n:control_sidebar -->
