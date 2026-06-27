@@ -1,5 +1,8 @@
 import { _LANG } from './i18n.js';
 import { marked } from 'https://cdn.jsdelivr.net/npm/marked@14/+esm';
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+mermaid.initialize({ startOnLoad: false, theme: 'neutral', fontFamily: 'inherit' });
 
 let _active = false;
 let _showingId = null;
@@ -32,6 +35,10 @@ marked.use({
     image({ href, title, text }) {
       const src = href.startsWith('http') ? href : `guide/${href}`;
       return `<img class="img-fluid d-block" src="${src}" alt="${text}"${title ? ` title="${title}"` : ''}>`;
+    },
+    code({ text, lang }) {
+      if (lang === 'mermaid') return `<pre class="mermaid">${text}</pre>`;
+      return false;
     }
   }
 });
@@ -105,6 +112,7 @@ function _injectStyles() {
 #mundial-guide-panel .gp-body img+p>em:only-child,
 #mundial-guide-panel .gp-body svg+p>em:only-child{display:block;font-size:.8rem;font-style:italic;color:var(--text-muted,#999);text-align:center;margin-top:.1rem;margin-bottom:1.25rem}
 #mundial-guide-panel .gp-body::after{content:'';display:table;clear:both}
+#mundial-guide-panel{user-select:text;-webkit-user-select:text}
 .gp-wip-banner{text-align:center;margin:2rem 0}
 .gp-wip-box{display:inline-block;border-radius:12px;padding:1.5rem 2.5rem;background-color:#f0ede8;background-image:repeating-linear-gradient(90deg,#c8c4be 0,#c8c4be 8px,transparent 8px,transparent 16px),repeating-linear-gradient(0deg,#c8c4be 0,#c8c4be 8px,transparent 8px,transparent 16px),repeating-linear-gradient(90deg,#c8c4be 0,#c8c4be 8px,transparent 8px,transparent 16px),repeating-linear-gradient(0deg,#c8c4be 0,#c8c4be 8px,transparent 8px,transparent 16px);background-size:100% 3px,3px 100%,100% 3px,3px 100%;background-position:0 0,100% 0,0 100%,0 0;background-repeat:no-repeat;animation:gp-wip-march .8s linear infinite}
 @keyframes gp-wip-march{to{background-position:16px 0,100% 16px,-16px 100%,0 -16px}}
@@ -140,6 +148,8 @@ async function _showSection(guideId) {
   _panel.innerHTML = '';
   _panel.appendChild(layout);
   _panel.scrollTop = 0;
+  const mermaidNodes = [..._panel.querySelectorAll('pre.mermaid')];
+  if (mermaidNodes.length) mermaid.run({ nodes: mermaidNodes });
 }
 
 function _buildToc(body) {

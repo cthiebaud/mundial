@@ -20,7 +20,6 @@ Requirements:
 import argparse
 import json
 import re
-import shutil
 from pathlib import Path
 
 GUIDE_DIR   = Path(__file__).resolve().parent
@@ -107,9 +106,11 @@ def build_languages():
         # Build a map of key → source block content for drift detection
         source_blocks = {key: body for _, key, body, _ in all_keys}
 
-        # English: copy template as-is
-        shutil.copy(template_path, BUILT / f'en-{section}.md')
-        print(f'  ✓ built/en-{section}.md  ({total} marker blocks)')
+        # English: symlink to source so edits are reflected instantly without a rebuild
+        dest = BUILT / f'en-{section}.md'
+        dest.unlink(missing_ok=True)
+        dest.symlink_to(Path('..') / template_path.name)
+        print(f'  ✓ built/en-{section}.md  ({total} marker blocks, symlink)')
 
         for lang in LANGUAGES:
             translations = all_translations[lang]
