@@ -64,7 +64,15 @@ function _ensurePanel() {
   document.body.appendChild(_panel);
 }
 
+function _ensureLink(href) {
+  if ([...document.styleSheets].some(s => s.href?.endsWith(href))) return;
+  const l = Object.assign(document.createElement('link'), { rel: 'stylesheet', href });
+  document.head.appendChild(l);
+}
+
 function _injectStyles() {
+  _ensureLink('css/wc2026_map.css');
+  _ensureLink('css/taxonomy.css');
   if (document.getElementById('mundial-guide-panel-styles')) return;
   const s = document.createElement('style');
   s.id = 'mundial-guide-panel-styles';
