@@ -83,7 +83,7 @@ Cada país se muestra como una **pastilla** cuyo estilo CSS codifica su categor�
 <div style="font-size:.8rem;font-weight:600;margin-bottom:6px;color:#555">Nacido aquí / juega para</div>
 <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
   <span class="elo-item elo-item--qualified elo-item--exp" style="flex-shrink:0">
-    <img class="elo-flag" src="https://cdn.jsdelivr.net/npm/circle-flags@2/flags/se.svg" alt="">
+    <img class="elo-flag" src="https://cdn.jsdelivr.net/npm/circle-flags@2/flags/it.svg" alt="">
     <span class="elo-name" data-id="752">Sweden</span>
   </span>
   <span style="font-size:.875rem"><span style="color:#3b82f6">●</span> Jugadores nacidos en este país juegan para otro país clasificado.</span>
