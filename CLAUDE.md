@@ -140,6 +140,12 @@ with sync_playwright() as p:
     page.goto("http://localhost:4040/wc2026_map.html",
               wait_until="networkidle", timeout=30000)
     page.wait_for_timeout(4000)
+    # Select quote index 1 ("Heureux qui, comme Olise, a fait un beau voyage.")
+    page.evaluate('''() => {
+        const dot = document.querySelector('.pq-dot[data-idx="1"]');
+        if (dot) dot.click();
+    }''')
+    page.wait_for_timeout(500)
     # Click France flag to activate dim/arc mode
     page.evaluate('''() => {
         const flag = document.querySelector('image.flag-qualified[data-id="250"]');
