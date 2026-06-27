@@ -1,7 +1,7 @@
 import { html, render } from 'https://cdn.jsdelivr.net/npm/lit-html@3/lit-html.js';
 
 export function initSidebar({ T, QUALIFIED_NAMES, app, fifaMemberIds, eloMain, callbacks }) {
-  let _sortOrder = ['elo', 'pop', 'delta', 'alpha'];
+  let _sortOrder = ['elo', 'alpha', 'pop', 'delta'];
   let _sortDir = 'desc';
 
   const _sidebarHost = document.getElementById('sidebar-host');
