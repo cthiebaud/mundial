@@ -166,14 +166,16 @@ The default tab lists every country as a pill badge.
 The filter & sort panel controls which badges appear and in what order;
 the default sort is by [World Football Elo rating](https://www.eloratings.net/).
 
-Clicking a badge has three possible effects:
+Clicking a badge selects that country and zooms the map to it.
 
-- **Exporting countries** (<span style="color:#3b82f6">●</span> blue dot): selects that country —
-  unrelated flags fade on the map, arcs show export flows, and the player table opens
-- **Map-visible non-exporters**: the map zooms and pans to centre on that country
-- **Off-map / no data**: no interaction
+For countries with **born-in / plays-for** connections, coloured arrows also appear on the map:
 
-Click the active badge a second time — or press **Esc** — to return to browse mode.
+- <span style="color:#3b82f6">■</span> **blue arrows**: squads that include players born in the selected country
+- <span style="color:#ef4444">■</span> **red arrows**: countries where players born elsewhere play for this squad
+
+The <img class="gp-icon" src="images/solar_linear/maximize-square-2-svgrepo-com.svg" alt="span"> button then fits all connected countries in view at once.
+
+Click the active badge a second time — or press **Esc** — to deselect.
 
 ### The Player Table
 
@@ -181,9 +183,9 @@ When a country is selected, the player table shows three sections:
 
 | Section | Contents |
 |---|---|
-| **Exports** | Players born here, grouped by the country they represent |
-| **Natives** | Players born here who also play for this country |
-| **Imports** | Players born elsewhere who play for this country, grouped by birth country |
+| **Born here / plays for another** | Players born in this country, grouped by the squad they represent |
+| **Born here / plays for this country** | Players born here who also represent this country |
+| **Born elsewhere / plays for this country** | Players born in another country who represent this squad, grouped by birth country |
 
 Player names link to their Wikipedia page in the current interface language when available.
 
