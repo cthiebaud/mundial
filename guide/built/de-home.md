@@ -138,7 +138,7 @@ Countries currently included in the filter display a circular flag marker at the
 ### Zoom & Pan
 
 Scroll (or pinch) to zoom · drag to pan. The **↺** button resets the view.
-In dim mode, the **⇔** button zooms and pans to fit all highlighted countries at once.
+When a country is selected, the **⇔** button zooms and pans to fit all highlighted countries at once.
 
 ### The Legend
 
@@ -168,7 +168,7 @@ the default sort is by [World Football Elo rating](https://www.eloratings.net/).
 
 Clicking a badge has three possible effects:
 
-- **Exporting countries** (<span style="color:#3b82f6">●</span> blue dot): activates *dim mode* —
+- **Exporting countries** (<span style="color:#3b82f6">●</span> blue dot): selects that country —
   unrelated flags fade on the map, arcs show export flows, and the player table opens
 - **Map-visible non-exporters**: the map zooms and pans to centre on that country
 - **Off-map / no data**: no interaction
@@ -177,7 +177,7 @@ Click the active badge a second time — or press **Esc** — to return to brows
 
 ### The Player Table
 
-In dim mode the player table shows three sections for the selected country:
+When a country is selected, the player table shows three sections:
 
 | Section | Contents |
 |---|---|
