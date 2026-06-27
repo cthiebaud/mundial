@@ -119,3 +119,11 @@
 #control-sidebar .csb-check { cursor: pointer; color: var(--text-muted); }
 #control-sidebar .csb-check::before { content: '□'; }
 #control-sidebar .csb-check:has(input:checked)::before { content: '▣'; } /* ■ */
+
+/* ── Clickable cells (cursor / hover) ──────────────────────────────────── */
+
+.csb-table [data-col] { cursor: pointer; }
+.csb-table [data-col]:hover { background-color: var(--bg-hover); }
+.csb-table td:has(.csb-check) { vertical-align: middle; padding: 0; cursor: pointer; }
+.csb-table td:has(.csb-check):hover { background-color: var(--bg-hover); }
+.csb-check { display: flex; align-items: center; justify-content: center; height: 100%; cursor: pointer; }

@@ -1,0 +1,46 @@
+/* tokens */
+:root {
+  --fixed-element-bg: #faf9f6;
+  --vert-gutter: 0.75rem;
+  --color-default: #171715;
+  /* structural grays */
+  --bg-hover:      #f0ede8;
+  --border:        #e4e0d8;
+  --border-strong: #c8c4be;
+  --text-muted:    #999;
+}
+
+/* navbar icon normalisation — 1.5 px visual stroke regardless of SVG viewBox size */
+/* .warn-icon class on the SVG excludes it from colour/weight normalisation */
+mundial-auth-bar nav [stroke]:not(.warn-icon *) { stroke: #1C274C; stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
+
+/* base */
+body { background: #f5f2ec; color: var(--color-default); }
+.sub { font-size: 12px; color: var(--text-muted); }
+.sub em { color: #555; font-style: normal; }
+.flex-col { flex: 1; min-width: 0; }
+
+/* inline button that looks like a link */
+.link-btn { background: none; border: none; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; color: inherit; }
+.link-btn:hover { color: #555; }
+
+/* Elo ranking flow (elo-) — used by <elo-ranking> web component on multiple pages */
+.elo-header { display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px; }
+.elo-title { font-size: 14px; font-weight: 500; }
+.elo-meta { font-size: 10px; color: var(--text-muted); }
+.elo-list { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.elo-item { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px 3px 5px; border-radius: 20px; background: #fff; }
+.elo-item--clickable { cursor: pointer; }
+.elo-item--clickable:hover { background: var(--bg-hover); border-color: var(--border-strong); }
+.elo-item--active { background: var(--border-strong) !important; border-color: var(--border-strong) !important; }
+.elo-item--zoomable { cursor: pointer; }
+.elo-item--zoomable:hover { background: var(--bg-hover); border-color: var(--border-strong); }
+.elo-rank { font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums; min-width: 14px; text-align: right; flex-shrink: 0; }
+.elo-dot { font-size: 7px; line-height: 1; }
+.elo-name .elo-dot:first-child { margin-left: 3px; }
+.elo-flag { width: 20px; height: 20px; flex-shrink: 0; }
+.elo-layout { display: block; }
+.elo-main { display: block; }
+.elo-name { font-size: 12px; white-space: nowrap; }
+.elo-pts { font-size: 9px; color: var(--text-muted); font-variant-numeric: tabular-nums; flex-shrink: 0; }
+.elo-pts-primary { font-size: 10px; color: var(--text-muted); }

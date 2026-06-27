@@ -1,33 +1,6 @@
-/* tokens */
-:root {
-  --fixed-element-bg: #faf9f6;
-  --vert-gutter: 0.75rem;
-  --color-default: #171715;
-  /* structural grays */
-  --bg-hover:      #f0ede8;
-  --border:        #e4e0d8;
-  --border-strong: #c8c4be;
-  --text-muted:    #999;
-}
-
-/* navbar icon normalisation — 1.5 px visual stroke regardless of SVG viewBox size */
-/* .warn-icon class on the SVG excludes it from colour/weight normalisation */
-mundial-auth-bar nav [stroke]:not(.warn-icon *) { stroke: #1C274C; stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
-
-/* base */
-body { background: #f5f2ec; color: var(--color-default); }
-.sub { font-size: 12px; color: var(--text-muted); }
-.sub em { color: #555; font-style: normal; }
-.flex-col { flex: 1; min-width: 0; }
+/* arc colors — set as CSS vars by wc2026_map.js at runtime */
 .color-exp { color: var(--arc-export-color); }
 .color-imp { color: var(--arc-import-color); }
-
-/* inline button that looks like a link */
-.link-btn { background: none; border: none; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; color: inherit; }
-.link-btn:hover { color: #555; }
-
-/* countries page fixed header — auth-bar _offsetSibling() sets top:32px automatically */
-#countries-header { position: fixed; left: 0; right: 0; z-index: 100; background: var(--fixed-element-bg); border-bottom: 1px solid var(--border); }
 
 /* page header — grid so both children share row 1/col 1 and the row height = max(quote, sidebar) */
 #page-header { position: fixed; top: 0; left: 0; right: 0; z-index: 200; background: var(--fixed-element-bg); padding: 0; display: grid; }
@@ -47,6 +20,8 @@ body { background: #f5f2ec; color: var(--color-default); }
 .pq-dots { display: flex; gap: 5px; margin-top: auto; padding-top: 4px; user-select: none; }
 .pq-dot { font-size: 12px; line-height: 1; color: #ccc; transition: color .25s; cursor: pointer; font-weight: bolder;}
 .pq-dot.active { color: #888; }
+
+/* bottom panel */
 #bottom-panel {
   position: fixed !important;
   bottom: 0; left: 0; right: 0;
@@ -112,28 +87,7 @@ body { background: #f5f2ec; color: var(--color-default); }
 .pt-wiki:hover { border-bottom-color: #7b2d8b; color: #7b2d8b; }
 .coach-badge { font-size: 9px; font-weight: 600; color: #7b6b3a; background: #f5ecd0; border-radius: 3px; padding: 0 4px; margin-left: 4px; vertical-align: middle; white-space: nowrap; }
 
-/* Elo ranking flow (elo-) */
-.elo-header { display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px; }
-.elo-title { font-size: 14px; font-weight: 500; }
-.elo-meta { font-size: 10px; color: var(--text-muted); }
-.elo-list { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
-.elo-item { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px 3px 5px; border-radius: 20px; background: #fff; }
-.elo-item--clickable { cursor: pointer; }
-.elo-item--clickable:hover { background: var(--bg-hover); border-color: var(--border-strong); }
-.elo-item--active { background: var(--border-strong) !important; border-color: var(--border-strong) !important; }
-.elo-item--zoomable { cursor: pointer; }
-.elo-item--zoomable:hover { background: var(--bg-hover); border-color: var(--border-strong); }
-.elo-rank { font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums; min-width: 14px; text-align: right; flex-shrink: 0; }
-.elo-dot { font-size: 7px; line-height: 1; }
-.elo-name .elo-dot:first-child { margin-left: 3px; }
-.elo-flag { width: 20px; height: 20px; flex-shrink: 0; }
-.elo-layout { display: block; }
-.elo-main { display: block; }
-.elo-name { font-size: 12px; white-space: nowrap; }
-.elo-pts { font-size: 9px; color: var(--text-muted); font-variant-numeric: tabular-nums; flex-shrink: 0; }
-.elo-pts-primary { font-size: 10px; color: var(--text-muted); }
-
-/* scroll-to-top button */
+/* scroll-to-top / zoom controls */
 #scroll-top-btn { position: absolute; right: 12px; top: calc(-26px - 8px); cursor: pointer; }
 #scroll-top-btn:hover { color: #000; }
 #zoom-reset, #zoom-span { cursor: pointer; }
@@ -155,13 +109,6 @@ body { background: #f5f2ec; color: var(--color-default); }
 #tab-players-btn:hover { background-color: transparent !important; }
 #bottomTabList .nav-link.active { color: #000; }
 #tab-indicator { position: absolute; bottom: 6px; height: 0; border-bottom: 1.5px dotted #888; pointer-events: none; transition: left 0.3s ease, width 0.3s ease; }
-
-/* control sidebar table — clickable cells */
-.csb-table [data-col] { cursor: pointer; }
-.csb-table [data-col]:hover { background-color: var(--bg-hover); }
-.csb-table td:has(.csb-check) { vertical-align: middle; padding: 0; cursor: pointer; }
-.csb-table td:has(.csb-check):hover { background-color: var(--bg-hover); }
-.csb-check { display: flex; align-items: center; justify-content: center; height: 100%; cursor: pointer; }
 
 /* chain mode toggle */
 .chain-mode-btn { border: 1px solid #dee2e6; border-radius: 16px; padding: 2px 12px; font-size: 11px; background: #fff; color: #888; cursor: pointer; transition: all .15s; }
