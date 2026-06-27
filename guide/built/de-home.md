@@ -25,7 +25,7 @@ Drücken und halten Sie (oder halten Sie die Maustaste gedrückt) auf ein Zitat,
 Die Schaltfläche <kbd style="background:var(--bg-hover,#f0ede8);border:1px solid var(--border,#e4e0d8);color:var(--text-muted,#999);border-radius:0 4px 4px 0">‹</kbd> in der oberen rechten Ecke der Kopfzeile öffnet das Filter- und Sortierpanel,
 das steuert, was auf der Karte und in der Länderliste erscheint.
 
-![Filter- und Sortierpanel](screenshots/control_sidebar.png)
+![Filter- und Sortierpanel](screenshots/control_sidebar-de.png)
 
 *Filtermatrix (rechts) — auf einen Zeilen- oder Spaltenkopf klicken, um eine ganze Gruppe auf einmal umzuschalten.*<br>*Sortierspalte (links) — nur die obersten zwei Kriterien sind aktiv; ein Klick auf ein Kriterium verschiebt es an die erste Stelle.*
 

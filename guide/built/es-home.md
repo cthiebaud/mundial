@@ -25,7 +25,7 @@ Mantén presionado (o mantén el botón del ratón pulsado) sobre una cita para 
 El botón <kbd style="background:var(--bg-hover,#f0ede8);border:1px solid var(--border,#e4e0d8);color:var(--text-muted,#999);border-radius:0 4px 4px 0">‹</kbd> en la esquina superior derecha del encabezado abre el panel de filtro y ordenación,
 para controlar lo que aparece en el mapa y en la lista de países.
 
-![Panel de filtro y ordenación](screenshots/control_sidebar.png)
+![Panel de filtro y ordenación](screenshots/control_sidebar-es.png)
 
 *Matriz de filtro (derecha) — haz clic en un encabezado de fila o columna para alternar todo un grupo a la vez.*<br>*Columna de ordenación (izquierda) — solo los dos primeros criterios están activos; hacer clic en un criterio lo mueve al inicio de la lista.*
 

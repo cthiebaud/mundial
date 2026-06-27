@@ -25,7 +25,7 @@ Tieni premuto (o tieni premuto il pulsante del mouse) su una citazione per rivel
 Il pulsante <kbd style="background:var(--bg-hover,#f0ede8);border:1px solid var(--border,#e4e0d8);color:var(--text-muted,#999);border-radius:0 4px 4px 0">‹</kbd> nell'angolo in alto a destra dell'intestazione apre il pannello di filtro e ordinamento,
 per controllare cosa appare sulla mappa e nell'elenco dei paesi.
 
-![Pannello di filtro e ordinamento](screenshots/control_sidebar.png)
+![Pannello di filtro e ordinamento](screenshots/control_sidebar-it.png)
 
 *Matrice di filtro (destra) — clicca su un'intestazione di riga o colonna per attivare/disattivare un intero gruppo in una volta.*<br>*Colonna di ordinamento (sinistra) — solo i primi due criteri sono attivi; fare clic su un criterio lo sposta in cima alla lista.*
 

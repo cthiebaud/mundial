@@ -37,6 +37,15 @@ GUIDES = {
     'auth':   GUIDE_DIR / 'guide-auth.md',
 }
 
+# Language → Playwright locale
+LOCALES = [
+    ('en', 'en-US'),
+    ('fr', 'fr-FR'),
+    ('de', 'de-DE'),
+    ('it', 'it-IT'),
+    ('es', 'es-ES'),
+]
+
 MARKER_RE = re.compile(
     r'(<!-- i18n:(\w+) -->)(.*?)(<!-- /i18n:\2 -->)',
     re.DOTALL,
@@ -44,6 +53,11 @@ MARKER_RE = re.compile(
 
 
 # ── Screenshots ──────────────────────────────────────────────────────────────
+
+def _screenshot_name(lang):
+    """Return the filename for a language's control_sidebar screenshot."""
+    return 'control_sidebar.png' if lang == 'en' else f'control_sidebar-{lang}.png'
+
 
 def take_screenshots():
     try:
@@ -56,22 +70,28 @@ def take_screenshots():
     SCREENSHOTS.mkdir(exist_ok=True)
     with sync_playwright() as p:
         browser = p.chromium.launch()
-        page = browser.new_page(viewport={'width': 1280, 'height': 800}, device_scale_factor=2)
-        page.goto(
-            f'{BASE_URL}/wc2026_map_exported.html',
-            wait_until='networkidle',
-            timeout=30_000,
-        )
-        page.wait_for_timeout(3_000)
+        for lang, locale in LOCALES:
+            context = browser.new_context(
+                viewport={'width': 1280, 'height': 800},
+                device_scale_factor=2,
+                locale=locale,
+            )
+            page = context.new_page()
+            page.goto(
+                f'{BASE_URL}/wc2026_map_exported.html',
+                wait_until='networkidle',
+                timeout=30_000,
+            )
+            page.wait_for_timeout(3_000)
 
-        # ── control_sidebar ──
-        page.locator('.csb-toggle').click()
-        page.wait_for_timeout(700)  # CSS transition
-        page.locator('#control-sidebar').screenshot(
-            path=str(SCREENSHOTS / 'control_sidebar.png')
-        )
-        print('  ✓ screenshots/control_sidebar.png')
+            page.locator('.csb-toggle').click()
+            page.wait_for_timeout(700)  # CSS transition
 
+            name = _screenshot_name(lang)
+            page.locator('#control-sidebar').screenshot(path=str(SCREENSHOTS / name))
+            print(f'  ✓ screenshots/{name}  [{locale}]')
+
+            context.close()
         browser.close()
 
 
@@ -88,6 +108,15 @@ def _resolve(value):
     return str(value)
 
 
+def _localize_screenshots(text, lang):
+    """Replace screenshot paths with language-specific versions where they exist."""
+    localized = f'control_sidebar-{lang}.png'
+    if (SCREENSHOTS / localized).exists():
+        text = text.replace('screenshots/control_sidebar.png',
+                            f'screenshots/{localized}')
+    return text
+
+
 def build_languages():
     BUILT.mkdir(exist_ok=True)
 
@@ -102,9 +131,6 @@ def build_languages():
         template = template_path.read_text(encoding='utf-8')
         all_keys = MARKER_RE.findall(template)
         total    = len(all_keys)
-
-        # Build a map of key → source block content for drift detection
-        source_blocks = {key: body for _, key, body, _ in all_keys}
 
         # English: symlink to source so edits are reflected instantly without a rebuild
         dest = BUILT / f'en-{section}.md'
@@ -126,6 +152,7 @@ def build_languages():
                 return m.group(0)
 
             result       = MARKER_RE.sub(replace, template)
+            result       = _localize_screenshots(result, lang)
             n_translated = sum(1 for _, key, _, _ in all_keys if key in translations)
             (BUILT / f'{lang}-{section}.md').write_text(result, encoding='utf-8')
             status = f'  ✓ built/{lang}-{section}.md  ({n_translated}/{total} keys translated)'

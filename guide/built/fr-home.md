@@ -25,7 +25,7 @@ Maintenez appuyé (ou gardez le bouton de la souris enfoncé) sur une citation p
 Le bouton <kbd style="background:var(--bg-hover,#f0ede8);border:1px solid var(--border,#e4e0d8);color:var(--text-muted,#999);border-radius:0 4px 4px 0">‹</kbd> dans le coin supérieur droit de l'en-tête ouvre le panneau de filtre et de tri,
 pour contrôler ce qui apparaît sur la carte et dans la liste des pays.
 
-![Panneau de filtre et de tri](screenshots/control_sidebar.png)
+![Panneau de filtre et de tri](screenshots/control_sidebar-fr.png)
 
 *Matrice de filtre (droite) — cliquez sur un en-tête de ligne ou de colonne pour basculer tout un groupe d'un coup.*<br>*Colonne de tri (gauche) — seuls les deux premiers critères sont actifs ; cliquer sur un critère le place en tête de liste.*
 
