@@ -82,7 +82,7 @@ Ogni paese è mostrato come una **pillola** il cui stile CSS ne codifica la cate
 <div>
 <div style="font-size:.8rem;font-weight:600;margin-bottom:6px;color:#555">Nato qui / gioca per</div>
 <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
-  <span class="elo-item elo-item--qualified elo-item--exp" style="flex-shrink:0">
+  <span class="elo-item elo-item--exp" style="flex-shrink:0">
     <img class="elo-flag" src="https://cdn.jsdelivr.net/npm/circle-flags@2/flags/it.svg" alt="">
     <span class="elo-name" data-id="380">Italy</span>
   </span>
