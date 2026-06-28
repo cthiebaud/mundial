@@ -73,12 +73,12 @@ The filter matrix mirrors the sidebar layout — two columns (exporter / non-exp
 
 |  | **exporter** | **non-exporter** |
 |---|:---:|:---:|
-| **qualified · imports** | `qie` | `qi` |
-| **qualified · no imports** | `qe` | `q` |
-| **non-qual · FIFA** | `ef` | `of` *(off)* |
-| **non-qual · non-FIFA** | `en` | `on` *(off)* |
+| **qualified · imports** | `qie` ✓ | `qi` ✓ |
+| **qualified · no imports** | `qe` ✓ | `q` ✓ |
+| **non-qual · FIFA** | `ef` ✓ | `of` ○ |
+| **non-qual · non-FIFA** | `en` ✓ | `on` ○ |
 
-All cells are on by default except `of` and `on` (no connection to any qualified team).
+✓ on by default · ○ off by default — `of` and `on` have no connection to any qualified team.
 
 Letter mnemonics:
 
