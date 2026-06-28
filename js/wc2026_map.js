@@ -439,8 +439,9 @@ Promise.all([
 // Elo ranking tab — two-column layout: ranking list (flex:1) + collapsible sidebar
 let _eloData   = null;
 const _fifaMemberIds = new Set();
-render(html`<div class="elo-layout"><elo-ranking class="elo-main"></elo-ranking><div class="sub mt-2" id="elo-meta"></div></div>`, document.getElementById('tab-elo'));
+render(html`<div class="elo-layout"><elo-ranking class="elo-main"></elo-ranking></div>`, document.getElementById('tab-elo'));
 const _eloMain = document.querySelector('#tab-elo elo-ranking');
+const _eloMetaPanel = document.getElementById('elo-meta-panel');
 // Measure actual header height (offsetHeight forces reflow after CSS var is applied)
 const _pageHeader = document.getElementById('page-header');
 if (_pageHeader) document.documentElement.style.setProperty('--page-header-h', _pageHeader.getBoundingClientRect().bottom + 'px');
@@ -646,6 +647,11 @@ const _switchTab = name => {
     _expandPanel(chainPanel);
   } else {
     _collapsePanel(chainPanel);
+  }
+  if (name === 'tab-elo') {
+    _expandPanel(_eloMetaPanel);
+  } else {
+    _collapsePanel(_eloMetaPanel);
   }
   if (name === 'tab-elo') {
     _renderElo();
@@ -1647,6 +1653,7 @@ Promise.all([
   _eloItemsById.clear();
   _eloRawItems.forEach(item => _eloItemsById.set(item.id, item));
   _renderElo();
+  _expandPanel(_eloMetaPanel);
   sidebar.applyFlagFilter();
   sidebar.updateVisibleCountryCount();
   // Initial zoom: fit ALL flags so every country is visible (including Falklands etc.)
