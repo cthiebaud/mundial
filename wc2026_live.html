@@ -41,7 +41,7 @@
 
 <script type="module">
 import { T, wikiUrl, regionName } from './js/i18n.js';
-import iso from 'https://cdn.jsdelivr.net/npm/iso-3166-1@2/dist/index.mjs';
+import { whereNumeric } from 'https://cdn.jsdelivr.net/npm/iso-3166-1@2/+esm';
 
 document.getElementById('live-title').textContent = T.liveTitle(0);
 document.getElementById('live-subtitle').textContent = T.liveSubtitle;
@@ -218,7 +218,7 @@ const _flagCodeMap = (() => {
   const map = { ..._FLAG_OVERRIDES };
   for (const { id, name } of eloData.rankings) {
     if (map[name]) continue;
-    const alpha2 = iso.whereNumeric(String(id).padStart(3, '0'))?.alpha2?.toLowerCase();
+    const alpha2 = whereNumeric(String(id).padStart(3, '0'))?.alpha2?.toLowerCase();
     if (alpha2) map[name] = alpha2;
   }
   return map;
