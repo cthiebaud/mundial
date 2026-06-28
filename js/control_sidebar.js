@@ -441,7 +441,7 @@ export function initSidebar({ T, QUALIFIED_NAMES, app, fifaMemberIds, eloMain, c
 
   // ── URL params debug (badge · panel · console) ─────────────────────────
 
-  const _SORT_NAMES  = { elo: 'Elo ranking', alpha: 'A–Z', pop: 'population', delta: 'Elo delta' };
+  const _SORT_NAMES  = { elo: 'Elo ranking', alpha: 'A–Z', pop: 'population', delta: 'plays-for minus born-in' };
   const _KNOWN_PARAMS = new Set(['sort', 'dir', 'in', 'out', 'show', 'explain']);
   const _badge = _el.querySelector('#params-badge');
   let _lastLines = [], _panelEl = null;

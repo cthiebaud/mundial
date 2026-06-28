@@ -27,7 +27,7 @@ All active parameters are always logged to the browser console, regardless of `?
 ?sort=elo              Elo world ranking (default)
 ?sort=alpha            A–Z country name
 ?sort=pop              population
-?sort=delta            Elo rank delta vs. previous period
+?sort=delta            plays-for minus born-in count
 ?sort=elo+alpha        primary: Elo, secondary: A–Z
 ?sort=pop+delta+alpha  up to 4 keys; only the first two are effective for sorting
 ```
@@ -112,7 +112,7 @@ Aliases and individual codes may be freely mixed; the result is a union. Unknown
 ?show=qual&sort=pop&dir=asc   Qualified countries sorted by population ascending.
 ?show=qie                     Only countries that both import and export players.
 ?in&show=exp                  Exporter column, filtered to surviving teams.
-?sort=delta&dir=asc&show=qual Qualified countries sorted by lowest Elo delta first.
+?sort=delta&dir=asc&show=qual Qualified countries with fewest plays-for vs. born-in first.
 ?show=all                     All 8 cells including normally-hidden of and on.
 ?show=qual,ef                 Qualified countries + non-qualified FIFA exporters.
 ```
