@@ -80,7 +80,14 @@ The filter matrix mirrors the sidebar layout — two columns (exporter / non-exp
 
 All cells are on by default except `of` and `on` (no connection to any qualified team).
 
-Letter mnemonics: `q` = qualified · `i` = imports · `e` = exports · `f` = FIFA member · `n` = non-FIFA · `o` = other (non-qualified, non-exporter).
+Letter mnemonics:
+
+- `q` — qualified
+- `i` — imports
+- `e` — exports
+- `f` — FIFA member
+- `n` — non-FIFA
+- `o` — other (non-qualified, non-exporter)
 
 **A note on terminology.** The official framing of this project is **Born In / Plays For**: a player is *born in* one country and *plays for* another. In the filter matrix the same relationship is expressed from the country's point of view as **imports / exports**: a country *exports* a player when someone born there plays for a different squad; it *imports* a player when someone born abroad plays for its squad. The two framings are interchangeable:
 
