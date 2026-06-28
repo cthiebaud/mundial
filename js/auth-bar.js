@@ -135,6 +135,21 @@ class MundialAuthBar extends HTMLElement {
     this._el('auth-section').style.visibility = 'hidden';
     this._offsetSibling();
     this._init();
+
+    // ?guide[=section] — auto-open guide panel on load
+    const _sp = new URLSearchParams(location.search);
+    if (_sp.has('guide')) {
+      const _validGuide = new Set(['map', 'countries', 'france', 'live', 'auth']);
+      const _target = _sp.get('guide') || this._currentGuideId;
+      if (_target && _validGuide.has(_target)) {
+        this._currentGuideId = _target;
+        requestAnimationFrame(async () => {
+          this._guideActive = true;
+          const { toggleGuide } = await import('./guide-mode.js');
+          toggleGuide(this);
+        });
+      }
+    }
   }
 
   _el(ref) { return this._refs[ref]; }

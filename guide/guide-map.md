@@ -52,6 +52,10 @@ On touch screens, swipe left or right to step the knob one position at a time.
 The toggle works in combination with the rest of the filter matrix — you can, for example,
 show only alive & kicking teams that are also exporters by switching to **in** and unchecking the non-exporter column.
 
+### URL query parameters
+
+The filter and sort state can also be configured directly from the URL — `?sort=`, `?dir=`, `?in`, `?out`, `?show=`. Add `?explain` to any URL to open a panel describing what the active parameters do. The full reference with all cell codes, group aliases and examples is in the Countries page guide.
+
 ### About the country reference
 
 The map and the list use [eloratings.net](https://www.eloratings.net/) as the source of countries —
