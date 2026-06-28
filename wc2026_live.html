@@ -41,6 +41,7 @@
 
 <script type="module">
 import { T, wikiUrl, regionName } from './js/i18n.js';
+import iso from 'https://cdn.jsdelivr.net/npm/iso-3166-1@2/dist/index.mjs';
 
 document.getElementById('live-title').textContent = T.liveTitle(0);
 document.getElementById('live-subtitle').textContent = T.liveSubtitle;
@@ -140,8 +141,11 @@ retryBtn.addEventListener('click', () => {
 const { backend, socket: sock } = await _waitForBackend();
 PROXY = backend;
 
-// Build per-team player indexes from map data
-const mapData = await fetch('./data/wc2026_map_data.json').then(r => r.json());
+// Build per-team player indexes from map data; fetch elo rankings for flagCode map
+const [mapData, eloData] = await Promise.all([
+  fetch('./data/wc2026_map_data.json').then(r => r.json()),
+  fetch('./data/wc2026_elo_rank.json').then(r => r.json()),
+]);
 const _norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 
 // Global exact/norm BC maps (full-name matches are unambiguous regardless of team)
@@ -204,35 +208,22 @@ const wikiLink = (name, teamName) => {
   return name;
 };
 
-const flagCode = name => {
-  const MAP = {
-    'Germany':'de','Ivory Coast':'ci','France':'fr','Brazil':'br','Argentina':'ar',
-    'England':'gb-eng','Scotland':'gb-sct','Wales':'gb-wls','Northern Ireland':'gb-nir',
-    'Spain':'es','Portugal':'pt','Netherlands':'nl','Belgium':'be','Italy':'it',
-    'Croatia':'hr','Denmark':'dk','Switzerland':'ch','Uruguay':'uy','Colombia':'co',
-    'Mexico':'mx','United States':'us','USA':'us','Canada':'ca','Japan':'jp',
-    'South Korea':'kr','Australia':'au','Saudi Arabia':'sa','Iran':'ir','Qatar':'qa',
-    'Morocco':'ma','Senegal':'sn','Ghana':'gh','Cameroon':'cm','Nigeria':'ng',
-    'Tunisia':'tn','Egypt':'eg','Algeria':'dz','Ecuador':'ec','Paraguay':'py',
-    'Chile':'cl','Peru':'pe','Bolivia':'bo','Venezuela':'ve','Costa Rica':'cr',
-    'Honduras':'hn','Panama':'pa','Jamaica':'jm','Haiti':'ht','Trinidad And Tobago':'tt',
-    'Serbia':'rs','Poland':'pl','Austria':'at','Czech Republic':'cz','Romania':'ro',
-    'Ukraine':'ua','Turkey':'tr','Greece':'gr','Hungary':'hu','Norway':'no',
-    'Sweden':'se','Finland':'fi','Iceland':'is','Ireland':'ie','Albania':'al',
-    'Bosnia and Herzegovina':'ba','Montenegro':'me','North Macedonia':'mk',
-    'Slovenia':'si','Slovakia':'sk','Georgia':'ge','New Zealand':'nz',
-    'China':'cn','Indonesia':'id','India':'in','Iraq':'iq','Jordan':'jo',
-    'Uzbekistan':'uz','Palestine':'ps','Syria':'sy','Bahrain':'bh','Oman':'om',
-    'Kuwait':'kw','Cape Verde':'cv','Curaçao':'cw','Curacao':'cw','DR Congo':'cd','Congo DR':'cd','Mali':'ml',
-    'Burkina Faso':'bf','Guinea':'gn','Mozambique':'mz','Tanzania':'tz',
-    'South Africa':'za','Kenya':'ke','Uganda':'ug','Zimbabwe':'zw',
-    'Zambia':'zm','Angola':'ao','Benin':'bj','Togo':'tg','Niger':'ne',
-    'Congo':'cg','Gabon':'ga','Comoros':'km','Madagascar':'mg',
-    'Mauritania':'mr','Namibia':'na','Rwanda':'rw','Sierra Leone':'sl',
-    'Korea Republic':'kr','Türkiye':'tr','Czechia':'cz',
-  };
-  return MAP[name] ?? name.toLowerCase().slice(0, 2);
+// Structural overrides: subdivision codes (UK home nations) and non-ISO entries (Kosovo, Curaçao)
+const _FLAG_OVERRIDES = {
+  'England':'gb-eng','Scotland':'gb-sct','Wales':'gb-wls','Northern Ireland':'gb-nir',
+  'Kosovo':'xk','Curaçao':'cw','Curacao':'cw',
 };
+// Build name→iso2 from elo rankings once; iso-3166-1 resolves numeric id → alpha-2
+const _flagCodeMap = (() => {
+  const map = { ..._FLAG_OVERRIDES };
+  for (const { id, name } of eloData.rankings) {
+    if (map[name]) continue;
+    const alpha2 = iso.whereNumeric(String(id).padStart(3, '0'))?.alpha2?.toLowerCase();
+    if (alpha2) map[name] = alpha2;
+  }
+  return map;
+})();
+const flagCode = name => _flagCodeMap[name] ?? (console.warn('flagCode: unknown team', name), name.toLowerCase().slice(0, 2));
 
 const localName = name => regionName(flagCode(name), name);
 
