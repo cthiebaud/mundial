@@ -38,7 +38,7 @@ Die Matrix kreuzt zwei **Spalten** (Exporteur / Nicht-Exporteur) mit vier **Zeil
 
 Deaktivieren Sie eine Zelle, um diese Kategorie auszublenden. Klicken Sie auf einen Zeilen- oder Spaltenkopf, um die gesamte Gruppe auf einmal umzuschalten.
 
-### 💪 Überlebende-Filter
+### Alive-&-kicking-Filter
 
 Der Schalter **in · ● · out** befindet sich direkt unterhalb des Zeilenkopfs *Qualifiziert*.
 Standardmäßig ist der Knopf zentriert — alle 48 qualifizierten Länder werden angezeigt.

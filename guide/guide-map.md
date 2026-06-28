@@ -38,7 +38,7 @@ The matrix crosses two **columns** (exporter / non-exporter) with four **rows** 
 
 Uncheck any cell to hide that category. Click a row or column header to toggle the whole group at once.
 
-### 💪 Alive & kicking filter
+### Alive & kicking filter
 
 The **in · ● · out** toggle sits just below the *qualified* row header.
 By default the knob is centred — all 48 qualified countries are shown.

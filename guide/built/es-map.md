@@ -38,7 +38,7 @@ La matriz cruza dos **columnas** (exportador / no exportador) con cuatro **filas
 
 Desmarca una celda para ocultar esa categoría. Haz clic en un encabezado de fila o columna para alternar todo el grupo a la vez.
 
-### 💪 Filtro supervivientes
+### Filtro alive & kicking
 
 El interruptor **in · ● · out** se encuentra justo debajo del encabezado de fila *clasificados*.
 Por defecto el cursor está centrado — se muestran los 48 países clasificados.

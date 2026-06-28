@@ -38,7 +38,7 @@ La matrice croise deux **colonnes** (exportateur / non-exportateur) avec quatre 
 
 Décochez une cellule pour masquer cette catégorie. Cliquez sur un en-tête de ligne ou de colonne pour basculer tout le groupe d'un coup.
 
-### 💪 Filtre alive & kicking
+### Filtre alive & kicking
 
 Le commutateur **in · ● · out** se trouve juste en dessous de l'en-tête de ligne *qualifié*.
 Par défaut, le curseur est centré — les 48 pays qualifiés sont affichés.

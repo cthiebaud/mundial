@@ -38,7 +38,7 @@ La matrice incrocia due **colonne** (esportatore / non esportatore) con quattro 
 
 Deseleziona una cella per nascondere quella categoria. Clicca su un'intestazione di riga o colonna per attivare/disattivare l'intero gruppo in una volta.
 
-### 💪 Filtro sopravvissuti
+### Filtro alive & kicking
 
 Il selettore **in · ● · out** si trova appena sotto l'intestazione di riga *qualificati*.
 Per impostazione predefinita il cursore è centrato — vengono mostrati tutti i 48 paesi qualificati.
