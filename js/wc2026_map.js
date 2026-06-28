@@ -605,8 +605,6 @@ const zoomToCentroid = (id, duration = 2000) => {
 
 const _renderElo = (onAnimationDone) => {
   if (!_renderEloBase) return;
-  const _metaEl = document.getElementById('elo-meta');
-  if (_metaEl) _metaEl.hidden = sidebar.sortOrder[0] !== 'elo';
   _renderEloBase(onAnimationDone);
   if (dimState.sourceId) _eloMain.update(dimState.sourceId);
 };

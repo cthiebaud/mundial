@@ -105,20 +105,32 @@ customElements.define('elo-ranking', EloRanking);
 export const initEloRanking = ({ el, sidebar, buildArgs, fmtPop, onRender, eloData }) => {
   const rawItems = buildEloItems(buildArgs);
   el.items = rawItems;
-  const renderFn = (onAnimationDone) => {
-    el.show(sidebar.sortAndFilter(rawItems, fmtPop), onAnimationDone);
-    onRender?.();
-  };
+
+  // Build stable #elo-meta structure once: [count span] · [source span (toggled)]
   const metaEl = document.getElementById('elo-meta');
-  if (metaEl && eloData) {
-    const parts = [];
-    if (eloData.source) parts.push(`<a href="https://${eloData.source}/" target="_blank" rel="noopener" class="sub">${eloData.source}</a>`);
-    if (eloData.updated) {
+  let metaCountEl = null, metaSourceEl = null;
+  if (metaEl) {
+    const sourceParts = [];
+    if (eloData?.source) sourceParts.push(`<a href="https://${eloData.source}/" target="_blank" rel="noopener" class="sub">${eloData.source}</a>`);
+    if (eloData?.updated) {
       const d = new Date(eloData.updated + 'T00:00:00');
       const fmt = isNaN(d) ? eloData.updated : d.toLocaleDateString(LOCALE, { day: 'numeric', month: 'long', year: 'numeric' });
-      parts.push(`${T.eloUpdated}${fmt}`);
+      sourceParts.push(`${T.eloUpdated}${fmt}`);
     }
-    metaEl.innerHTML = `${rawItems.length} ${T.navCountries} · ${parts.join(' · ')}`;
+    metaEl.innerHTML = sourceParts.length
+      ? `<span id="elo-meta-count"></span> · <span id="elo-meta-source">${sourceParts.join(' · ')}</span>`
+      : `<span id="elo-meta-count"></span>`;
+    metaCountEl  = document.getElementById('elo-meta-count');
+    metaSourceEl = document.getElementById('elo-meta-source');
   }
+
+  const renderFn = (onAnimationDone) => {
+    const visibleItems = sidebar.sortAndFilter(rawItems, fmtPop);
+    el.show(visibleItems, onAnimationDone);
+    if (metaCountEl) metaCountEl.textContent = `${visibleItems.length}/${rawItems.length} ${T.navCountries}`;
+    if (metaSourceEl) metaSourceEl.hidden = sidebar.sortOrder[0] !== 'elo';
+    onRender?.();
+  };
+
   return { rawItems, render: renderFn };
 };
