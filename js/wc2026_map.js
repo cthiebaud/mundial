@@ -1641,7 +1641,7 @@ Promise.all([
     el: _eloMain, sidebar,
     buildArgs: { rankings: eloData.rankings, byId: app.byId, importByCountry: app.importByCountry, fifaMemberIds: _fifaMemberIds, countryNameFn: countryName, centroids, pop: app.pop },
     fmtPop, eloData,
-    popData: { source: mapData.popSource, updated: mapData.popUpdated },
+    popData: { source: rawData.popSource, updated: rawData.popUpdated },
   });
   _renderEloBase = _eloRender;
   _eloItemsById.clear();
