@@ -458,11 +458,14 @@ export function initSidebar({ T, QUALIFIED_NAMES, app, fifaMemberIds, eloMain, c
     const sortRaw = sp.get('sort');
     if (sortRaw) {
       const keys = sortRaw.split(/[\s,+]+/).filter(k => _SORT_KEYS.has(k));
-      if (keys.length) lines.push({ param: `?sort=${sortRaw.trim()}`, desc: `sort: ${keys.map(k => _SORT_NAMES[k]).join(' → ')}` });
+      lines.push(keys.length
+        ? { param: `?sort=${sortRaw.trim()}`, desc: `sort: ${keys.map(k => _SORT_NAMES[k]).join(' → ')}` }
+        : { param: `?sort=${sortRaw.trim()}`, desc: 'no valid sort keys — ignored' });
     }
     const dir = sp.get('dir');
-    if (dir === 'asc')  lines.push({ param: '?dir=asc',  desc: 'ascending ↑' });
-    if (dir === 'desc') lines.push({ param: '?dir=desc', desc: 'descending ↓' });
+    if      (dir === 'asc')  lines.push({ param: '?dir=asc',  desc: 'ascending ↑' });
+    else if (dir === 'desc') lines.push({ param: '?dir=desc', desc: 'descending ↓' });
+    else if (dir)            lines.push({ param: `?dir=${dir}`, desc: 'invalid direction — ignored (use asc or desc)' });
     const show = sp.get('show');
     if (show) {
       const cells = new Set(), unknown = [];
