@@ -58,6 +58,10 @@ El botón <img class="gp-icon" src="images/solar_linear/widget-5-svgrepo-com.svg
 
 Al seleccionar una confederación también se resalta su límite externo en el mapa y se hace zoom para encuadrarla. Selecciona **Todas las confederaciones FIFA** para borrar el filtro.
 
+### Parámetros de URL
+
+El estado del filtro y la ordenación también se puede configurar directamente desde la URL — `?sort=`, `?dir=`, `?in`, `?out`, `?show=`, `?fifa=`. Añade `?explain` a cualquier URL para abrir un panel que describe lo que hacen los parámetros activos. La referencia completa con todos los códigos de celda, alias de grupo y ejemplos está en la [guía de la página de Países](?guide=countries).
+
 ### Sobre la referencia de países
 
 El mapa y la lista usan [eloratings.net](https://www.eloratings.net/) como fuente de países —

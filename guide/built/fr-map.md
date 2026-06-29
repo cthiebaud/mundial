@@ -58,6 +58,10 @@ Le bouton <img class="gp-icon" src="images/solar_linear/widget-5-svgrepo-com.svg
 
 La sélection d'une confédération met également en évidence sa frontière externe sur la carte et effectue un zoom pour l'ajuster à la vue. Sélectionnez **Toutes les confédérations FIFA** pour supprimer le filtre.
 
+### Paramètres d'URL
+
+L'état du filtre et du tri peut aussi être configuré directement depuis l'URL — `?sort=`, `?dir=`, `?in`, `?out`, `?show=`, `?fifa=`. Ajoutez `?explain` à n'importe quelle URL pour ouvrir un panneau décrivant l'effet des paramètres actifs. La référence complète avec tous les codes de cellule, alias de groupe et exemples se trouve dans le [guide de la page Pays](?guide=countries).
+
 ### À propos de la référence des pays
 
 La carte et la liste utilisent [eloratings.net](https://www.eloratings.net/) comme source des pays —

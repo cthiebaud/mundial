@@ -58,6 +58,10 @@ Die Schaltfläche <img class="gp-icon" src="images/solar_linear/widget-5-svgrepo
 
 Die Auswahl einer Konföderation hebt zudem ihre Außengrenze auf der Karte hervor und zoomt darauf ein. Wählen Sie **Alle FIFA-Konföderationen**, um den Filter aufzuheben.
 
+### URL-Parameter
+
+Der Filter- und Sortierstatus kann auch direkt über die URL konfiguriert werden — `?sort=`, `?dir=`, `?in`, `?out`, `?show=`, `?fifa=`. Fügen Sie `?explain` zu einer beliebigen URL hinzu, um ein Panel zu öffnen, das die aktiven Parameter erklärt. Die vollständige Referenz mit allen Zellcodes, Gruppenaliasen und Beispielen finden Sie im [Länderseiten-Guide](?guide=countries).
+
 ### Zur Länderreferenz
 
 Karte und Liste verwenden [eloratings.net](https://www.eloratings.net/) als Länderquelle —

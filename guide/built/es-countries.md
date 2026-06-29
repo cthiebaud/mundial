@@ -1,152 +1,152 @@
 <!-- i18n:countries_page_title -->
-# Countries
+# Países
 <!-- /i18n:countries_page_title -->
 
 <!-- i18n:countries_intro -->
-All countries in the World Cup 2026 ecosystem — qualified squads and the broader world of football nations — ranked by Elo rating and colour-coded by their born-in / plays-for connections.
+Todos los países del ecosistema del Mundial 2026 — selecciones clasificadas y el mundo más amplio del fútbol — clasificados por rating Elo y coloreados según sus conexiones nacido-en / juega-para.
 <!-- /i18n:countries_intro -->
 
 <!-- i18n:countries_url_params -->
-## URL query parameters
+## Parámetros de URL
 
-Both the Countries page and the Map page support URL query parameters to pre-configure the filter and sort sidebar on load. All parameters are optional and independent; omitted parameters keep the sidebar defaults.
+Las páginas Países y Mapa admiten parámetros de URL para preconfigurar el panel de filtro y ordenación al cargarse. Todos los parámetros son opcionales e independientes; los parámetros omitidos mantienen los valores predeterminados del panel.
 
-### `?explain` — debugging aid
+### `?explain` — ayuda de depuración
 
-Add `?explain` to any URL to open an explanation panel on load that translates every active parameter into plain English, alongside a count of visible countries. The same panel can be toggled at any time via the `?` badge that appears in the filter header corner whenever non-default parameters are active. Dismiss it by clicking `?` again, clicking `×`, or pressing Esc.
+Añade `?explain` a cualquier URL para abrir al cargarse un panel de explicación que traduce cada parámetro activo a lenguaje claro, junto con un recuento de países visibles. El mismo panel puede activarse en cualquier momento mediante el badge `?` que aparece en la esquina del encabezado del filtro cuando hay parámetros no predeterminados activos. Ciérralo volviendo a hacer clic en `?`, en `×`, o pulsando Esc.
 
-All active parameters are always logged to the browser console, regardless of `?explain`.
-
-```
-?in&show=qual&explain    → opens the panel on load, stays open for review
-```
-
-### `?sort` — sort criterion
+Todos los parámetros activos se registran siempre en la consola del navegador, independientemente de `?explain`.
 
 ```
-?sort=elo              Elo world ranking (default)
-?sort=alpha            A–Z country name
-?sort=pop              population
-?sort=delta            plays-for minus born-in count
-?sort=elo+alpha        primary: Elo, secondary: A–Z
-?sort=pop+delta+alpha  up to 4 keys; only the first two are effective for sorting
+?in&show=qual&explain    → abre el panel al cargar, permanece abierto para revisión
 ```
 
-`+` separates keys (`,` also accepted). Specified keys come first in the given order; unspecified keys fill the remaining slots in the sidebar. Combines with `?dir`.
-
-### `?dir` — sort direction
+### `?sort` — criterio de ordenación
 
 ```
-?dir=desc    descending (default)
-?dir=asc     ascending
+?sort=elo              clasificación Elo mundial (predeterminado)
+?sort=alpha            A–Z nombre de país
+?sort=pop              población
+?sort=delta            juega-para menos nacido-en
+?sort=elo+alpha        primario: Elo, secundario: A–Z
+?sort=pop+delta+alpha  hasta 4 claves; solo las dos primeras son efectivas
 ```
 
-Applies to the primary sort key only. `?sort=alpha&dir=desc` yields Z–A.
+`+` separa las claves (`,` también aceptado). Las claves especificadas van primero en el orden indicado; las claves no especificadas rellenan los espacios restantes en el panel. Se combina con `?dir`.
 
-### `?in` / `?out` — alive & kicking filter
-
-Boolean flags — presence alone is the signal; no `=value` needed. These mirror the **in · ● · out** toggle widget in the filter panel.
+### `?dir` — dirección de ordenación
 
 ```
-(neither)    default — all 48 qualified countries shown
-?in          alive & kicking only — teams still in the tournament
-?out         eliminated only — teams knocked out
-?in&out      Schrödinger's team → empty set (no country is simultaneously in and out)
+?dir=desc    descendente (predeterminado)
+?dir=asc     ascendente
 ```
 
-![Schrödinger's cat](../images/Schrödinger.avif)
+Se aplica solo a la clave de ordenación primaria. `?sort=alpha&dir=desc` produce Z–A.
 
-When `?in` or `?out` is set, non-qualified exporter countries are also filtered:
+### `?in` / `?out` — filtro alive & kicking
 
-- `?in` hides exporters whose players all go to knocked-out teams
-- `?out` hides exporters whose players all go to alive & kicking teams
-
-### `?fifa` — FIFA confederation filter
+Indicadores booleanos — solo la presencia es la señal; no se necesita `=valor`. Reflejan el widget de conmutación **in · ● · out** en el panel de filtros.
 
 ```
-?fifa=uefa       UEFA — Europe
+(ninguno)    predeterminado — los 48 países clasificados mostrados
+?in          solo alive & kicking — equipos aún en el torneo
+?out         solo eliminados — equipos eliminados
+?in&out      el equipo de Schrödinger → conjunto vacío (ningún país está simultáneamente in y out)
+```
+
+![Gato de Schrödinger](../images/Schrödinger.avif)
+
+Cuando se establece `?in` o `?out`, los países exportadores no clasificados también se filtran:
+
+- `?in` oculta los exportadores cuyos jugadores van todos a equipos eliminados
+- `?out` oculta los exportadores cuyos jugadores van todos a equipos alive & kicking
+
+### `?fifa` — filtro de confederaciones FIFA
+
+```
+?fifa=uefa       UEFA — Europa
 ?fifa=afc        AFC — Asia
-?fifa=caf        CAF — Africa
-?fifa=conmebol   CONMEBOL — South America
-?fifa=concacaf   CONCACAF — N. & C. America
-?fifa=ofc        OFC — Oceania
+?fifa=caf        CAF — África
+?fifa=conmebol   CONMEBOL — América del Sur
+?fifa=concacaf   CONCACAF — América del Norte y Central
+?fifa=ofc        OFC — Oceanía
 ```
 
-Filters the list to FIFA members of the named confederation only. Non-FIFA countries are unaffected — they remain visible or hidden according to the `?show` and `?in`/`?out` settings. On the Map page, also highlights the confederation boundary and pans/zooms to it.
+Filtra la lista a los miembros FIFA de la confederación indicada únicamente. Los países no-FIFA no se ven afectados — permanecen visibles u ocultos según la configuración de `?show` y `?in`/`?out`. En la página Mapa, también resalta el límite de la confederación y hace zoom sobre ella.
 
-Unknown values are silently ignored and defaults are kept.
+Los valores desconocidos se ignoran silenciosamente y se mantienen los valores predeterminados.
 
-### `?show` — filter whitelist
+### `?show` — lista blanca de filtro
 
 ```
 ?show=<token>[,<token>...]
 ```
 
-Comma-separated cell codes and/or group aliases. When `show` is present it **replaces** the defaults entirely — every cell not listed is unchecked. When absent, defaults apply.
+Códigos de celda y/o alias de grupo separados por comas. Cuando `show` está presente **reemplaza** completamente los valores predeterminados — cada celda no listada queda desmarcada. Cuando está ausente, se aplican los valores predeterminados.
 
-##  Cell codes
+##  Códigos de celda
 
-The filter matrix mirrors the sidebar layout — two columns (exporter / non-exporter) crossed with four row groups:
+La matriz de filtro refleja el diseño del panel — dos columnas (exportador / no exportador) cruzadas con cuatro grupos de filas:
 
-|  | **exporter** | **non-exporter** |
+|  | **exportador** | **no exportador** |
 |---|:---:|:---:|
-| **qualified · imports**        | `qie`&nbsp;&nbsp;✓  | `qi`&nbsp;&nbsp;✓ |
-| **qualified · no imports**     |  `qe` &nbsp;&nbsp;✓ |  `q` &nbsp;&nbsp;✓ |
-| **non-qualified · FIFA**       |  `ef` &nbsp;&nbsp;✓ | `of`&nbsp;&nbsp;○ |
-| **non-qualified · non-FIFA**   |  `en` &nbsp;&nbsp;✓ | `on`&nbsp;&nbsp;○ |
+| **clasificado · importaciones**     | `qie`&nbsp;&nbsp;✓  | `qi`&nbsp;&nbsp;✓ |
+| **clasificado · sin importaciones** |  `qe` &nbsp;&nbsp;✓ |  `q` &nbsp;&nbsp;✓ |
+| **no clasificado · FIFA**           |  `ef` &nbsp;&nbsp;✓ | `of`&nbsp;&nbsp;○ |
+| **no clasificado · no-FIFA**        |  `en` &nbsp;&nbsp;✓ | `on`&nbsp;&nbsp;○ |
 
-✓ on by default · ○ off by default
+✓ activo por defecto · ○ inactivo por defecto
 
-Letter mnemonics:
+Mnemónicos de letras:
 
-- `q` — qualified
-- `i` — imports
-- `e` — exports
-- `f` — FIFA member
-- `n` — non-FIFA
-- `o` — other (non-qualified, non-exporter)
+- `q` — clasificado
+- `i` — importaciones
+- `e` — exportaciones
+- `f` — miembro FIFA
+- `n` — no-FIFA
+- `o` — otro (no clasificado, no exportador)
 
-### A note on terminology
+### Nota sobre terminología
 
-The official framing of this project is **Born In / Plays For**: a player is *born in* one country and *plays for* another. In the filter matrix the same relationship is expressed from the country's point of view as **imports / exports**: a country *exports* a player when someone born there plays for a different squad; it *imports* a player when someone born abroad plays for its squad. The two framings are interchangeable:
+El marco oficial de este proyecto es **Nacido En / Juega Para**: un jugador es *nacido en* un país y *juega para* otro. En la matriz de filtro la misma relación se expresa desde el punto de vista del país como **importaciones / exportaciones**: un país *exporta* un jugador cuando alguien nacido allí juega para una selección diferente; *importa* un jugador cuando alguien nacido en el extranjero juega para su selección. Las dos formulaciones son intercambiables:
 
-- "France exports 17 players" = "17 players born in France play for another country's squad."
-- "Morocco imports 4 players" = "4 players born outside Morocco play for the Moroccan squad."
-- "A `qie` country both imports and exports" = "a qualified squad that includes players born abroad *and* has players born there representing other nations."
+- «Francia exporta 17 jugadores» = «17 jugadores nacidos en Francia juegan para la selección de otro país.»
+- «Marruecos importa 4 jugadores» = «4 jugadores nacidos fuera de Marruecos juegan para la selección marroquí.»
+- «Un país `qie` importa y exporta» = «una selección clasificada que incluye jugadores nacidos en el extranjero *y* tiene jugadores nacidos allí representando otras naciones.»
 
-## Group aliases
+## Alias de grupo
 
-| Alias  | Expands to         | Meaning                              |
-|--------|--------------------|--------------------------------------|
-| `qual` | `qie,qi,qe,q`     | All qualified rows                   |
-| `nq`   | `ef,en,of,on`     | All non-qualified rows               |
-| `exp`  | `qie,qe,ef,en`    | Exporter column                      |
-| `nexp` | `qi,q,of,on`      | Non-exporter column                  |
-| `imp`  | `qie,qi`          | Importer rows (with or without exports) |
-| `all`  | all 8 codes        | Every cell (including `of` and `on`) |
+| Alias  | Se expande en      | Significado                                       |
+|--------|--------------------|---------------------------------------------------|
+| `qual` | `qie,qi,qe,q`     | Todas las filas clasificadas                      |
+| `nq`   | `ef,en,of,on`     | Todas las filas no clasificadas                   |
+| `exp`  | `qie,qe,ef,en`    | Columna exportadores                              |
+| `nexp` | `qi,q,of,on`      | Columna no exportadores                           |
+| `imp`  | `qie,qi`          | Filas importadores (con o sin exportaciones)      |
+| `all`  | todos los 8 códigos | Todas las celdas (incluidas `of` y `on`)        |
 
-Aliases and individual codes may be freely mixed; the result is a union. Unknown tokens are silently ignored — if all tokens are unrecognized the parameter is ignored entirely and defaults are kept.
+Los alias y los códigos individuales se pueden mezclar libremente; el resultado es una unión. Los tokens desconocidos se ignoran silenciosamente — si todos los tokens son desconocidos el parámetro se ignora por completo y se mantienen los valores predeterminados.
 
-## Combining `?in`/`?out` with `?show`
+## Combinar `?in`/`?out` con `?show`
 
-- `?in&show=qual` → only alive & kicking qualified countries
-- `?out&show=qual` → only eliminated qualified countries
-- `?in&show=exp` → exporters (qualified or not) linked to alive & kicking teams
-- `?in`/`?out` have no effect on `of`/`on` cells (they have no tournament connection)
+- `?in&show=qual` → solo países clasificados alive & kicking
+- `?out&show=qual` → solo países clasificados eliminados
+- `?in&show=exp` → exportadores (clasificados o no) vinculados a equipos alive & kicking
+- `?in`/`?out` no tienen efecto en las celdas `of`/`on` (no tienen conexión con el torneo)
 
-## Examples
+## Ejemplos
 
 ```
-?in&show=qual                 Only alive & kicking qualified countries.
-?out&show=qual                Only eliminated qualified countries.
-?show=qual                    All 48 qualified countries; non-qualified hidden.
-?show=qual&sort=pop&dir=asc   Qualified countries sorted by population ascending.
-?show=qie                     Only countries that both import and export players.
-?in&show=exp                  Exporter column, filtered to alive & kicking teams.
-?sort=delta&dir=asc&show=qual Qualified countries with fewest plays-for vs. born-in first.
-?show=all                     All 8 cells including normally-hidden of and on.
-?show=qual,ef                 Qualified countries + non-qualified FIFA exporters.
-?fifa=uefa                    UEFA members only (FIFA filter; non-FIFA unaffected).
-?fifa=caf&show=exp            African exporters only.
+?in&show=qual                 Solo países clasificados alive & kicking.
+?out&show=qual                Solo países clasificados eliminados.
+?show=qual                    Los 48 países clasificados; no clasificados ocultos.
+?show=qual&sort=pop&dir=asc   Países clasificados ordenados por población ascendente.
+?show=qie                     Solo países que tanto importan como exportan jugadores.
+?in&show=exp                  Columna exportadores, filtrada a equipos alive & kicking.
+?sort=delta&dir=asc&show=qual Países clasificados con menor diferencia juega-para vs. nacido-en primero.
+?show=all                     Las 8 celdas incluidas of y on normalmente ocultas.
+?show=qual,ef                 Países clasificados + exportadores FIFA no clasificados.
+?fifa=uefa                    Solo miembros UEFA (filtro FIFA; no-FIFA no afectados).
+?fifa=caf&show=exp            Solo exportadores africanos.
 ```
 <!-- /i18n:countries_url_params -->
