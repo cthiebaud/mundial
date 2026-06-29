@@ -19,6 +19,8 @@ Live at: **https://mundial.cthiebaud.com/**
 
 The backend repo lives at `../mundial-server` and the build repo at `../mundial-build` (sibling directories). The `data/` submodule (`mundial-data`) is shared between `mundial` and `mundial-build`. See their own `README.md` files for documentation.
 
+**Submodule ownership:** `mundial-build` is the **write owner** of `data/` — the pipeline commits new data there directly (the submodule is checked out on `main`, not detached HEAD). `mundial` is the **read path** — it holds a pointer to a specific `mundial-data` commit and treats `data/` as read-only. The submodule exists in `mundial` purely to avoid sparse-checkout complexity; it is never written to from this repo.
+
 ---
 
 ## File structure

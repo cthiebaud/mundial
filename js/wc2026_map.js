@@ -271,7 +271,6 @@ _syncResetBtn(_initialTransform);
 document.getElementById('zoom-reset').addEventListener('click', e => {
   e.stopPropagation();
   svg.transition().duration(400).call(zoom.transform, _initialTransform);
-  _highlightConf(null);
 });
 _zoomSpanBtn?.addEventListener('click', e => {
   e.stopPropagation();
