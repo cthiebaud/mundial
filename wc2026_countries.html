@@ -27,7 +27,7 @@
 </div>
 <script type="module">
 import { initEloRanking } from './js/elo_ranking.js';
-import { QUALIFIED_BY_NAME, QUALIFIED_NAMES, buildImportByCountry, buildAliveAndKicking, buildExporterSets } from './js/qualified.js';
+import { QUALIFIED_BY_NAME, QUALIFIED_NAMES, buildImportByCountry, buildExporterSets, loadEloData } from './js/qualified.js';
 import { LOCALE, T, countryName } from './js/i18n.js';
 import { initSidebar } from './js/control_sidebar.js';
 
@@ -37,13 +37,10 @@ const _syncPaddingTop = () => { _main.style.paddingTop = (_header.getBoundingCli
 requestAnimationFrame(_syncPaddingTop);
 window.addEventListener('resize', _syncPaddingTop);
 
-const [eloData, mapData, r32Data] = await Promise.all([
-  fetch('./data/wc2026_elo_rank.json').then(r => r.json()),
+const [{ eloData, aliveAndKicking: _aliveAndKicking }, mapData] = await Promise.all([
+  loadEloData(),
   fetch('./data/wc2026_map_data.json').then(r => r.json()),
-  fetch('./data/wc2026_r32_teams.json').then(r => r.json()).catch(() => null),
 ]);
-
-const _aliveAndKicking = buildAliveAndKicking(r32Data);
 
 const byId = Object.fromEntries((mapData.data ?? []).map(d => [d.id, d]));
 const fifaMemberIds = new Set(eloData.rankings.filter(r => r.fifaMember).map(r => r.id));

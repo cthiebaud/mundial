@@ -1,7 +1,7 @@
 import { html, render, nothing } from 'https://cdn.jsdelivr.net/npm/lit-html@3/lit-html.js';
 import { renderChain } from '../chains/wc2026_chain_render.js';
 import { pillClasses, pillContent, initEloRanking } from './elo_ranking.js';
-import { QUALIFIED_NAMES, QUALIFIED_BY_NAME, buildEloItems, buildImportByCountry, buildAliveAndKicking, buildExporterSets } from './qualified.js';
+import { QUALIFIED_NAMES, QUALIFIED_BY_NAME, buildEloItems, buildImportByCountry, buildExporterSets, loadEloData } from './qualified.js';
 import { LOCALE, _LANG, T, countryName, wikiUrl } from './i18n.js';
 import { initSidebar } from './control_sidebar.js';
 import { whereNumeric } from 'https://cdn.jsdelivr.net/npm/iso-3166-1@2/+esm';
@@ -1622,10 +1622,8 @@ Promise.all([
   fetch('data/wc2026_map_data.json').then(r => r.json()),
   d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'),
   fetch('data/uk-nations.geojson').then(r => r.json()),
-  fetch('data/wc2026_elo_rank.json').then(r => r.json()),
-  fetch('data/wc2026_r32_teams.json').then(r => r.json()).catch(() => null)
-]).then(([rawData, world, ukNations, eloData, r32Data]) => {
-  const _aliveAndKicking = buildAliveAndKicking(r32Data);
+  loadEloData(),
+]).then(([rawData, world, ukNations, { eloData, aliveAndKicking: _aliveAndKicking }]) => {
   _eloData = eloData;
   app.eloRank = Object.fromEntries(
     eloData.rankings.flatMap(({id, rank}) => { const n = QUALIFIED_NAMES[id]; return n ? [[n, rank]] : []; })
