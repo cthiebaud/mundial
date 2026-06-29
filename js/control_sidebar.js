@@ -1,4 +1,5 @@
 import { html, render, nothing } from 'https://cdn.jsdelivr.net/npm/lit-html@3/lit-html.js';
+import { CONF_IDS } from './conf.js';
 
 export function initSidebar({ T, QUALIFIED_NAMES, app, fifaMemberIds, eloMain, callbacks, alwaysOpen = false }) {
   let _sortOrder = ['elo', 'alpha', 'pop', 'delta'];
@@ -189,6 +190,18 @@ export function initSidebar({ T, QUALIFIED_NAMES, app, fifaMemberIds, eloMain, c
   _panel.querySelector('[data-row="qni"]' ).addEventListener('click', () => _filterToggle([_fltQE,  _fltQ]));
   _panel.querySelector('[data-row="nq"]'  ).addEventListener('click', () => _filterToggle([_fltEF, _fltOF, _fltEN, _fltON]));
   _panel.querySelector('[data-row="nqf"]' ).addEventListener('click', e => { if (e.target.closest('#zoom-conf-dropdown')) return; _filterToggle([_fltEF, _fltOF]); });
+  const _confDropdown = _panel.querySelector('#zoom-conf-dropdown');
+  _confDropdown?.addEventListener('show.bs.dropdown',   () => { _body.style.overflow = 'visible'; });
+  _confDropdown?.addEventListener('hidden.bs.dropdown', () => { _body.style.overflow = ''; });
+  _confDropdown?.addEventListener('click', e => {
+    const item = e.target.closest('[data-conf]');
+    if (!item) return;
+    e.stopPropagation();
+    const conf = item.dataset.conf;
+    const ids = conf ? (CONF_IDS[conf] ?? null) : null;
+    setConfFilter(ids);
+    document.dispatchEvent(new CustomEvent('mundial-conf-changed', { detail: { conf, ids } }));
+  });
   _panel.querySelector('[data-row="nqn"]' ).addEventListener('click', () => _filterToggle([_fltEN, _fltON]));
   _panel.querySelector('[data-col="exp"]' ).addEventListener('click', () => _filterToggle([_fltQIE, _fltQE, _fltEF, _fltEN]));
   _panel.querySelector('[data-col="nexp"]').addEventListener('click', () => _filterToggle([_fltQI,  _fltQ,  _fltOF, _fltON]));

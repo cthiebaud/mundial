@@ -4,6 +4,7 @@ import { pillClasses, pillContent, initEloRanking } from './elo_ranking.js';
 import { QUALIFIED_NAMES, QUALIFIED_BY_NAME, buildEloItems, buildImportByCountry, buildExporterSets, loadEloData } from './qualified.js';
 import { LOCALE, _LANG, T, countryName, wikiUrl } from './i18n.js';
 import { initSidebar } from './control_sidebar.js';
+import { CONF_BOUNDS } from './conf.js';
 import { whereNumeric } from 'https://cdn.jsdelivr.net/npm/iso-3166-1@2/+esm';
 import { RATIO_MAX, PALETTE, normalize, color, choroFill, OUTLIER_COLOR, OUTLIER_IDS,
          FLAG, DOT_R, FLAG_SIZE_ZOOM_EXP, FLAG_OFFSET_ZOOM_EXP, FLAG_CDN, FLAG_CDN_RECT,
@@ -259,7 +260,6 @@ const _zoomHintEl = document.getElementById('zoom-hint');
 _zoomHintEl.textContent = T.zoomHint;
 let _initialTransform = d3.zoomIdentity;
 const _zoomResetBtn = document.getElementById('zoom-reset');
-let _zoomConfBtn = null; // assigned after initSidebar() renders it
 const _zoomSpanBtn  = document.getElementById('zoom-span');
 const _syncResetBtn = t => {
   if (!_zoomResetBtn) return;
@@ -277,44 +277,6 @@ _zoomSpanBtn?.addEventListener('click', e => {
   e.stopPropagation();
   _zoomToLinkedFlags();
 });
-
-const _CONF_BOUNDS = {
-  uefa:     [[-25, 72], [50,  34]],
-  afc:      [[ 24, 56], [155, -48]],
-  caf:      [[-20, 38], [52,  -35]],
-  conmebol: [[-82, 13], [-34, -57]],
-  concacaf: [[-170, 72], [-55, 5]],
-  ofc:      [[155,  -5], [180, -55]],
-};
-
-const _CONF_IDS = {
-  uefa: new Set([
-    8, 20, 40, 51, 31, 56, 70, 100, 112, 191, 196, 203, 208, 233, 234,
-    246, 250, 268, 276, 292, 300, 348, 352, 372, 376, 380, 383, 398,
-    428, 438, 440, 442, 470, 498, 499, 528, 578, 616, 620, 642, 643,
-    674, 688, 703, 705, 724, 752, 756, 792, 804, 807,
-    8260, 8261, 8262, 8263,
-  ]),
-  afc: new Set([
-    4, 36, 48, 50, 64, 96, 104, 116, 144, 156, 158, 275, 316, 344,
-    356, 360, 364, 368, 392, 400, 408, 410, 414, 417, 418, 422, 446,
-    458, 462, 496, 512, 524, 586, 608, 626, 634, 682, 702, 704, 760,
-    762, 764, 784, 795, 860, 887,
-  ]),
-  caf: new Set([
-    12, 24, 72, 108, 120, 132, 140, 148, 174, 178, 180, 204, 226, 231,
-    232, 262, 266, 270, 288, 324, 384, 404, 426, 430, 434, 450, 454,
-    466, 478, 480, 504, 508, 516, 562, 566, 624, 646, 678, 686, 690,
-    694, 706, 710, 716, 728, 729, 748, 768, 788, 800, 818, 834, 854, 894,
-  ]),
-  conmebol: new Set([32, 68, 76, 152, 170, 218, 600, 604, 858, 862]),
-  concacaf: new Set([
-    28, 44, 52, 60, 84, 92, 124, 136, 188, 192, 212, 214, 222, 308,
-    312, 320, 328, 332, 340, 388, 474, 484, 500, 531, 533, 558, 591,
-    630, 659, 660, 662, 670, 740, 780, 796, 840, 850,
-  ]),
-  ofc: new Set([16, 90, 184, 242, 258, 540, 548, 554, 598, 776, 882]),
-};
 
 
 function _highlightConf(ids) {
@@ -831,19 +793,10 @@ const sidebar = initSidebar({ T, QUALIFIED_NAMES, app, fifaMemberIds: _fifaMembe
 _sidebarCallbacks.renderElo = _renderElo;
 _sidebarCallbacks.scrollToActiveElo = _scrollToActiveElo;
 
-_zoomConfBtn = document.getElementById('zoom-conf-dropdown');
-// Let the dropdown menu escape csb-body's overflow:hidden while open
-const _csbBody = document.querySelector('.csb-body');
-_zoomConfBtn?.addEventListener('show.bs.dropdown',   () => { if (_csbBody) _csbBody.style.overflow = 'visible'; });
-_zoomConfBtn?.addEventListener('hidden.bs.dropdown', () => { if (_csbBody) _csbBody.style.overflow = ''; });
-_zoomConfBtn?.addEventListener('click', e => {
-  const item = e.target.closest('[data-conf]');
-  if (!item) return;
-  e.stopPropagation();
-  const conf = item.dataset.conf;
-  if (!conf) { _highlightConf(null); sidebar.setConfFilter(null); return; }
-  if (!_CONF_BOUNDS[conf]) return;
-  const [[lonW, latN], [lonE, latS]] = _CONF_BOUNDS[conf];
+document.addEventListener('mundial-conf-changed', ({ detail: { conf, ids } }) => {
+  _highlightConf(ids);
+  if (!conf || !CONF_BOUNDS[conf]) return;
+  const [[lonW, latN], [lonE, latS]] = CONF_BOUNDS[conf];
   const nw = projection([lonW, latN]);
   const se = projection([lonE, latS]);
   if (!nw || !se) return;
@@ -854,8 +807,6 @@ _zoomConfBtn?.addEventListener('click', e => {
   const tx = W / 2 - k * ((nw[0] - pad) + bw / 2);
   const ty = H / 2 - k * ((nw[1] - pad) + bh / 2);
   svg.transition().duration(800).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
-  _highlightConf(_CONF_IDS[conf]);
-  sidebar.setConfFilter(_CONF_IDS[conf]);
 });
 
 const enablesDim = id => !!(app.byId[id] || QUALIFIED_NAMES[id]);
@@ -1314,7 +1265,7 @@ const showExportTip = (event, id) => {
     const hasMore        = leftTruncated || rightTruncated;
     render(html`
       <div class="tt-name tt-name-inner d-flex align-items-center gap-2">
-        <span class="tt-name-inner d-flex align-items-center gap-2">${flagImg(fc)}${!QUALIFIED_NAMES[id] ? html`<span class="d-inline-flex flex-column lh-sm gap-1"><span class="text-muted">${countryName(rec.id, rec.country)}</span><small class="tt-pop fst-italic">${T.notQualified}</small></span>` : countryName(rec.id, rec.country)}</span>
+        <span class="tt-name-inner d-flex align-items-center gap-2">${flagImg(fc)}${!QUALIFIED_NAMES[id] ? html`<span class="d-inline-flex flex-column lh-sm gap-1"><span class="text-muted">${countryName(rec.id, rec.country)}</span><small class="tt-pop fst-italic">${_fifaMemberIds.has(id) ? T.notQualified : T.notFifaMember}</small></span>` : countryName(rec.id, rec.country)}</span>
         <span class="tt-pop-rank d-flex flex-column align-items-end flex-shrink-0 ms-2">${popTag(rec.pop)}${rankTag(rec.country)}${capTag(app.capital[iso2ForId(rec.id)])}</span>
       </div>
       ${body}
@@ -1424,7 +1375,7 @@ const showSimpleTip = (event, id, topoName) => {
     const name = countryName(id, topoName);
     render(html`
       <div class="tt-name tt-name-inner d-flex align-items-center gap-2">
-        <span class="tt-name-inner d-flex align-items-center gap-2">${flagImg(fc)}<span class="d-inline-flex flex-column lh-sm gap-1"><span class="text-muted">${name}</span><small class="tt-pop fst-italic">${T.notQualified}</small></span></span>
+        <span class="tt-name-inner d-flex align-items-center gap-2">${flagImg(fc)}<span class="d-inline-flex flex-column lh-sm gap-1"><span class="text-muted">${name}</span><small class="tt-pop fst-italic">${_fifaMemberIds.has(id) ? T.notQualified : T.notFifaMember}</small></span></span>
         <span class="tt-pop-rank d-flex flex-column align-items-end flex-shrink-0 ms-2">${popTag(app.pop[fc])}${capTag(app.capital[fc])}</span>
       </div>`, tt);
   }

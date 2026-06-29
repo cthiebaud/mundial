@@ -1,0 +1,121 @@
+# SVG Inventory
+
+All SVG assets used across the UI. Source files live in `images/` and `images/solar_linear/`.
+
+---
+
+## 1. Inline SVG — `js/auth-bar.js`
+
+SVG path data is inlined as JS string constants and rendered via `unsafeHTML`. Each maps to a source file in `images/solar_linear/`.
+
+| Constant | Source file | Description | Used for |
+|---|---|---|---|
+| `ICON_HOME` | `solar_linear/earth-svgrepo-com.svg` | Earth | Map page nav link |
+| `ICON_LIVE` | `solar_linear/tv-svgrepo-com.svg` | TV/gamepad | Live page nav link |
+| `ICON_FRANCE` | `solar_linear/france-svgrepo-com.svg` | France outline | France page nav link |
+| `ICON_RANKINGS` | `solar_linear/ranking-svgrepo-com.svg` | Ranking | Rankings nav link |
+| `ICON_GUIDE` | `solar_linear/help-svgrepo-com.svg` | Crosshair/compass | Guide toggle button |
+| `ICON_MENU_DOTS` | `solar_linear/menu-dots-svgrepo-com.svg` | Three horizontal dots | Dropdown menu toggle |
+| `ICON_COURSE_UP` | `solar_linear/graph-up-svgrepo-com.svg` | Graph Up| Performance link |
+| `ICON_LOGIN` | `solar_linear/square-bottom-up-svgrepo-com.svg` | Square Bottom Up  | Sign-in button |
+| `ICON_LOGOUT` | `solar_linear/square-bottom-down-svgrepo-com.svg` | Square Bottom Down  | Sign-out button |
+| `WA_ICON` | *(custom — no source file)* | WhatsApp logo, `#25D366` fill | Offline contact link |
+| `WARN_ICON` | `solar_linear/shield-warning-svgrepo-com.svg` | Shield with `!`, amber stroke | Offline warning badge |
+
+---
+
+## 2. Inline SVG — `js/guide-mode.js`
+
+Custom geometric shapes, no source file.
+
+| Constant | Description | Used for |
+|---|---|---|
+| `_ARROW_BLUE` | Horizontal arrow, `#3b82f6`, pointing right | Guide annotation arrows |
+| `_ARROW_RED` | Horizontal arrow, `#ef4444`, pointing left | Guide annotation arrows |
+
+---
+
+## 3. Inline SVG — `wc2026_map.html`
+
+| Location | Description | Source file |
+|---|---|---|
+| `#scroll-top-btn` (line 93) | Chevron-up `∧`, `stroke="currentColor"` | *(custom — no source file)* |
+
+---
+
+## 4. Inline SVG — `guide.html`
+
+| Location | Description | Source file |
+|---|---|---|
+| Line 17 | GitHub Octocat logo, `fill="currentColor"` | *(custom — no source file)* |
+
+---
+
+## 5. `<img>` tags — `wc2026_map.html`
+
+| Element | Source file | Description |
+|---|---|---|
+| `#zoom-reset` button | `solar_linear/global-svgrepo-com.svg` | Globe — reset zoom |
+| `#zoom-span` button | `solar_linear/maximize-square-2-svgrepo-com.svg` | Expand — span linked flags |
+| `#tab-elo-btn` tab icon | `solar_linear/elo_tab_cup.svg` | Trophy cup — Elo ranking tab |
+| `#tab-chain-btn` tab icon | `wc2026.svg` | Chain graph — chains tab |
+
+---
+
+## 6. `<img>` tags — `js/control_sidebar.js` (lit-html template)
+
+| Element | Source file | Description |
+|---|---|---|
+| `#zoom-conf-dropdown` button | `solar_linear/widget-5-svgrepo-com.svg` | Widget grid — confederation filter |
+
+---
+
+## 7. `<img>` tags — `wc2026_live.html`
+
+| Element | Source file | Description |
+|---|---|---|
+| API-Football logo | `images/api_sports.svg` | API-Football service logo |
+
+---
+
+## 8. `<img>` tags — `insights/perf.html`
+
+| Element | Source file | Description |
+|---|---|---|
+| Globe/world button | `images/solar_linear/global-svgrepo-com.svg` | Globe — world view reset |
+
+---
+
+## 9. CSS background-image — `css/control-sidebar.css`
+
+| Selector | Source file | Description |
+|---|---|---|
+| `.csb-sort-dir` (default) | `images/sort-vertical-svgrepo-com.svg` | Bidirectional sort arrows |
+| `.csb-sort-dir` (asc state) | `images/sort-vertical-asc.svg` | Ascending sort arrow |
+
+---
+
+## Source files not currently referenced in UI
+
+These files exist in `images/` but are not used by any HTML, JS, or CSS:
+
+| File | Description |
+|---|---|
+| `images/world-cup-svgrepo-com.svg` | World Cup trophy (variant) |
+| `images/shield-warning-svgrepo-com.svg` | Warning shield (root-level copy; solar_linear version is used instead) |
+| `images/elo_tab_color_icon.svg` | Colored Elo icon |
+| `images/elo_tab_icon.svg` | Elo icon (basic) |
+| `images/empty_tab_icon.svg` | Empty/placeholder tab icon |
+| `images/home-4-svgrepo-com.svg` | Home icon (variant) |
+| `images/chain_tab_icon.svg` | Chain icon |
+| `images/info-circle-svgrepo-com2.svg` | Info circle |
+| `images/zoom-svgrepo-com.svg` | Magnifier |
+| `images/france-vector-svgrepo-com.svg` | France silhouette (vector) |
+| `solar_linear/settings-svgrepo-com.svg` | Settings gear |
+| `solar_linear/login-2-svgrepo-com.svg` | Login (variant 2) |
+| `solar_linear/power-svgrepo-com.svg` | Power button |
+| `solar_linear/radio-minimalistic-svgrepo-com.svg` | Radio |
+| `solar_linear/link-svgrepo-com.svg` | Link/chain |
+| `solar_linear/gamepad-svgrepo-com.svg` | Gamepad |
+| `solar_linear/plug-circle-svgrepo-com.svg` | Plug/connection |
+| `solar_linear/logout-2-svgrepo-com.svg` | Logout (variant 2) |

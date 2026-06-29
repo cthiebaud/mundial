@@ -166,6 +166,7 @@ export const T = {
 
     zoomHint:      'scroll pour zoomer · glisser pour déplacer',
     notQualified: 'non qualifié',
+    notFifaMember: 'non membre FIFA',
 
     tabPlayersHint:'Cliquez sur un pays pour voir ses joueurs.',
 
@@ -224,6 +225,7 @@ export const T = {
 
     zoomHint:      'scorri per zoomare · trascina per spostarti',
     notQualified: 'non qualificato',
+    notFifaMember: 'non membro FIFA',
 
     tabPlayersHint:'Clicca su un paese per vedere i suoi giocatori.',
 
@@ -282,6 +284,7 @@ export const T = {
 
     zoomHint:      'Scrollen zum Zoomen · Ziehen zum Verschieben',
     notQualified: 'nicht qualifiziert',
+    notFifaMember: 'kein FIFA-Mitglied',
 
     tabPlayersHint:'Klicke auf ein Land, um seine Spieler zu sehen.',
 
@@ -340,6 +343,7 @@ export const T = {
 
     zoomHint:      'rueda para zoom · arrastra para mover',
     notQualified: 'no clasificado',
+    notFifaMember: 'no miembro FIFA',
 
     tabPlayersHint:'Haz clic en un país para ver sus jugadores.',
 
@@ -398,6 +402,7 @@ export const T = {
 
     zoomHint:      'scroll to zoom · drag to pan',
     notQualified: 'not qualified',
+    notFifaMember: 'not a FIFA member',
 
     tabPlayersHint:'Click a country on the map to see its players.',
 
