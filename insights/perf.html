@@ -144,9 +144,9 @@ _wm.onZoom = e => {
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 const [mapData, eloData, r32Data, world, ukNations] = await Promise.all([
-  fetch('../data/wc2026_map_data.json').then(r => r.json()),
-  fetch('../data/wc2026_elo_rank.json').then(r => r.json()),
-  fetch('../data/wc2026_r32_teams.json').then(r => r.json()).catch(() => null),
+  fetch('../data/map_data.json').then(r => r.json()),
+  fetch('../data/elo_rank.json').then(r => r.json()),
+  fetch('../data/r32_teams.json').then(r => r.json()).catch(() => null),
   d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'),
   fetch('../data/uk-nations.geojson').then(r => r.json()),
 ]);

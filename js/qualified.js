@@ -52,7 +52,7 @@ export const buildAliveAndKicking = (r32Data) => {
 
 export const loadEloData = async (basePath = '') => {
   const [eloData, r32Data] = await Promise.all([
-    fetch(`${basePath}data/wc2026_elo_rank.json`).then(r => r.json()),
+    fetch(`${basePath}data/elo_rank.json`).then(r => r.json()),
     fetch(`${basePath}wc2026_alive_and_kicking.json`).then(r => r.json()).catch(() => null),
   ]);
   return { eloData, aliveAndKicking: buildAliveAndKicking(r32Data) };

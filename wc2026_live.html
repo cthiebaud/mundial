@@ -143,8 +143,8 @@ PROXY = backend;
 
 // Build per-team player indexes from map data; fetch elo rankings for flagCode map
 const [mapData, eloData] = await Promise.all([
-  fetch('./data/wc2026_map_data.json').then(r => r.json()),
-  fetch('./data/wc2026_elo_rank.json').then(r => r.json()),
+  fetch('./data/map_data.json').then(r => r.json()),
+  fetch('./data/elo_rank.json').then(r => r.json()),
 ]);
 const _norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 
