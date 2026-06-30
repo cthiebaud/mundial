@@ -356,7 +356,9 @@ export function initSidebar({ T, QUALIFIED_NAMES, app, fifaMemberIds, eloMain, c
   if (_mapSvg) {
     let _mzActive = false, _mzCaptured = false, _mzX0 = null, _mzY0 = null;
 
+    const _landscapeMQ = window.matchMedia('(max-height: 500px) and (orientation: landscape)');
     const _inZone = (x, y) => {
+      if (!_landscapeMQ.matches) return false;
       const r = _mapSvg.getBoundingClientRect();
       return x >= r.left + r.width * 2 / 3 && y <= r.top + r.height / 3;
     };

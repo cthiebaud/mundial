@@ -57,19 +57,19 @@ GitHub Actions deploys to Pages on every push. The `data/` submodule is cached b
 
 ```mermaid
 flowchart TD
-    push["📦 push to main\n(code change)"]
-    dispatch["🔄 repository_dispatch\n(daily Elo update)"]
-    manual["🛠 workflow_dispatch\n(manual)"]
+    push["push to main (code change)"]
+    dispatch["repository_dispatch (daily Elo update)"]
+    manual["workflow_dispatch (manual)"]
 
-    sha["resolve HEAD:data SHA\ngit rev-parse HEAD:data"]
+    sha["resolve HEAD:data SHA"]
 
-    cache{"cache hit?\nkey: data-SHA"}
+    cache{"cache hit? key: data-SHA"}
 
     hit["use cached data/"]
-    miss["git submodule update\n+ save cache"]
+    miss["git submodule update + save cache"]
 
-    fast["⚡ ~20s"]
-    slow["🐢 ~1m 40s"]
+    fast["~20s deploy"]
+    slow["~1m 40s deploy"]
 
     pages["GitHub Pages live"]
 
