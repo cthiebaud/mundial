@@ -11,9 +11,11 @@ Static frontend for the [Born In, Plays For](https://github.com/born-in-plays-fo
 | [/](https://mundial.cthiebaud.com/) | Entry point — redirects to the map |
 | [/wc2026_map.html](https://mundial.cthiebaud.com/wc2026_map.html) | Main choropleth map |
 | [/wc2026_france.html](https://mundial.cthiebaud.com/wc2026_france.html) | France departments choropleth |
+| [/wc2026_countries.html](https://mundial.cthiebaud.com/wc2026_countries.html) | Countries reference table |
 | [/wc2026_live.html](https://mundial.cthiebaud.com/wc2026_live.html) | Live game tracking (requires backend) |
 | [/guide.html](https://mundial.cthiebaud.com/guide.html) | User guide |
 | [/chains/wc2026_chain_longest.html](https://mundial.cthiebaud.com/chains/wc2026_chain_longest.html) | Export chain snake renderer |
+| [/insights/perf.html](https://mundial.cthiebaud.com/insights/perf.html) | Regional performance analysis |
 
 ## Running locally
 
@@ -35,6 +37,19 @@ git submodule update --init
 git config submodule.recurse true
 ```
 This eliminates the need to manually run `git submodule update` after each pull.
+
+## Data
+
+All data files live in the `data/` directory, which is a git submodule pointing to [mundial-data](https://github.com/born-in-plays-for/mundial-data):
+
+| File | Contents |
+|---|---|
+| `map_data.json` | Player export/import data, populations, capitals |
+| `elo_rank.json` | Elo rankings for all 48 qualified countries |
+| `r32_teams.json` | Round-of-32 squad data |
+| `uk-nations.geojson` | England, Scotland, Wales, Northern Ireland polygons |
+
+Data is updated daily by the [mundial-build](https://github.com/born-in-plays-for/mundial-build) pipeline and automatically deployed via GitHub Actions.
 
 ## Tech stack
 
