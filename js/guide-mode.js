@@ -18,7 +18,7 @@ const _WIP_HTML = `<div class="gp-wip-banner"><div class="gp-wip-box">
 const _guideToPage = {
   map: '/',
   countries: 'wc2026_countries.html',
-  france: 'wc2026_france.html',
+  france: '/insights/france.html',
   live: 'wc2026_live.html',
 };
 

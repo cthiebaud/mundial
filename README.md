@@ -10,11 +10,11 @@ Static frontend for the [Born In, Plays For](https://github.com/born-in-plays-fo
 |---|---|
 | [/](https://mundial.cthiebaud.com/) | Entry point — redirects to the map |
 | [/wc2026_map.html](https://mundial.cthiebaud.com/wc2026_map.html) | Main choropleth map |
-| [/wc2026_france.html](https://mundial.cthiebaud.com/wc2026_france.html) | France departments choropleth |
 | [/wc2026_countries.html](https://mundial.cthiebaud.com/wc2026_countries.html) | Countries reference table |
 | [/wc2026_live.html](https://mundial.cthiebaud.com/wc2026_live.html) | Live game tracking (requires backend) |
 | [/guide.html](https://mundial.cthiebaud.com/guide.html) | User guide |
 | [/chains/wc2026_chain_longest.html](https://mundial.cthiebaud.com/chains/wc2026_chain_longest.html) | Export chain snake renderer |
+| [/insights/france.html](https://mundial.cthiebaud.com/insights/france.html) | France departments choropleth |
 | [/insights/perf.html](https://mundial.cthiebaud.com/insights/perf.html) | Regional performance analysis |
 
 ## Running locally

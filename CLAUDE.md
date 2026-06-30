@@ -31,7 +31,7 @@ The backend repo lives at `../mundial-server` and the build repo at `../mundial-
 | `wc2026_map.html` | Main map page (Bootstrap 5, loads JS + JSON via ES module) |
 
 **OG tags:** Both `index.html` and `wc2026_map.html` carry identical OG meta tags. Always update **both files** together when any OG tag changes (og:image, og:url, og:title, og:description, etc.).
-| `wc2026_france.html` | France departments choropleth page |
+| `insights/france.html` | France departments choropleth page |
 | `wc2026_live.html` | Live game tracking page (Socket.IO, backend-dependent) |
 | `guide.html` | User guide page |
 | `js/wc2026_map.js` | ES module — D3 rendering, zoom, tooltips (lit-html), filter sidebar, Elo tab, dim/arc logic |

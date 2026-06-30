@@ -91,7 +91,7 @@ class MundialAuthBar extends HTMLElement {
               ${unsafeHTML(ICON_MENU_DOTS)}
             </a>
             <ul class="dropdown-menu dropdown-menu-start" style="min-width:0">
-              <li><a href="wc2026_france.html" class="dropdown-item d-flex align-items-center gap-2"
+              <li><a href="/insights/france.html" class="dropdown-item d-flex align-items-center gap-2"
                 aria-label=${_t.navFrance} title=${_t.navFrance} data-guide="france"
                 style="opacity:0.6">
                 ${unsafeHTML(ICON_FRANCE)} ${_t.navFrance}
@@ -121,7 +121,7 @@ class MundialAuthBar extends HTMLElement {
     const navLinks = {
       '/': ['index.html', 'wc2026_map.html', ''],
       'wc2026_countries.html': ['wc2026_countries.html'],
-      'wc2026_france.html': ['wc2026_france.html'],
+      '/insights/france.html': ['france.html'],
       '/insights/perf.html': ['perf.html'],
       'wc2026_live.html': ['wc2026_live.html'],
       'guide.html': ['guide.html'],
@@ -144,7 +144,7 @@ class MundialAuthBar extends HTMLElement {
     const _guideIdMap = {
       '': 'map', 'index.html': 'map', 'wc2026_map.html': 'map',
       'wc2026_countries.html': 'countries',
-      'wc2026_france.html': 'france',
+      'france.html': 'france',
       'wc2026_live.html': 'live',
     };
     this._currentGuideId = _guideIdMap[page] ?? null;
