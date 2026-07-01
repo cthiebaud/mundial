@@ -80,19 +80,6 @@ body { padding-bottom: 48px; }
 .tt-players.tt-more::after { content: 'etc.'; display: block; text-align: left; font-style: italic; color: var(--text-muted); font-size: 10px; padding-top: 2px; }
 .tt-divider { border-top: 1px solid var(--border); margin: 8px 0 4px; }
 
-/* player table (pt-) */
-.pt-title { font-size: 14px; font-weight: 500; }
-.pt-country-flag { height: 20px; width: auto; border-radius: 2px; }
-.pt-country-header { gap: 8px; padding: 10px 4px 4px; border-bottom: 1px solid var(--bg-hover); cursor: pointer; border-radius: 4px; }
-.pt-country-header:hover { background: var(--bg-hover); }
-.pt-country-header img { height: 14px; width: auto; border-radius: 2px; }
-.pt-country-name { font-size: 13px; color: var(--color-default); }
-.pt-country-count { font-size: 11px; color: var(--text-muted); }
-.pt-player-row { padding: 4px 0 4px 28px; border-bottom: 1px solid #f8f5f2; font-size: 12px; color: #444; }
-.pt-player-row:last-child { border-bottom: none; }
-.pt-caps { color: var(--text-muted); font-size: 11px; }
-.coach-badge { font-size: 9px; font-weight: 600; color: #7b6b3a; background: #f5ecd0; border-radius: 3px; padding: 0 4px; margin-left: 4px; vertical-align: middle; white-space: nowrap; }
-
 /* scroll-to-top / zoom controls */
 #scroll-top-btn { position: absolute; right: 12px; top: calc(-26px - 8px); cursor: pointer; }
 #scroll-top-btn:hover { color: #000; }
@@ -123,11 +110,3 @@ body { padding-bottom: 48px; }
 /* chain hit areas */
 .chain-hit:hover { fill: rgba(0,0,0,.06) !important; }
 [data-nav]:hover:not(:disabled) { background: var(--bg-hover) !important; }
-
-/* player table accordion overrides */
-.accordion-flush .accordion-item { background-color: transparent; border-color: var(--border); }
-.pt-acc-btn { padding: 10px 4px !important; }
-.pt-acc-btn, .pt-acc-btn:not(.collapsed) { background-color: transparent !important; color: inherit !important; box-shadow: none !important; }
-.pt-acc-btn:hover { background-color: var(--bg-hover) !important; }
-.pt-acc-static { cursor: default !important; }
-.pt-acc-static::after { display: none !important; }

@@ -33,6 +33,7 @@ BASE_URL    = 'http://localhost:4040'
 GUIDES = {
     'map':       GUIDE_DIR / 'guide-map.md',
     'countries': GUIDE_DIR / 'guide-countries.md',
+    'players':   GUIDE_DIR / 'guide-players.md',
     'france':    GUIDE_DIR / 'guide-france.md',
     'live':      GUIDE_DIR / 'guide-live.md',
     'auth':      GUIDE_DIR / 'guide-auth.md',

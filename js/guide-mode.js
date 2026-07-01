@@ -18,6 +18,7 @@ const _WIP_HTML = `<div class="gp-wip-banner"><div class="gp-wip-box">
 const _guideToPage = {
   map: '/',
   countries: 'wc2026_countries.html',
+  players: 'wc2026_players.html',
   france: '/insights/france.html',
   live: 'wc2026_live.html',
 };
@@ -73,7 +74,7 @@ export function toggleGuide(authBar) {
   }
 }
 
-const _GUIDE_IDS = new Set(['map', 'countries', 'france', 'live', 'auth']);
+const _GUIDE_IDS = new Set(['map', 'countries', 'players', 'france', 'live', 'auth']);
 
 function _ensurePanel() {
   if (_panel) { _panel.style.display = ''; return; }
