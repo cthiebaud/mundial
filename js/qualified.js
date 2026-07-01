@@ -45,9 +45,7 @@ export const buildExporterSets = (importByCountry, knockedOutIds) => {
 
 export const buildAliveAndKicking = (r32Data) => {
   if (!r32Data) return null;
-  const s = new Set(r32Data.teams.map(t => t.iso2));
-  if (s.has('cg')) { s.delete('cg'); s.add('cd'); } // api-football lists Congo DR as 'cg' — correct to 'cd'
-  return s;
+  return new Set(r32Data.teams.map(t => t.iso2));
 };
 
 export const loadEloData = async (basePath = '') => {

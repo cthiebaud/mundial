@@ -41,7 +41,6 @@
 
 <script type="module">
 import { T, wikiUrl, regionName } from './js/i18n.js';
-import { whereNumeric } from 'https://cdn.jsdelivr.net/npm/iso-3166-1@2/+esm';
 
 document.getElementById('live-title').textContent = T.liveTitle(0);
 document.getElementById('live-subtitle').textContent = T.liveSubtitle;
@@ -141,31 +140,46 @@ retryBtn.addEventListener('click', () => {
 const { backend, socket: sock } = await _waitForBackend();
 PROXY = backend;
 
-// Build per-team player indexes from map data; fetch elo rankings for flagCode map
-const [mapData, eloData] = await Promise.all([
+// Build per-team player indexes from map data; fetch elo rankings + WC2026 team list for
+// iso2 lookups (both already resolved through mundial-data's shared alias table)
+const [mapData, eloData, r32Data] = await Promise.all([
   fetch('./data/map_data.json').then(r => r.json()),
   fetch('./data/elo_rank.json').then(r => r.json()),
+  fetch('./data/r32_teams.json').then(r => r.json()),
 ]);
 const _norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+
+// Canonical country name -> iso2 (elo_rank.json). Birth countries arrive from map_data.json
+// as plain canonical name strings, so this is a straight name join.
+const _isoByCountryName = Object.fromEntries(eloData.rankings.map(r => [r.name, r.iso2]));
+const flagForCountry = name => _isoByCountryName[name] ?? (console.error('flagForCountry: unknown country', name), '');
+
+// API-Football team id -> iso2 (r32_teams.json). Fixture/lineup team objects always carry
+// API-Football's own numeric id, so joining on id sidesteps API-Football's name spelling
+// entirely (e.g. 'Congo DR' vs our canonical 'DR Congo') instead of matching name strings.
+const _isoByTeamId = Object.fromEntries(r32Data.teams.map(t => [t.id, t.iso2]));
+const flagForTeam = team => _isoByTeamId[team.id] ?? (console.error('flagForTeam: unknown team id', team.id, team.name), '');
+
+const localName = (iso, fallback) => regionName(iso, fallback);
 
 // Global exact/norm BC maps (full-name matches are unambiguous regardless of team)
 const _exactBC = {};
 const _normBC  = {};
 
-// Per-team indexes: { exact, norm, lastName } for wiki_langs; lastName for birthCountry
+// Per-team indexes keyed by iso2 (not name — sidesteps API-Football/map_data spelling variants)
 const _teamWiki = {};
 const _teamBC   = {};
-const _tw = t => _teamWiki[t] ?? (_teamWiki[t] = { exact:{}, norm:{}, lastName:{} });
-const _tb = t => _teamBC[t]   ?? (_teamBC[t]   = {});
+const _tw = iso => _teamWiki[iso] ?? (_teamWiki[iso] = { exact:{}, norm:{}, lastName:{} });
+const _tb = iso => _teamBC[iso]   ?? (_teamBC[iso]   = {});
 
-const _indexPlayer = (name, wiki_langs, birthCountry, teamName) => {
+const _indexPlayer = (name, wiki_langs, birthCountry, teamIso) => {
   _exactBC[name]       = birthCountry;
   _normBC[_norm(name)] = birthCountry;
-  if (!teamName) return;
+  if (!teamIso) return;
   const last = _norm(name.split(' ').pop());
-  _tb(teamName)[last] = birthCountry;
+  _tb(teamIso)[last] = birthCountry;
   if (wiki_langs) {
-    const tw = _tw(teamName);
+    const tw = _tw(teamIso);
     tw.exact[name]        = wiki_langs;
     tw.norm[_norm(name)]  = wiki_langs;
     tw.lastName[last]     = wiki_langs;
@@ -174,22 +188,17 @@ const _indexPlayer = (name, wiki_langs, birthCountry, teamName) => {
 
 for (const rec of mapData.data) {
   for (const p of rec.players) {
-    _indexPlayer(p.name, p.wiki_langs, rec.country, p.nation);
+    _indexPlayer(p.name, p.wiki_langs, rec.country, _isoByCountryName[p.nation]);
   }
 }
 for (const [country, players] of Object.entries(mapData.natives ?? {})) {
   for (const p of players) {
-    _indexPlayer(p.name, p.wiki_langs, country, country);
+    _indexPlayer(p.name, p.wiki_langs, country, _isoByCountryName[country]);
   }
 }
 
-// API-Football team-name variants that don't match map_data.json's naming convention —
-// without this, per-team wiki/birth-country indexes miss entirely (built under 'DR Congo').
-const _TEAM_ALIASES = { 'Congo DR': 'DR Congo' };
-const canonicalTeam = name => _TEAM_ALIASES[name] ?? name;
-
-const getBirthCountry = (apiName, teamName) => {
-  const tb = _teamBC[teamName];
+const getBirthCountry = (apiName, teamIso) => {
+  const tb = _teamBC[teamIso];
   if (!tb) return null;
   if (_exactBC[apiName] !== undefined) return _exactBC[apiName];
   const n = _norm(apiName);
@@ -197,14 +206,14 @@ const getBirthCountry = (apiName, teamName) => {
   return tb[_norm(apiName.split(' ').pop())] ?? null;
 };
 
-const getWikiLangs = (apiName, teamName) => {
-  const tw = _teamWiki[teamName];
+const getWikiLangs = (apiName, teamIso) => {
+  const tw = _teamWiki[teamIso];
   if (!tw) return null;
   return tw.exact[apiName] ?? tw.norm[_norm(apiName)] ?? tw.lastName[_norm(apiName.split(' ').pop())] ?? null;
 };
 
-const wikiLink = (name, teamName) => {
-  const wl = getWikiLangs(name, teamName);
+const wikiLink = (name, teamIso) => {
+  const wl = getWikiLangs(name, teamIso);
   if (!wl) return name;
   const url = wikiUrl({ wiki_langs: wl });
   const en = wl.en ?? null;
@@ -213,46 +222,23 @@ const wikiLink = (name, teamName) => {
   return name;
 };
 
-// Structural overrides: subdivision codes (UK home nations), non-ISO entries (Kosovo, Curaçao),
-// and API-Football name variants that don't match elo_rank.json's naming (e.g. 'Congo DR' vs
-// 'Congo, The Democratic Republic of the') — without this, the 2-char fallback gives 'co'
-// (Colombia) instead of 'cd'.
-const _FLAG_OVERRIDES = {
-  'England':'gb-eng','Scotland':'gb-sct','Wales':'gb-wls','Northern Ireland':'gb-nir',
-  'Kosovo':'xk','Curaçao':'cw','Curacao':'cw',
-  'Congo DR':'cd','DR Congo':'cd',
-};
-// Build name→iso2 from elo rankings once; iso-3166-1 resolves numeric id → alpha-2
-const _flagCodeMap = (() => {
-  const map = { ..._FLAG_OVERRIDES };
-  for (const { id, name } of eloData.rankings) {
-    if (map[name]) continue;
-    const alpha2 = whereNumeric(String(id).padStart(3, '0'))?.alpha2?.toLowerCase();
-    if (alpha2) map[name] = alpha2;
-  }
-  return map;
-})();
-const flagCode = name => _flagCodeMap[name] ?? (console.warn('flagCode: unknown team', name), name.toLowerCase().slice(0, 2));
-
-const localName = name => regionName(flagCode(name), name);
-
 const posLabel = pos => ({G:'GK', D:'DF', M:'MF', F:'FW'}[pos] ?? pos ?? '');
 
 const renderTeam = (lineup, side) => {
   const team = lineup.team;
-  const teamKey = canonicalTeam(team.name);
+  const iso = flagForTeam(team);
   const formation = lineup.formation ?? '?';
-  const iso = flagCode(team.name);
 
   const playerRow = (p, isSub) => {
-    const born = getBirthCountry(p.name, teamKey);
-    const isForeign = born && born !== teamKey;
-    const bornTag = isForeign ? ` <span class="fi fi-${flagCode(born)}" style="font-size:10px" title="${T.liveBornIn(localName(born))}"></span>` : '';
+    const born = getBirthCountry(p.name, iso);
+    const bornIso = born ? flagForCountry(born) : null;
+    const isForeign = born && bornIso !== iso;
+    const bornTag = isForeign ? ` <span class="fi fi-${bornIso}" style="font-size:10px" title="${T.liveBornIn(localName(bornIso, born))}"></span>` : '';
     return `
     <tr class="${isSub ? 'sub' : ''}">
       <td class="player-num">${p.number}</td>
       <td class="player-pos"><small>${posLabel(p.pos)}</small></td>
-      <td>${wikiLink(p.name, teamKey)}${bornTag}</td>
+      <td>${wikiLink(p.name, iso)}${bornTag}</td>
     </tr>`;
   };
 
@@ -260,18 +246,19 @@ const renderTeam = (lineup, side) => {
     <div class="lineup-card card flex-fill">
       <div class="card-header d-flex align-items-center gap-2 ${side === 'home' ? '' : 'flex-row-reverse'}">
         <span class="fi fi-${iso} team-flag"></span>
-        <span class="fw-bold">${localName(team.name)}</span>
+        <span class="fw-bold">${localName(iso, team.name)}</span>
         <span class="text-muted ms-auto">${formation}</span>
       </div>
       <div class="card-body p-0">
         ${lineup.coach ? (() => {
           const c = lineup.coach;
-          const born = getBirthCountry(c.name, teamKey);
-          const isForeign = born && born !== teamKey;
-          const bornTag = isForeign ? ` <span class="fi fi-${flagCode(born)}" style="font-size:10px" title="${T.liveBornIn(localName(born))}"></span>` : '';
+          const born = getBirthCountry(c.name, iso);
+          const bornIso = born ? flagForCountry(born) : null;
+          const isForeign = born && bornIso !== iso;
+          const bornTag = isForeign ? ` <span class="fi fi-${bornIso}" style="font-size:10px" title="${T.liveBornIn(localName(bornIso, born))}"></span>` : '';
           return `<div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom" style="background:#fafaf7">
             ${c.photo ? `<img src="${c.photo}" class="rounded-circle" width="28" height="28" referrerpolicy="no-referrer" alt="">` : ''}
-            <span class="small">${wikiLink(c.name, teamKey)}${bornTag}</span>
+            <span class="small">${wikiLink(c.name, iso)}${bornTag}</span>
             <span class="text-muted small ms-auto">${T.liveCoach}</span>
           </div>`;
         })() : ''}
@@ -315,7 +302,7 @@ const renderEvent = (evt) => {
   return `<div class="evt d-flex align-items-center gap-2 ${cls}">
     <span class="evt-min">${min}'</span>
     <span class="evt-icon">${icon}</span>
-    <span class="fi fi-${flagCode(evt.team?.name ?? '')}" style="font-size:10px"></span>
+    <span class="fi fi-${evt.team ? flagForTeam(evt.team) : ''}" style="font-size:10px"></span>
     <span>${detail}</span>
   </div>`;
 };
@@ -355,8 +342,8 @@ const renderMatch = (fix, lineups) => {
   const events = fix.events ?? [];
   const statistics = fix.statistics ?? [];
 
-  const homeISO = flagCode(home.name);
-  const awayISO = flagCode(away.name);
+  const homeISO = flagForTeam(home);
+  const awayISO = flagForTeam(away);
 
   const untracked = fix._tracked === false;
 
@@ -366,9 +353,9 @@ const renderMatch = (fix, lineups) => {
         <div class="card-header">
           <div class="d-flex justify-content-center align-items-center gap-3 py-2">
             <span class="fi fi-${homeISO} team-flag"></span>
-            <span class="fw-bold">${localName(home.name)}</span>
+            <span class="fw-bold">${localName(homeISO, home.name)}</span>
             <span class="fs-3 fw-bold px-2" style="white-space:nowrap">${score.home ?? '–'} — ${score.away ?? '–'}</span>
-            <span class="fw-bold">${localName(away.name)}</span>
+            <span class="fw-bold">${localName(awayISO, away.name)}</span>
             <span class="fi fi-${awayISO} team-flag"></span>
           </div>
           <div class="text-center text-muted small">
@@ -520,16 +507,17 @@ const explainRanking = (teams) => {
     while (j < teams.length && teams[j].pts === teams[i].pts) j++;
     if (j - i > 1) {
       const tied = teams.slice(i, j);
-      const names = tied.map(t => localName(t.name));
+      const names = tied.map(t => localName(flagForTeam(t), t.name));
       lines.push(`<strong>${names.join(', ')}</strong> are tied on <strong>${tied[0].pts} pts</strong>.`);
       for (let k = 0; k < tied.length - 1; k++) {
         const a = tied[k], b = tied[k + 1];
+        const aName = localName(flagForTeam(a), a.name), bName = localName(flagForTeam(b), b.name);
         if (a.gd !== b.gd) {
-          lines.push(`&ensp;${localName(a.name)} ranks above ${localName(b.name)}: goal difference ${a.gd > 0 ? '+' : ''}${a.gd} vs ${b.gd > 0 ? '+' : ''}${b.gd}.`);
+          lines.push(`&ensp;${aName} ranks above ${bName}: goal difference ${a.gd > 0 ? '+' : ''}${a.gd} vs ${b.gd > 0 ? '+' : ''}${b.gd}.`);
         } else if (a.gf !== b.gf) {
-          lines.push(`&ensp;${localName(a.name)} ranks above ${localName(b.name)}: goals scored ${a.gf} vs ${b.gf}.`);
+          lines.push(`&ensp;${aName} ranks above ${bName}: goals scored ${a.gf} vs ${b.gf}.`);
         } else {
-          lines.push(`&ensp;${localName(a.name)} and ${localName(b.name)} are identical on GD and GF — head-to-head not yet implemented.`);
+          lines.push(`&ensp;${aName} and ${bName} are identical on GD and GF — head-to-head not yet implemented.`);
         }
       }
     }
@@ -563,10 +551,11 @@ const renderGroupResults = (letter, teamToGroup) => {
   finished.sort((a, b) => a.fixture.timestamp - b.fixture.timestamp);
   return finished.map(f => {
     const h = f.teams.home, a = f.teams.away;
+    const hISO = flagForTeam(h), aISO = flagForTeam(a);
     return `<div class="grp-result">
-      <span class="grp-result-home">${localName(h.name)} <span class="fi fi-${flagCode(h.name)}" style="font-size:12px"></span></span>
+      <span class="grp-result-home">${localName(hISO, h.name)} <span class="fi fi-${hISO}" style="font-size:12px"></span></span>
       <span class="grp-result-score">${f.goals.home}</span><span class="grp-result-score">${f.goals.away}</span>
-      <span class="grp-result-away"><span class="fi fi-${flagCode(a.name)}" style="font-size:12px"></span> ${localName(a.name)}</span>
+      <span class="grp-result-away"><span class="fi fi-${aISO}" style="font-size:12px"></span> ${localName(aISO, a.name)}</span>
     </div>`;
   }).join('');
 };
@@ -607,10 +596,10 @@ const renderStandings = (fixtures) => {
           <tbody>${teams.map((t, i) => {
             const cls = i < 2 ? 'grp-qualify' : i === 2 ? 'grp-maybe' : '';
             const playing = t.playing ? 'grp-playing' : '';
-            const iso = flagCode(t.name);
+            const iso = flagForTeam(t);
             return `<tr class="${cls} ${playing}">
               <td><span class="fi fi-${iso}" style="font-size:14px"></span></td>
-              <td class="grp-team">${localName(t.name)}</td>
+              <td class="grp-team">${localName(iso, t.name)}</td>
               <td class="grp-num">${t.played}</td><td class="grp-num">${t.win}</td>
               <td class="grp-num">${t.draw}</td><td class="grp-num">${t.lose}</td>
               <td class="grp-num grp-gfga">${t.gf}</td><td class="grp-num grp-gfga">${t.ga}</td>
@@ -667,9 +656,9 @@ const renderSelector = () => {
     const untracked = fix._tracked === false ? 'fix-pill-untracked' : '';
     const elapsed = s.elapsed && !['HT','FT','AET','PEN','BT','ET'].includes(s.short) ? ` · ${s.elapsed}${s.extra ? '+' + s.extra : ''}'` : '';
     return `<span class="fix-pill ${active} ${untracked}" data-fid="${fix.fixture.id}">
-      <span class="fi fi-${flagCode(h.name)}" style="font-size:11px"></span>
+      <span class="fi fi-${flagForTeam(h)}" style="font-size:11px"></span>
       ${fix.goals.home ?? '–'}–${fix.goals.away ?? '–'}
-      <span class="fi fi-${flagCode(a.name)}" style="font-size:11px"></span>${elapsed}
+      <span class="fi fi-${flagForTeam(a)}" style="font-size:11px"></span>${elapsed}
     </span>`;
   }).join('');
   sel.querySelectorAll('.fix-pill').forEach(pill => {
